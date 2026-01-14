@@ -1,0 +1,10 @@
+// Export all Company components for easy importing
+export { default as ActivityFeed } from './ActivityFeed';
+export { default as BarChart } from './BarChart';
+export { default as Footer } from './Footer';
+export { default as Header } from './Header';
+export { default as Icon } from './Icon';
+export { default as LineChart } from './LineChart';
+export { default as ScoreDistribution } from './ScoreDistribution';
+export { default as Sidebar } from './Sidebar';
+export { default as StatCard } from './StatCard';

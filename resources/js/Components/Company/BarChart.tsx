@@ -30,15 +30,15 @@ function ProjectBar({
             <div className="flex h-full w-full items-end justify-center gap-1">
                 <div
                     className="w-3 rounded-t-sm bg-primary"
-                    style={{ height: ikmHeight }}
+                    style={{ height: 100 }}
                 />
                 <div
                     className="w-3 rounded-t-sm bg-primary/50"
-                    style={{ height: sloiHeight }}
+                    style={{ height: 80 }}
                 />
                 <div
                     className="w-3 rounded-t-sm bg-slate-200"
-                    style={{ height: sroiHeight }}
+                    style={{ height: 160 }}
                 />
             </div>
             <span className="mt-2 max-w-[80px] truncate text-xs font-bold text-slate-500">

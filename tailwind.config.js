@@ -20,7 +20,7 @@ export default {
                 'card-light': '#ffffff',
             },
             fontFamily: {
-                sans: ['Manrope', ...defaultTheme.fontFamily.sans],
+                sans: ['Urbanist', ...defaultTheme.fontFamily.sans],
             },
         },
     },

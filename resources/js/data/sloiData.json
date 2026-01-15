@@ -1,0 +1,335 @@
+{
+    "stats": {
+        "totalResponses": 1842,
+        "targetResponses": 3000,
+        "progress": 61.4,
+        "sloiScore": 4.08,
+        "trustLevel": "High Trust"
+    },
+    "questionComposition": [
+        {
+            "id": "Q1",
+            "question": "Kepercayaan terhadap Program CSR",
+            "scores": [
+                5,
+                10,
+                20,
+                45,
+                20
+            ]
+        },
+        {
+            "id": "Q2",
+            "question": "Transparansi Pelaksanaan Program",
+            "scores": [
+                2,
+                8,
+                15,
+                50,
+                25
+            ]
+        },
+        {
+            "id": "Q3",
+            "question": "Responsivitas terhadap Keluhan",
+            "scores": [
+                8,
+                12,
+                25,
+                40,
+                15
+            ]
+        },
+        {
+            "id": "Q4",
+            "question": "Keterlibatan Masyarakat dalam Pengambilan Keputusan",
+            "scores": [
+                3,
+                7,
+                18,
+                42,
+                30
+            ]
+        },
+        {
+            "id": "Q5",
+            "question": "Manfaat Ekonomi bagi Masyarakat Lokal",
+            "scores": [
+                4,
+                9,
+                22,
+                38,
+                27
+            ]
+        },
+        {
+            "id": "Q6",
+            "question": "Kepedulian terhadap Lingkungan",
+            "scores": [
+                6,
+                11,
+                18,
+                35,
+                30
+            ]
+        },
+        {
+            "id": "Q7",
+            "question": "Komunikasi dengan Stakeholder",
+            "scores": [
+                3,
+                8,
+                20,
+                44,
+                25
+            ]
+        },
+        {
+            "id": "Q8",
+            "question": "Pemenuhan Janji dan Komitmen",
+            "scores": [
+                5,
+                10,
+                25,
+                40,
+                20
+            ]
+        },
+        {
+            "id": "Q9",
+            "question": "Keamanan dan Keselamatan",
+            "scores": [
+                2,
+                5,
+                15,
+                48,
+                30
+            ]
+        },
+        {
+            "id": "Q10",
+            "question": "Dampak Sosial Positif",
+            "scores": [
+                3,
+                7,
+                18,
+                42,
+                30
+            ]
+        },
+        {
+            "id": "Q11",
+            "question": "Keberlanjutan Program",
+            "scores": [
+                4,
+                9,
+                22,
+                40,
+                25
+            ]
+        },
+        {
+            "id": "Q12",
+            "question": "Kepuasan Keseluruhan",
+            "scores": [
+                3,
+                8,
+                17,
+                45,
+                27
+            ]
+        }
+    ],
+    "csrComparison": [
+        {
+            "label": "CSR Recipients",
+            "score": 4.42,
+            "progress": 88
+        },
+        {
+            "label": "General Community",
+            "score": 3.75,
+            "progress": 75
+        }
+    ],
+    "ageRange": [
+        {
+            "range": "18-25",
+            "height": 70,
+            "count": 312
+        },
+        {
+            "range": "26-40",
+            "height": 85,
+            "count": 548
+        },
+        {
+            "range": "41-60",
+            "height": 100,
+            "count": 687
+        },
+        {
+            "range": "60+",
+            "height": 78,
+            "count": 295
+        }
+    ],
+    "genderDistribution": [
+        {
+            "gender": "Laki-laki",
+            "percentage": 54,
+            "count": 995
+        },
+        {
+            "gender": "Perempuan",
+            "percentage": 46,
+            "count": 847
+        }
+    ],
+    "educationLevel": [
+        {
+            "level": "SD",
+            "percentage": 12,
+            "count": 221
+        },
+        {
+            "level": "SMP",
+            "percentage": 18,
+            "count": 332
+        },
+        {
+            "level": "SMA",
+            "percentage": 35,
+            "count": 645
+        },
+        {
+            "level": "D3/S1",
+            "percentage": 28,
+            "count": 516
+        },
+        {
+            "level": "S2/S3",
+            "percentage": 7,
+            "count": 128
+        }
+    ],
+    "trendData": [
+        {
+            "month": "MAY",
+            "height": 35,
+            "score": 3.65,
+            "responses": 245
+        },
+        {
+            "month": "JUN",
+            "height": 50,
+            "score": 3.80,
+            "responses": 312
+        },
+        {
+            "month": "JUL",
+            "height": 60,
+            "score": 3.90,
+            "responses": 287
+        },
+        {
+            "month": "AUG",
+            "height": 55,
+            "score": 3.85,
+            "responses": 298
+        },
+        {
+            "month": "SEP",
+            "height": 75,
+            "score": 4.00,
+            "responses": 345
+        },
+        {
+            "month": "OCT",
+            "height": 95,
+            "score": 4.08,
+            "responses": 355
+        }
+    ],
+    "auditLog": [
+        {
+            "id": "#SLOI-2026-901",
+            "group": "csr",
+            "date": "Oct 26, 2026 • 10:45",
+            "score": 4.8,
+            "status": "verified",
+            "respondentName": "Ahmad Subandi",
+            "enumerator": "Rizki Pratama"
+        },
+        {
+            "id": "#SLOI-2026-902",
+            "group": "general",
+            "date": "Oct 26, 2026 • 09:12",
+            "score": 3.2,
+            "status": "verified",
+            "respondentName": "Siti Rahayu",
+            "enumerator": "Dewi Lestari"
+        },
+        {
+            "id": "#SLOI-2026-903",
+            "group": "csr",
+            "date": "Oct 25, 2026 • 16:55",
+            "score": 4.2,
+            "status": "pending",
+            "respondentName": "Bambang Sutrisno",
+            "enumerator": "Andi Budiman"
+        },
+        {
+            "id": "#SLOI-2026-904",
+            "group": "general",
+            "date": "Oct 25, 2026 • 15:30",
+            "score": 3.8,
+            "status": "verified",
+            "respondentName": "Wati Susanti",
+            "enumerator": "Siti Aminah"
+        },
+        {
+            "id": "#SLOI-2026-905",
+            "group": "csr",
+            "date": "Oct 25, 2026 • 14:15",
+            "score": 4.5,
+            "status": "verified",
+            "respondentName": "Eko Prasetyo",
+            "enumerator": "Rizki Pratama"
+        },
+        {
+            "id": "#SLOI-2026-906",
+            "group": "general",
+            "date": "Oct 25, 2026 • 12:40",
+            "score": 3.6,
+            "status": "pending",
+            "respondentName": "Lina Marlina",
+            "enumerator": "Dewi Lestari"
+        },
+        {
+            "id": "#SLOI-2026-907",
+            "group": "csr",
+            "date": "Oct 24, 2026 • 16:20",
+            "score": 4.0,
+            "status": "verified",
+            "respondentName": "Hendra Gunawan",
+            "enumerator": "Andi Budiman"
+        },
+        {
+            "id": "#SLOI-2026-908",
+            "group": "general",
+            "date": "Oct 24, 2026 • 14:55",
+            "score": 3.4,
+            "status": "verified",
+            "respondentName": "Yuni Astuti",
+            "enumerator": "Siti Aminah"
+        }
+    ],
+    "scoreColors": [
+        "bg-red-500",
+        "bg-orange-500",
+        "bg-yellow-400",
+        "bg-lime-400",
+        "bg-green-500"
+    ]
+}

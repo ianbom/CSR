@@ -1,0 +1,279 @@
+{
+    "stats": {
+        "totalResponses": 2548,
+        "targetResponses": 3000,
+        "targetProgress": 85,
+        "ikmScore": 4.25,
+        "ikmScoreMax": 5.0,
+        "lastSubmissionTime": "Hari ini, 14:45",
+        "lastEnumerator": "Andi Budiman",
+        "weeklyTrend": "+12%"
+    },
+    "answerDistribution": [
+        {
+            "score": 5,
+            "percentage": 65,
+            "color": "bg-green-500"
+        },
+        {
+            "score": 4,
+            "percentage": 20,
+            "color": "bg-green-600"
+        },
+        {
+            "score": 3,
+            "percentage": 10,
+            "color": "bg-yellow-500"
+        },
+        {
+            "score": 2,
+            "percentage": 3,
+            "color": "bg-orange-500"
+        },
+        {
+            "score": 1,
+            "percentage": 2,
+            "color": "bg-red-500"
+        }
+    ],
+    "scoreTrend": [
+        {
+            "date": "Okt 01",
+            "height": 35,
+            "score": 3.8
+        },
+        {
+            "date": "Okt 05",
+            "height": 50,
+            "score": 3.9
+        },
+        {
+            "date": "Okt 10",
+            "height": 65,
+            "score": 4.0
+        },
+        {
+            "date": "Okt 15",
+            "height": 45,
+            "score": 3.85
+        },
+        {
+            "date": "Okt 20",
+            "height": 70,
+            "score": 4.1
+        },
+        {
+            "date": "Okt 25",
+            "height": 95,
+            "score": 4.25,
+            "isHighlight": true
+        },
+        {
+            "date": "Okt 30",
+            "height": 80,
+            "score": 4.15
+        }
+    ],
+    "questionScores": [
+        {
+            "id": "Q1",
+            "question": "Keramahan dan Sopan Santun Staff",
+            "score": 4.8,
+            "isTop": true,
+            "isBottom": false
+        },
+        {
+            "id": "Q2",
+            "question": "Ketepatan Waktu Pelayanan",
+            "score": 4.5,
+            "isTop": false,
+            "isBottom": false
+        },
+        {
+            "id": "Q3",
+            "question": "Kejelasan Informasi yang Diberikan",
+            "score": 4.3,
+            "isTop": false,
+            "isBottom": false
+        },
+        {
+            "id": "Q4",
+            "question": "Kemudahan Akses Fasilitas",
+            "score": 4.6,
+            "isTop": false,
+            "isBottom": false
+        },
+        {
+            "id": "Q5",
+            "question": "Kenyamanan Ruang Tunggu",
+            "score": 4.2,
+            "isTop": false,
+            "isBottom": false
+        },
+        {
+            "id": "Q6",
+            "question": "Transparansi Prosedur",
+            "score": 4.0,
+            "isTop": false,
+            "isBottom": false
+        },
+        {
+            "id": "Q7",
+            "question": "Kecepatan Respon Keluhan",
+            "score": 3.8,
+            "isTop": false,
+            "isBottom": false
+        },
+        {
+            "id": "Q8",
+            "question": "Kualitas Hasil Layanan",
+            "score": 4.4,
+            "isTop": false,
+            "isBottom": false
+        },
+        {
+            "id": "Q9",
+            "question": "Kualitas Dukungan Pasca Layanan",
+            "score": 3.2,
+            "isTop": false,
+            "isBottom": false
+        },
+        {
+            "id": "Q10",
+            "question": "Ketersediaan Petugas",
+            "score": 4.1,
+            "isTop": false,
+            "isBottom": false
+        },
+        {
+            "id": "Q11",
+            "question": "Keamanan Data Pribadi",
+            "score": 4.5,
+            "isTop": false,
+            "isBottom": false
+        },
+        {
+            "id": "Q12",
+            "question": "Kecepatan Proses Perizinan Baru",
+            "score": 2.9,
+            "isTop": false,
+            "isBottom": true
+        }
+    ],
+    "autoInsights": {
+        "positiveTrend": {
+            "title": "Tren Positif",
+            "description": "Sopan santun staff (4.8) terus menjadi faktor terkuat yang mendorong skor kepuasan naik 5% periode ini."
+        },
+        "criticalAttention": {
+            "title": "Perhatian Kritis",
+            "description": "Kecepatan proses (2.9) menurun. Ditemukan korelasi tinggi antara waktu tunggu dan skor SROI rendah."
+        }
+    },
+    "auditLog": [
+        {
+            "time": "14:45",
+            "enumerator": "Andi Budiman",
+            "enumeratorId": "EN-0092",
+            "respondent": "Budi Santoso",
+            "avgScore": 4.8,
+            "status": "verified",
+            "photoUrl": "/photos/survey-001.jpg",
+            "location": {
+                "lat": -7.2575,
+                "lng": 112.7521
+            }
+        },
+        {
+            "time": "14:20",
+            "enumerator": "Siti Aminah",
+            "enumeratorId": "EN-0084",
+            "respondent": "Suryo Utomo",
+            "avgScore": 3.2,
+            "status": "pending",
+            "photoUrl": "/photos/survey-002.jpg",
+            "location": {
+                "lat": -7.2580,
+                "lng": 112.7525
+            }
+        },
+        {
+            "time": "13:55",
+            "enumerator": "Andi Budiman",
+            "enumeratorId": "EN-0092",
+            "respondent": "Ratna Sari",
+            "avgScore": 4.5,
+            "status": "verified",
+            "photoUrl": "/photos/survey-003.jpg",
+            "location": {
+                "lat": -7.2590,
+                "lng": 112.7530
+            }
+        },
+        {
+            "time": "13:30",
+            "enumerator": "Dewi Lestari",
+            "enumeratorId": "EN-0078",
+            "respondent": "Ahmad Fauzi",
+            "avgScore": 4.2,
+            "status": "verified",
+            "photoUrl": "/photos/survey-004.jpg",
+            "location": {
+                "lat": -7.2585,
+                "lng": 112.7535
+            }
+        },
+        {
+            "time": "12:45",
+            "enumerator": "Siti Aminah",
+            "enumeratorId": "EN-0084",
+            "respondent": "Maria Gonzales",
+            "avgScore": 4.0,
+            "status": "verified",
+            "photoUrl": "/photos/survey-005.jpg",
+            "location": {
+                "lat": -7.2570,
+                "lng": 112.7540
+            }
+        },
+        {
+            "time": "12:15",
+            "enumerator": "Rizki Pratama",
+            "enumeratorId": "EN-0095",
+            "respondent": "Hendra Wijaya",
+            "avgScore": 3.8,
+            "status": "pending",
+            "photoUrl": "/photos/survey-006.jpg",
+            "location": {
+                "lat": -7.2565,
+                "lng": 112.7545
+            }
+        },
+        {
+            "time": "11:50",
+            "enumerator": "Andi Budiman",
+            "enumeratorId": "EN-0092",
+            "respondent": "Sri Wahyuni",
+            "avgScore": 4.6,
+            "status": "verified",
+            "photoUrl": "/photos/survey-007.jpg",
+            "location": {
+                "lat": -7.2560,
+                "lng": 112.7550
+            }
+        },
+        {
+            "time": "11:20",
+            "enumerator": "Dewi Lestari",
+            "enumeratorId": "EN-0078",
+            "respondent": "Agus Setiawan",
+            "avgScore": 4.3,
+            "status": "verified",
+            "photoUrl": "/photos/survey-008.jpg",
+            "location": {
+                "lat": -7.2555,
+                "lng": 112.7555
+            }
+        }
+    ]
+}

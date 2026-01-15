@@ -1,43 +1,12 @@
 import { Icon } from '@/Components/Company';
+import { sroiData } from '@/data';
 import { ReactNode } from 'react';
 
-// Data dummy
-const mockSroiData = {
-    ratio: '1 : 3.2',
-    totalInvestment: 150000000,
-    totalImpactValue: 480000000,
-    netPresentValue: 330000000,
-    paybackPeriod: '1.5 Tahun',
-    impactTimeline: [
-        { year: '2024', expenses: 150, impact: 120 },
-        { year: '2025', expenses: 50, impact: 280 },
-        { year: '2026', expenses: 30, impact: 350 },
-        { year: '2027', expenses: 20, impact: 400 },
-    ],
-    stakeholderImpact: [
-        { name: 'Masyarakat Lokal', value: 45, color: 'bg-primary' },
-        { name: 'Pemerintah Daerah', value: 25, color: 'bg-blue-500' },
-        { name: 'Pelaku UMKM', value: 20, color: 'bg-amber-500' },
-        { name: 'Lingkungan', value: 10, color: 'bg-teal-500' },
-    ],
-    outcomes: [
-        {
-            name: 'Peningkatan Pendapatan UMKM',
-            value: 'Rp 125.000.000',
-            type: 'financial',
-        },
-        {
-            name: 'Penghematan Biaya Kesehatan',
-            value: 'Rp 85.000.000',
-            type: 'financial',
-        },
-        {
-            name: 'Peningkatan Kualitas Hidup',
-            value: 'Rp 270.000.000',
-            type: 'social',
-        },
-    ],
-};
+// Menggunakan data dari JSON
+const stats = sroiData.stats;
+const impactTimeline = sroiData.impactTimeline;
+const stakeholderImpact = sroiData.stakeholderImpact;
+const outcomes = sroiData.outcomes;
 
 const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -87,7 +56,7 @@ export default function ProjectSROI(): ReactNode {
                                 Rasio SROI Total
                             </p>
                             <h3 className="text-4xl font-black text-primary">
-                                {mockSroiData.ratio}
+                                {stats.ratio}
                             </h3>
                             <p className="mt-2 text-sm text-slate-500">
                                 Setiap{' '}
@@ -114,7 +83,7 @@ export default function ProjectSROI(): ReactNode {
                         Net Present Value (NPV)
                     </p>
                     <h3 className="text-xl font-black text-slate-800">
-                        {formatCurrency(mockSroiData.netPresentValue)}
+                        {formatCurrency(stats.netPresentValue)}
                     </h3>
                     <div className="mt-4 h-1.5 w-full rounded-full bg-slate-100">
                         <div className="h-full w-[75%] rounded-full bg-green-500"></div>
@@ -126,10 +95,10 @@ export default function ProjectSROI(): ReactNode {
                         Payback Period
                     </p>
                     <h3 className="text-xl font-black text-slate-800">
-                        {mockSroiData.paybackPeriod}
+                        {stats.paybackPeriod}
                     </h3>
                     <p className="mt-1 text-xs font-bold text-green-600">
-                        +6 Bulan lebih cepat
+                        {stats.paybackImprovement}
                     </p>
                 </div>
             </div>
@@ -154,7 +123,7 @@ export default function ProjectSROI(): ReactNode {
                         </div>
                     </div>
                     <div className="flex h-64 items-end gap-8 px-4">
-                        {mockSroiData.impactTimeline.map((item, i) => (
+                        {impactTimeline.map((item, i) => (
                             <div
                                 key={i}
                                 className="group flex flex-1 flex-col justify-end gap-1"
@@ -246,7 +215,7 @@ export default function ProjectSROI(): ReactNode {
                         </div>
                     </div>
                     <div className="space-y-3">
-                        {mockSroiData.stakeholderImpact.map((stakeholder) => (
+                        {stakeholderImpact.map((stakeholder) => (
                             <div
                                 key={stakeholder.name}
                                 className="flex items-center justify-between text-sm"
@@ -290,26 +259,29 @@ export default function ProjectSROI(): ReactNode {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                        {mockSroiData.outcomes.map((outcome, i) => (
-                            <tr key={i} className="hover:bg-slate-50">
+                        {outcomes.map((outcome) => (
+                            <tr key={outcome.id} className="hover:bg-slate-50">
                                 <td className="px-6 py-4 font-medium text-slate-800">
                                     {outcome.name}
                                 </td>
                                 <td className="px-6 py-4">
                                     <span
-                                        className={`rounded px-2 py-1 text-[10px] font-bold uppercase ${
-                                            outcome.type === 'financial'
+                                        className={`rounded px-2 py-1 text-[10px] font-bold uppercase ${outcome.type === 'financial'
                                                 ? 'bg-blue-50 text-blue-600'
-                                                : 'bg-teal-50 text-teal-600'
-                                        }`}
+                                                : outcome.type === 'social'
+                                                    ? 'bg-teal-50 text-teal-600'
+                                                    : 'bg-green-50 text-green-600'
+                                            }`}
                                     >
                                         {outcome.type === 'financial'
                                             ? 'Finansial'
-                                            : 'Sosial'}
+                                            : outcome.type === 'social'
+                                                ? 'Sosial'
+                                                : 'Lingkungan'}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-right font-mono font-bold text-slate-700">
-                                    {outcome.value}
+                                    {outcome.valueFormatted}
                                 </td>
                             </tr>
                         ))}
@@ -323,7 +295,7 @@ export default function ProjectSROI(): ReactNode {
                                 Total Impact Value
                             </td>
                             <td className="px-6 py-4 text-right font-mono text-lg font-black text-primary">
-                                {formatCurrency(mockSroiData.totalImpactValue)}
+                                {formatCurrency(stats.totalImpactValue)}
                             </td>
                         </tr>
                     </tfoot>

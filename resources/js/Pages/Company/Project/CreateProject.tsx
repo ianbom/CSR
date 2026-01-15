@@ -5,51 +5,23 @@ import {
     Icon,
     StepProgress,
 } from '@/Components/Company';
+import { createProjectData } from '@/data';
 import CompanyLayout from '@/Layouts/CompanyLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 
-interface AssessmentType {
-    id: string;
-    icon: string;
-    title: string;
-    description: string;
-}
-
-const assessmentTypes: AssessmentType[] = [
-    {
-        id: 'ikm',
-        icon: 'sentiment_satisfied',
-        title: 'IKM',
-        description: 'Indeks Kepuasan Masyarakat',
-    },
-    {
-        id: 'sloi',
-        icon: 'verified_user',
-        title: 'SLOI',
-        description: 'Social License to Operate Index',
-    },
-    {
-        id: 'sroi',
-        icon: 'paid',
-        title: 'SROI',
-        description: 'Social Return on Investment',
-    },
-];
-
-const formSteps = [
-    { label: 'Detail' },
-    { label: 'Metodologi' },
-    { label: 'Tinjauan' },
-];
+// Menggunakan data dari JSON
+const assessmentTypes = createProjectData.assessmentTypes;
+const formSteps = createProjectData.formSteps;
+const defaultFormData = createProjectData.defaultFormData;
 
 export default function CreateProject() {
     const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        targetRespondents: '500',
-        launchDate: '',
-        assessmentTypes: ['ikm'] as string[],
+        name: defaultFormData.name,
+        description: defaultFormData.description,
+        targetRespondents: defaultFormData.targetRespondents,
+        launchDate: defaultFormData.launchDate,
+        assessmentTypes: defaultFormData.assessmentTypes as string[],
     });
 
     const handleAssessmentTypeChange = (typeId: string, checked: boolean) => {

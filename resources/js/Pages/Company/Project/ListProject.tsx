@@ -7,69 +7,21 @@ import {
     SearchInput,
     SummaryCard,
 } from '@/Components/Company';
+import { projectsData } from '@/data';
 import CompanyLayout from '@/Layouts/CompanyLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 
-// Data dummy - ganti dengan props dari backend
-const mockProjects: Project[] = [
-    {
-        id: '1',
-        code: 'SROI-24-082',
-        name: 'Inisiatif Pertanian Berkelanjutan',
-        type: 'SROI',
-        typeLabel: 'Social Return on Investment (SROI)',
-        location: 'Penilaian Q3',
-        status: 'active',
-        currentResponses: 842,
-        targetResponses: 1200,
-    },
-    {
-        id: '2',
-        code: 'IKM-24-015',
-        name: 'Audit Kesehatan Masyarakat',
-        type: 'IKM',
-        typeLabel: 'Indeks Kepuasan Masyarakat (IKM)',
-        location: 'Tingkat Regional',
-        status: 'active',
-        currentResponses: 142,
-        targetResponses: 500,
-    },
-    {
-        id: '3',
-        code: 'SLOI-24-004',
-        name: 'Perpanjangan Izin Area Tambang',
-        type: 'SLOI',
-        typeLabel: 'Social License to Operate (SLOI)',
-        location: 'Site A',
-        status: 'draft',
-        currentResponses: 0,
-        targetResponses: 250,
-    },
-    {
-        id: '4',
-        code: 'IKM-23-112',
-        name: 'Kepuasan Layanan Tahunan 2023',
-        type: 'IKM',
-        typeLabel: 'Indeks Kepuasan Masyarakat (IKM)',
-        location: 'Kantor Pusat',
-        status: 'closed',
-        currentResponses: 2104,
-        targetResponses: 2000,
-    },
-];
-
-const filterTabs = [
-    { key: 'all', label: 'Semua' },
-    { key: 'active', label: 'Aktif' },
-    { key: 'draft', label: 'Draft' },
-    { key: 'closed', label: 'Selesai' },
-];
+// Menggunakan data dari JSON
+const mockProjects = projectsData.projects as Project[];
+const filterTabs = projectsData.filterTabs;
+const summaryStats = projectsData.summaryStats;
+const paginationConfig = projectsData.pagination;
 
 export default function ListProject() {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(paginationConfig.currentPage);
 
     // Filter proyek berdasarkan pencarian dan status
     const filteredProjects = mockProjects.filter((project) => {
@@ -114,6 +66,34 @@ export default function ListProject() {
                     </Link>
                 </div>
 
+                {/* Kartu Ringkasan */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3 mb-6">
+                    <SummaryCard
+                        icon="monitoring"
+                        iconBgColor="bg-primary/10"
+                        iconColor="text-primary"
+                        title="Total ROI Terlacak"
+                        value={summaryStats.totalROI}
+                        subtitle={summaryStats.totalROITrend}
+                    />
+                    <SummaryCard
+                        icon="groups"
+                        iconBgColor="bg-primary/10"
+                        iconColor="text-primary"
+                        title="Total Responden"
+                        value={summaryStats.totalRespondents}
+                        subtitle={summaryStats.totalRespondentsSubtitle}
+                    />
+                    <SummaryCard
+                        icon="draft"
+                        iconBgColor="bg-amber-50"
+                        iconColor="text-amber-600"
+                        title="Proposal Draft"
+                        value={summaryStats.draftProposals}
+                        subtitle={summaryStats.draftProposalsSubtitle}
+                    />
+                </div>
+
                 {/* Bagian Filter */}
                 <div className="mb-6 flex items-center gap-4">
                     <SearchInput
@@ -145,38 +125,10 @@ export default function ListProject() {
                 <div className="mb-8">
                     <Pagination
                         currentPage={currentPage}
-                        totalPages={3}
-                        totalItems={24}
-                        itemsPerPage={4}
+                        totalPages={paginationConfig.totalPages}
+                        totalItems={paginationConfig.totalItems}
+                        itemsPerPage={paginationConfig.itemsPerPage}
                         onPageChange={setCurrentPage}
-                    />
-                </div>
-
-                {/* Kartu Ringkasan */}
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                    <SummaryCard
-                        icon="monitoring"
-                        iconBgColor="bg-primary/10"
-                        iconColor="text-primary"
-                        title="Total ROI Terlacak"
-                        value="Rp 67M"
-                        subtitle="+12% dari kuartal sebelumnya"
-                    />
-                    <SummaryCard
-                        icon="groups"
-                        iconBgColor="bg-primary/10"
-                        iconColor="text-primary"
-                        title="Total Responden"
-                        value="12.482"
-                        subtitle="Dari 4 kampanye aktif"
-                    />
-                    <SummaryCard
-                        icon="draft"
-                        iconBgColor="bg-amber-50"
-                        iconColor="text-amber-600"
-                        title="Proposal Draft"
-                        value="7"
-                        subtitle="Menunggu persetujuan supervisor"
                     />
                 </div>
             </div>

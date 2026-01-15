@@ -1,0 +1,95 @@
+{
+    "project": {
+        "id": "1",
+        "name": "Survei Surabaya 2026",
+        "description": "Analitik detail proyek dan tinjauan penilaian dampak untuk inisiatif keberlanjutan regional.",
+        "status": "in_progress",
+        "currentResponses": 2220,
+        "targetResponses": 3000,
+        "ikmScore": 84.5,
+        "ikmTrend": "+2.4%",
+        "sloiLevel": "High Approval",
+        "sloiProgress": 3,
+        "sroiRatio": "1 : 3.2"
+    },
+    "tabs": [
+        {
+            "key": "overview",
+            "label": "Overview",
+            "icon": "grid_view"
+        },
+        {
+            "key": "ikm",
+            "label": "IKM",
+            "icon": "groups"
+        },
+        {
+            "key": "sloi",
+            "label": "SLOI",
+            "icon": "verified_user"
+        },
+        {
+            "key": "sroi",
+            "label": "SROI",
+            "icon": "account_balance_wallet"
+        }
+    ],
+    "submissions": [
+        {
+            "id": "#RES-2026-0045",
+            "dateTime": "24 Okt 2026 • 14:20",
+            "respondentType": "Masyarakat Lokal",
+            "impactScore": 8.5,
+            "status": "verified"
+        },
+        {
+            "id": "#RES-2026-0044",
+            "dateTime": "24 Okt 2026 • 13:55",
+            "respondentType": "Usaha Kecil",
+            "impactScore": 7.0,
+            "status": "verified"
+        },
+        {
+            "id": "#RES-2026-0043",
+            "dateTime": "24 Okt 2026 • 11:12",
+            "respondentType": "Pejabat Pemerintah",
+            "impactScore": 9.5,
+            "status": "pending"
+        },
+        {
+            "id": "#RES-2026-0042",
+            "dateTime": "23 Okt 2026 • 17:45",
+            "respondentType": "Perwakilan NGO",
+            "impactScore": 6.0,
+            "status": "verified"
+        },
+        {
+            "id": "#RES-2026-0041",
+            "dateTime": "23 Okt 2026 • 16:30",
+            "respondentType": "Pakar Akademisi",
+            "impactScore": 8.2,
+            "status": "verified"
+        },
+        {
+            "id": "#RES-2026-0040",
+            "dateTime": "23 Okt 2026 • 15:10",
+            "respondentType": "Masyarakat Lokal",
+            "impactScore": 7.8,
+            "status": "verified"
+        },
+        {
+            "id": "#RES-2026-0039",
+            "dateTime": "23 Okt 2026 • 14:00",
+            "respondentType": "Tokoh Masyarakat",
+            "impactScore": 9.0,
+            "status": "verified"
+        },
+        {
+            "id": "#RES-2026-0038",
+            "dateTime": "22 Okt 2026 • 16:20",
+            "respondentType": "Usaha Kecil",
+            "impactScore": 6.5,
+            "status": "pending"
+        }
+    ]
+}

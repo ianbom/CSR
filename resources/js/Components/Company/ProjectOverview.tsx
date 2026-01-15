@@ -1,44 +1,9 @@
 import { MetricCard, Submission, SubmissionTable } from '@/Components/Company';
+import { projectDetailData } from '@/data';
 import { ReactNode } from 'react';
 
-// Data dummy - ganti dengan props dari backend
-const mockSubmissions: Submission[] = [
-    {
-        id: '#RES-2026-0045',
-        dateTime: '24 Okt 2026 • 14:20',
-        respondentType: 'Masyarakat Lokal',
-        impactScore: 8.5,
-        status: 'verified',
-    },
-    {
-        id: '#RES-2026-0044',
-        dateTime: '24 Okt 2026 • 13:55',
-        respondentType: 'Usaha Kecil',
-        impactScore: 7.0,
-        status: 'verified',
-    },
-    {
-        id: '#RES-2026-0043',
-        dateTime: '24 Okt 2026 • 11:12',
-        respondentType: 'Pejabat Pemerintah',
-        impactScore: 9.5,
-        status: 'pending',
-    },
-    {
-        id: '#RES-2026-0042',
-        dateTime: '23 Okt 2026 • 17:45',
-        respondentType: 'Perwakilan NGO',
-        impactScore: 6.0,
-        status: 'verified',
-    },
-    {
-        id: '#RES-2026-0041',
-        dateTime: '23 Okt 2026 • 16:30',
-        respondentType: 'Pakar Akademisi',
-        impactScore: 8.2,
-        status: 'verified',
-    },
-];
+// Menggunakan data dari JSON
+const mockSubmissions = projectDetailData.submissions as Submission[];
 
 interface ProjectOverviewProps {
     project: {
@@ -89,11 +54,10 @@ export default function ProjectOverview({
                             {[1, 2, 3, 4].map((i) => (
                                 <div
                                     key={i}
-                                    className={`h-1.5 flex-1 rounded-full ${
-                                        i <= project.sloiProgress
+                                    className={`h-1.5 flex-1 rounded-full ${i <= project.sloiProgress
                                             ? 'bg-primary'
                                             : 'bg-slate-200'
-                                    }`}
+                                        }`}
                                 />
                             ))}
                         </div>

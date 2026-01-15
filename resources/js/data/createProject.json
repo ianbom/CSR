@@ -1,0 +1,102 @@
+{
+    "assessmentTypes": [
+        {
+            "id": "ikm",
+            "icon": "sentiment_satisfied",
+            "title": "IKM",
+            "description": "Indeks Kepuasan Masyarakat"
+        },
+        {
+            "id": "sloi",
+            "icon": "verified_user",
+            "title": "SLOI",
+            "description": "Social License to Operate Index"
+        },
+        {
+            "id": "sroi",
+            "icon": "paid",
+            "title": "SROI",
+            "description": "Social Return on Investment"
+        }
+    ],
+    "formSteps": [
+        {
+            "label": "Detail",
+            "step": 1
+        },
+        {
+            "label": "Metodologi",
+            "step": 2
+        },
+        {
+            "label": "Tinjauan",
+            "step": 3
+        }
+    ],
+    "defaultFormData": {
+        "name": "",
+        "description": "",
+        "targetRespondents": "500",
+        "launchDate": "",
+        "assessmentTypes": [
+            "ikm"
+        ]
+    },
+    "targetOptions": [
+        {
+            "value": "100",
+            "label": "100 responden"
+        },
+        {
+            "value": "250",
+            "label": "250 responden"
+        },
+        {
+            "value": "500",
+            "label": "500 responden"
+        },
+        {
+            "value": "1000",
+            "label": "1000 responden"
+        },
+        {
+            "value": "2500",
+            "label": "2500 responden"
+        },
+        {
+            "value": "5000",
+            "label": "5000 responden"
+        }
+    ],
+    "projectTemplates": [
+        {
+            "id": "community-satisfaction",
+            "name": "Survei Kepuasan Masyarakat",
+            "description": "Template standar untuk mengukur kepuasan masyarakat terhadap layanan CSR",
+            "defaultTypes": [
+                "ikm"
+            ],
+            "targetRespondents": "500"
+        },
+        {
+            "id": "social-license",
+            "name": "Penilaian Izin Sosial",
+            "description": "Mengukur tingkat penerimaan masyarakat terhadap operasional perusahaan",
+            "defaultTypes": [
+                "sloi"
+            ],
+            "targetRespondents": "1000"
+        },
+        {
+            "id": "impact-assessment",
+            "name": "Penilaian Dampak Komprehensif",
+            "description": "Evaluasi menyeluruh dampak sosial, ekonomi, dan lingkungan",
+            "defaultTypes": [
+                "ikm",
+                "sloi",
+                "sroi"
+            ],
+            "targetRespondents": "2500"
+        }
+    ]
+}

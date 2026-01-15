@@ -1,68 +1,15 @@
 import { Icon } from '@/Components/Company';
+import { sloiData } from '@/data';
 import { ReactNode } from 'react';
 
-const mockSloiData = {
-    totalResponses: 1842,
-    targetResponses: 3000,
-    progress: 61.4,
-    sloiScore: 4.08,
-    trustLevel: 'High Trust',
-    questionComposition: [
-        { id: 'Q1', scores: [5, 10, 20, 45, 20] },
-        { id: 'Q2', scores: [2, 8, 15, 50, 25] },
-        { id: 'Q3', scores: [8, 12, 25, 40, 15] },
-        { id: 'Q4', scores: [3, 7, 18, 42, 30] },
-    ],
-    csrComparison: [
-        { label: 'CSR Recipients', score: 4.42, progress: 88 },
-        { label: 'General Community', score: 3.75, progress: 75 },
-    ],
-    ageRange: [
-        { range: '18-25', height: 70 },
-        { range: '26-40', height: 85 },
-        { range: '41-60', height: 100 },
-        { range: '60+', height: 78 },
-    ],
-    trendData: [
-        { month: 'MAY', height: 35 },
-        { month: 'JUN', height: 50 },
-        { month: 'JUL', height: 60 },
-        { month: 'AUG', height: 55 },
-        { month: 'SEP', height: 75 },
-        { month: 'OCT', height: 95 },
-    ],
-    auditLog: [
-        {
-            id: '#SLOI-2026-901',
-            group: 'csr',
-            date: 'Oct 26, 2026 • 10:45',
-            score: 4.8,
-            status: 'verified',
-        },
-        {
-            id: '#SLOI-2026-902',
-            group: 'general',
-            date: 'Oct 26, 2026 • 09:12',
-            score: 3.2,
-            status: 'verified',
-        },
-        {
-            id: '#SLOI-2026-903',
-            group: 'csr',
-            date: 'Oct 25, 2026 • 16:55',
-            score: 4.2,
-            status: 'pending',
-        },
-    ],
-};
-
-const scoreColors = [
-    'bg-red-500',
-    'bg-orange-500',
-    'bg-yellow-400',
-    'bg-lime-400',
-    'bg-green-500',
-];
+// Menggunakan data dari JSON
+const stats = sloiData.stats;
+const questionComposition = sloiData.questionComposition;
+const csrComparison = sloiData.csrComparison;
+const ageRange = sloiData.ageRange;
+const trendData = sloiData.trendData;
+const auditLog = sloiData.auditLog;
+const scoreColors = sloiData.scoreColors;
 
 export default function ProjectSLOI(): ReactNode {
     const getScoreColor = (score: number) => {
@@ -84,15 +31,12 @@ export default function ProjectSLOI(): ReactNode {
                 <div className="flex-1">
                     <div className="mb-2 flex flex-wrap items-center gap-3">
                         <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                            Project SLOI Trust Dashboard
+                            Trust Dashboard
                         </h1>
-                        <span className="inline-flex items-center rounded-full bg-green-500 px-3 py-1 text-xs font-semibold text-white">
-                            ACTIVE
-                        </span>
                     </div>
                     <p className="text-sm text-slate-500">
-                        Community trust analytics and Social License to Operate assessment for
-                        Surabaya 2026.
+                        Community trust analytics and Social License to Operate
+                        assessment for Surabaya 2026.
                     </p>
                 </div>
 
@@ -102,7 +46,7 @@ export default function ProjectSLOI(): ReactNode {
                             Total Responses
                         </p>
                         <p className="text-2xl font-bold text-slate-900">
-                            {mockSloiData.totalResponses.toLocaleString()}
+                            {stats.totalResponses.toLocaleString()}
                         </p>
                     </div>
                     <div className="text-center">
@@ -110,7 +54,7 @@ export default function ProjectSLOI(): ReactNode {
                             Progress
                         </p>
                         <p className="text-2xl font-bold text-primary">
-                            {mockSloiData.progress}%
+                            {stats.progress}%
                         </p>
                     </div>
                     <div className="text-center">
@@ -118,7 +62,7 @@ export default function ProjectSLOI(): ReactNode {
                             Target N-Size
                         </p>
                         <p className="text-2xl font-bold text-slate-900">
-                            {mockSloiData.targetResponses.toLocaleString()}
+                            {stats.targetResponses.toLocaleString()}
                         </p>
                     </div>
                 </div>
@@ -135,7 +79,10 @@ export default function ProjectSLOI(): ReactNode {
 
                         {/* Gauge Chart */}
                         <div className="relative mb-4 h-28 w-56">
-                            <svg viewBox="0 0 200 100" className="h-full w-full">
+                            <svg
+                                viewBox="0 0 200 100"
+                                className="h-full w-full"
+                            >
                                 <defs>
                                     <linearGradient
                                         id="gaugeGradient"
@@ -145,8 +92,14 @@ export default function ProjectSLOI(): ReactNode {
                                         y2="0%"
                                     >
                                         <stop offset="0%" stopColor="#dc2626" />
-                                        <stop offset="50%" stopColor="#eab308" />
-                                        <stop offset="100%" stopColor="#22c55e" />
+                                        <stop
+                                            offset="50%"
+                                            stopColor="#eab308"
+                                        />
+                                        <stop
+                                            offset="100%"
+                                            stopColor="#22c55e"
+                                        />
                                     </linearGradient>
                                 </defs>
                                 {/* Background arc */}
@@ -184,10 +137,10 @@ export default function ProjectSLOI(): ReactNode {
 
                         <div className="text-center">
                             <p className="text-5xl font-bold text-green-600">
-                                {mockSloiData.sloiScore}
+                                {stats.sloiScore}
                             </p>
                             <p className="mt-1 text-sm font-bold uppercase tracking-wider text-green-600">
-                                {mockSloiData.trustLevel.toUpperCase()}
+                                {stats.trustLevel.toUpperCase()}
                             </p>
                         </div>
 
@@ -222,7 +175,7 @@ export default function ProjectSLOI(): ReactNode {
                         </div>
 
                         <div className="flex h-48 items-end justify-between gap-4 px-2">
-                            {mockSloiData.trendData.map((item, i) => (
+                            {trendData.map((item, i) => (
                                 <div
                                     key={i}
                                     className="flex flex-1 flex-col items-center gap-2"
@@ -231,7 +184,7 @@ export default function ProjectSLOI(): ReactNode {
                                         className="w-full rounded-t-lg bg-primary transition-all hover:opacity-80"
                                         style={{
                                             height: `${item.height}%`,
-                                            opacity: 0.3 + (i * 0.14),
+                                            opacity: 0.3 + i * 0.14,
                                         }}
                                     />
                                     <span className="text-[10px] font-semibold uppercase text-slate-400">
@@ -252,7 +205,7 @@ export default function ProjectSLOI(): ReactNode {
                         Question Score Composition (Q1 - Q12)
                     </h3>
                     <div className="space-y-4">
-                        {mockSloiData.questionComposition.map((q) => (
+                        {questionComposition.slice(0, 4).map((q) => (
                             <div key={q.id} className="flex items-center gap-3">
                                 <span className="w-8 text-sm font-bold text-slate-700">
                                     {q.id}
@@ -270,14 +223,23 @@ export default function ProjectSLOI(): ReactNode {
                         ))}
                     </div>
                     <div className="mt-6 flex flex-wrap justify-center gap-4 text-[10px] font-medium">
-                        {['SCORE 1', 'SCORE 2', 'SCORE 3', 'SCORE 4', 'SCORE 5'].map(
-                            (label, i) => (
-                                <span key={label} className="flex items-center gap-1.5">
-                                    <div className={`size-2.5 rounded-sm ${scoreColors[i]}`} />
-                                    <span className="text-slate-500">{label}</span>
-                                </span>
-                            )
-                        )}
+                        {[
+                            'SCORE 1',
+                            'SCORE 2',
+                            'SCORE 3',
+                            'SCORE 4',
+                            'SCORE 5',
+                        ].map((label, i) => (
+                            <span
+                                key={label}
+                                className="flex items-center gap-1.5"
+                            >
+                                <div
+                                    className={`size-2.5 rounded-sm ${scoreColors[i]}`}
+                                />
+                                <span className="text-slate-500">{label}</span>
+                            </span>
+                        ))}
                     </div>
                 </div>
 
@@ -289,20 +251,24 @@ export default function ProjectSLOI(): ReactNode {
                             CSR Impact Comparison
                         </h3>
                         <div className="space-y-4">
-                            {mockSloiData.csrComparison.map((item) => (
+                            {csrComparison.map((item) => (
                                 <div key={item.label}>
                                     <div className="mb-2 flex justify-between text-sm">
                                         <span className="font-medium text-slate-700">
                                             {item.label}
                                         </span>
-                                        <span className={`font-bold ${getScoreColor(item.score)}`}>
+                                        <span
+                                            className={`font-bold ${getScoreColor(item.score)}`}
+                                        >
                                             {item.score}
                                         </span>
                                     </div>
                                     <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
                                         <div
                                             className={`h-full rounded-full ${getScoreBarColor(item.score)}`}
-                                            style={{ width: `${item.progress}%` }}
+                                            style={{
+                                                width: `${item.progress}%`,
+                                            }}
                                         />
                                     </div>
                                 </div>
@@ -316,7 +282,7 @@ export default function ProjectSLOI(): ReactNode {
                             Trust by Age Range
                         </h3>
                         <div className="flex h-28 items-end justify-between gap-4">
-                            {mockSloiData.ageRange.map((item) => (
+                            {ageRange.map((item) => (
                                 <div
                                     key={item.range}
                                     className="flex flex-1 flex-col items-center gap-2"
@@ -325,7 +291,7 @@ export default function ProjectSLOI(): ReactNode {
                                         className="w-full rounded-t bg-primary"
                                         style={{
                                             height: `${item.height}%`,
-                                            opacity: 0.4 + (item.height / 250),
+                                            opacity: 0.4 + item.height / 250,
                                         }}
                                     />
                                     <span className="text-[10px] font-semibold text-slate-400">
@@ -379,7 +345,7 @@ export default function ProjectSLOI(): ReactNode {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {mockSloiData.auditLog.map((log) => (
+                            {auditLog.map((log) => (
                                 <tr
                                     key={log.id}
                                     className="transition-colors hover:bg-slate-50"
@@ -394,7 +360,9 @@ export default function ProjectSLOI(): ReactNode {
                                                     : 'bg-slate-100 text-slate-600'
                                                 }`}
                                         >
-                                            {log.group === 'csr' ? 'CSR Recipient' : 'General'}
+                                            {log.group === 'csr'
+                                                ? 'CSR Recipient'
+                                                : 'General'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-slate-600">
@@ -432,7 +400,9 @@ export default function ProjectSLOI(): ReactNode {
                                                 }
                                                 className="text-sm"
                                             />
-                                            {log.status === 'verified' ? 'Verified' : 'Pending'}
+                                            {log.status === 'verified'
+                                                ? 'Verified'
+                                                : 'Pending'}
                                         </span>
                                     </td>
                                 </tr>
@@ -443,7 +413,8 @@ export default function ProjectSLOI(): ReactNode {
 
                 <div className="border-t border-slate-100 bg-slate-50 p-4 text-center">
                     <button className="text-sm font-semibold text-primary hover:underline">
-                        View All {mockSloiData.totalResponses.toLocaleString()} Submissions
+                        View All {stats.totalResponses.toLocaleString()}{' '}
+                        Submissions
                     </button>
                 </div>
             </div>

@@ -3,32 +3,14 @@ import ProjectIKM from '@/Components/Company/ProjectIKM';
 import ProjectOverview from '@/Components/Company/ProjectOverview';
 import ProjectSLOI from '@/Components/Company/ProjectSLOI';
 import ProjectSROI from '@/Components/Company/ProjectSROI';
+import { projectDetailData } from '@/data';
 import CompanyLayout from '@/Layouts/CompanyLayout';
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
 
-// Data dummy - ganti dengan props dari backend
-const mockProject = {
-    id: '1',
-    name: 'Survei Surabaya 2026',
-    description:
-        'Analitik detail proyek dan tinjauan penilaian dampak untuk inisiatif keberlanjutan regional.',
-    status: 'in_progress',
-    currentResponses: 2220,
-    targetResponses: 3000,
-    ikmScore: 84.5,
-    ikmTrend: '+2.4%',
-    sloiLevel: 'High Approval',
-    sloiProgress: 3,
-    sroiRatio: '1 : 3.2',
-};
-
-const tabs = [
-    { key: 'overview', label: 'Overview', icon: 'grid_view' },
-    { key: 'ikm', label: 'IKM', icon: 'groups' },
-    { key: 'sloi', label: 'SLOI', icon: 'verified_user' },
-    { key: 'sroi', label: 'SROI', icon: 'account_balance_wallet' },
-];
+// Menggunakan data dari JSON
+const mockProject = projectDetailData.project;
+const tabs = projectDetailData.tabs;
 
 export default function DetailProject() {
     const [activeTab, setActiveTab] = useState('overview');

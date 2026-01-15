@@ -1,75 +1,14 @@
 import { Icon } from '@/Components/Company';
+import { ikmData } from '@/data';
 import { ReactNode } from 'react';
 
-// Data dummy - ganti dengan props dari backend
-const mockIkmData = {
-    totalResponses: 2548,
-    targetResponses: 3000,
-    targetProgress: 85,
-    ikmScore: 4.25,
-    ikmScoreMax: 5.0,
-    lastSubmissionTime: 'Hari ini, 14:45',
-    lastEnumerator: 'Andi Budiman',
-    answerDistribution: [
-        { score: 5, percentage: 65, color: 'bg-green-500' },
-        { score: 4, percentage: 20, color: 'bg-green-600' },
-        { score: 3, percentage: 10, color: 'bg-yellow-500' },
-        { score: 2, percentage: 3, color: 'bg-orange-500' },
-        { score: 1, percentage: 2, color: 'bg-red-500' },
-    ],
-    questionScores: [
-        {
-            id: 'Q1',
-            question: 'Keramahan dan Sopan Santun Staff',
-            score: 4.8,
-            isTop: true,
-        },
-        {
-            id: 'Q4',
-            question: 'Kemudahan Akses Fasilitas',
-            score: 4.6,
-            isTop: false,
-        },
-        {
-            id: 'Q9',
-            question: 'Kualitas Dukungan Pasca Layanan',
-            score: 3.2,
-            isBottom: false,
-        },
-        {
-            id: 'Q12',
-            question: 'Kecepatan Proses Perizinan Baru',
-            score: 2.9,
-            isBottom: true,
-        },
-    ],
-    auditLog: [
-        {
-            time: '14:45',
-            enumerator: 'Andi Budiman',
-            enumeratorId: 'EN-0092',
-            respondent: 'Budi Santoso',
-            avgScore: 4.8,
-            status: 'verified',
-        },
-        {
-            time: '14:20',
-            enumerator: 'Siti Aminah',
-            enumeratorId: 'EN-0084',
-            respondent: 'Suryo Utomo',
-            avgScore: 3.2,
-            status: 'pending',
-        },
-        {
-            time: '13:55',
-            enumerator: 'Andi Budiman',
-            enumeratorId: 'EN-0092',
-            respondent: 'Ratna Sari',
-            avgScore: 4.5,
-            status: 'verified',
-        },
-    ],
-};
+// Menggunakan data dari JSON
+const stats = ikmData.stats;
+const answerDistribution = ikmData.answerDistribution;
+const scoreTrend = ikmData.scoreTrend;
+const questionScores = ikmData.questionScores;
+const autoInsights = ikmData.autoInsights;
+const auditLog = ikmData.auditLog;
 
 export default function ProjectIKM(): ReactNode {
     const statusStyles = {
@@ -93,10 +32,10 @@ export default function ProjectIKM(): ReactNode {
                     </p>
                     <div className="flex items-end justify-between">
                         <h3 className="text-2xl font-black">
-                            {mockIkmData.totalResponses.toLocaleString()}
+                            {stats.totalResponses.toLocaleString()}
                         </h3>
                         <span className="flex items-center text-[10px] font-bold text-primary">
-                            +12% vs minggu lalu
+                            {stats.weeklyTrend} vs minggu lalu
                         </span>
                     </div>
                 </div>
@@ -118,12 +57,12 @@ export default function ProjectIKM(): ReactNode {
                                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                 fill="none"
                                 stroke="currentColor"
-                                strokeDasharray={`${mockIkmData.targetProgress}, 100`}
+                                strokeDasharray={`${stats.targetProgress}, 100`}
                                 strokeWidth="3"
                             />
                         </svg>
                         <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black">
-                            {mockIkmData.targetProgress}%
+                            {stats.targetProgress}%
                         </span>
                     </div>
                     <div>
@@ -131,8 +70,8 @@ export default function ProjectIKM(): ReactNode {
                             Progress Target
                         </p>
                         <p className="text-sm font-bold text-slate-800">
-                            {mockIkmData.totalResponses.toLocaleString()} /{' '}
-                            {mockIkmData.targetResponses.toLocaleString()}
+                            {stats.totalResponses.toLocaleString()} /{' '}
+                            {stats.targetResponses.toLocaleString()}
                         </p>
                     </div>
                 </div>
@@ -144,11 +83,10 @@ export default function ProjectIKM(): ReactNode {
                     </p>
                     <div className="flex items-baseline gap-2">
                         <h3 className="text-2xl font-black text-primary">
-                            {mockIkmData.ikmScore}
+                            {stats.ikmScore}
                         </h3>
                         <span className="text-sm font-bold text-slate-500">
-                            / {mockIkmData.ikmScoreMax} (
-                            {mockIkmData.targetProgress}%)
+                            / {stats.ikmScoreMax} ({stats.targetProgress}%)
                         </span>
                     </div>
                 </div>
@@ -164,11 +102,11 @@ export default function ProjectIKM(): ReactNode {
                             className="text-sm text-slate-400"
                         />
                         <h3 className="text-sm font-bold">
-                            {mockIkmData.lastSubmissionTime}
+                            {stats.lastSubmissionTime}
                         </h3>
                     </div>
                     <p className="mt-1 text-[10px] text-slate-500">
-                        Enumerator: {mockIkmData.lastEnumerator}
+                        Enumerator: {stats.lastEnumerator}
                     </p>
                 </div>
             </div>
@@ -226,39 +164,32 @@ export default function ProjectIKM(): ReactNode {
                             />
                         </svg>
                         {/* Bars */}
-                        {[
-                            { height: 35, label: '' },
-                            { height: 50, label: '' },
-                            { height: 65, label: '' },
-                            { height: 45, label: '' },
-                            { height: 70, label: '' },
-                            { height: 95, label: '82.1', isHighlight: true },
-                            { height: 80, label: '' },
-                        ].map((bar, i) => (
+                        {scoreTrend.map((bar, i) => (
                             <div
                                 key={i}
                                 className="group relative z-10 flex flex-1 flex-col items-center"
                             >
-                                {bar.isHighlight && bar.label && (
+                                {bar.isHighlight && (
                                     <div className="absolute -top-6 rounded bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-white shadow-lg">
-                                        {bar.label}
+                                        {bar.score}
                                     </div>
                                 )}
                                 <div
-                                    className={`w-full rounded-t-md transition-all duration-200 ${
-                                        bar.isHighlight
+                                    className={`w-full rounded-t-md transition-all duration-200 ${bar.isHighlight
                                             ? 'bg-green-500 shadow-md'
                                             : 'bg-green-100 hover:bg-green-200'
-                                    }`}
+                                        }`}
                                     style={{ height: `${bar.height}%` }}
                                 />
                             </div>
                         ))}
                     </div>
                     <div className="mt-4 flex justify-between px-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                        <span>Okt 01</span>
-                        <span>Okt 15</span>
-                        <span>Okt 30</span>
+                        <span>{scoreTrend[0]?.date}</span>
+                        <span>
+                            {scoreTrend[Math.floor(scoreTrend.length / 2)]?.date}
+                        </span>
+                        <span>{scoreTrend[scoreTrend.length - 1]?.date}</span>
                     </div>
                 </div>
 
@@ -268,7 +199,7 @@ export default function ProjectIKM(): ReactNode {
                         Distribusi Jawaban (1-5)
                     </h3>
                     <div className="space-y-6">
-                        {mockIkmData.answerDistribution.map((item) => (
+                        {answerDistribution.map((item) => (
                             <div
                                 key={item.score}
                                 className="flex items-center gap-3"
@@ -298,49 +229,52 @@ export default function ProjectIKM(): ReactNode {
                         Skor Rata-rata per Pertanyaan
                     </h3>
                     <div className="space-y-8">
-                        {mockIkmData.questionScores.map((q) => (
-                            <div key={q.id} className="flex items-center gap-4">
-                                <div className="flex-1">
-                                    {q.isTop ? (
-                                        <p className="mb-1 text-[10px] font-bold uppercase text-green-500">
-                                            PERFORMA TERBAIK
+                        {questionScores
+                            .filter((q) => q.isTop || q.isBottom)
+                            .map((q) => (
+                                <div
+                                    key={q.id}
+                                    className="flex items-center gap-4"
+                                >
+                                    <div className="flex-1">
+                                        {q.isTop ? (
+                                            <p className="mb-1 text-[10px] font-bold uppercase text-green-500">
+                                                PERFORMA TERBAIK
+                                            </p>
+                                        ) : q.isBottom ? (
+                                            <p className="mb-1 text-[10px] font-bold uppercase text-red-500">
+                                                PERFORMA TERENDAH
+                                            </p>
+                                        ) : (
+                                            <div className="h-[15px]"></div>
+                                        )}
+                                        <p className="text-xs font-bold text-slate-700">
+                                            {q.id}: {q.question}
                                         </p>
-                                    ) : q.isBottom ? (
-                                        <p className="mb-1 text-[10px] font-bold uppercase text-red-500">
-                                            PERFORMA TERENDAH
-                                        </p>
-                                    ) : (
-                                        <div className="h-[15px]"></div>
-                                    )}
-                                    <p className="text-xs font-bold text-slate-700">
-                                        {q.id}: {q.question}
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="h-2 w-32 overflow-hidden rounded-full bg-slate-100 md:w-48">
-                                        <div
-                                            className={`h-full rounded-full ${
-                                                q.score >= 4
-                                                    ? 'bg-green-500'
-                                                    : 'bg-red-500'
-                                            }`}
-                                            style={{
-                                                width: `${(q.score / 5) * 100}%`,
-                                            }}
-                                        />
                                     </div>
-                                    <span
-                                        className={`w-6 text-right text-xs font-bold ${
-                                            q.score >= 4
-                                                ? 'text-green-500'
-                                                : 'text-red-500'
-                                        }`}
-                                    >
-                                        {q.score}
-                                    </span>
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-2 w-32 overflow-hidden rounded-full bg-slate-100 md:w-48">
+                                            <div
+                                                className={`h-full rounded-full ${q.score >= 4
+                                                        ? 'bg-green-500'
+                                                        : 'bg-red-500'
+                                                    }`}
+                                                style={{
+                                                    width: `${(q.score / 5) * 100}%`,
+                                                }}
+                                            />
+                                        </div>
+                                        <span
+                                            className={`w-6 text-right text-xs font-bold ${q.score >= 4
+                                                    ? 'text-green-500'
+                                                    : 'text-red-500'
+                                                }`}
+                                        >
+                                            {q.score}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 </div>
 
@@ -352,22 +286,18 @@ export default function ProjectIKM(): ReactNode {
                     <div className="flex-1 space-y-4">
                         <div className="rounded-lg border border-green-500/10 bg-white p-4 shadow-sm">
                             <p className="mb-1 text-xs font-bold text-green-600">
-                                Tren Positif
+                                {autoInsights.positiveTrend.title}
                             </p>
                             <p className="text-xs leading-relaxed text-slate-600">
-                                Sopan santun staff (4.8) terus menjadi faktor
-                                terkuat yang mendorong skor kepuasan naik 5%
-                                periode ini.
+                                {autoInsights.positiveTrend.description}
                             </p>
                         </div>
                         <div className="rounded-lg border border-red-100 bg-white p-4 shadow-sm">
                             <p className="mb-1 text-xs font-bold text-red-500">
-                                Perhatian Kritis
+                                {autoInsights.criticalAttention.title}
                             </p>
                             <p className="text-xs leading-relaxed text-slate-600">
-                                Kecepatan proses (2.9) menurun. Ditemukan
-                                korelasi tinggi antara waktu tunggu dan skor
-                                SROI rendah.
+                                {autoInsights.criticalAttention.description}
                             </p>
                         </div>
                     </div>
@@ -421,7 +351,7 @@ export default function ProjectIKM(): ReactNode {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {mockIkmData.auditLog.map((log, i) => (
+                            {auditLog.map((log, i) => (
                                 <tr
                                     key={i}
                                     className="transition-colors hover:bg-slate-50"
@@ -443,11 +373,10 @@ export default function ProjectIKM(): ReactNode {
                                     <td className="px-6 py-4">
                                         <div className="flex items-center justify-center">
                                             <span
-                                                className={`rounded px-2 py-1 text-sm font-black ${
-                                                    log.avgScore >= 4
+                                                className={`rounded px-2 py-1 text-sm font-black ${log.avgScore >= 4
                                                         ? 'bg-green-50 text-green-600'
                                                         : 'bg-yellow-50 text-yellow-600'
-                                                }`}
+                                                    }`}
                                             >
                                                 {log.avgScore}
                                             </span>
@@ -455,15 +384,14 @@ export default function ProjectIKM(): ReactNode {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span
-                                            className={`inline-flex items-center rounded px-2 py-1 text-[10px] font-bold ${
-                                                statusStyles[
-                                                    log.status as keyof typeof statusStyles
+                                            className={`inline-flex items-center rounded px-2 py-1 text-[10px] font-bold ${statusStyles[
+                                                log.status as keyof typeof statusStyles
                                                 ]
-                                            }`}
+                                                }`}
                                         >
                                             {
                                                 statusLabels[
-                                                    log.status as keyof typeof statusLabels
+                                                log.status as keyof typeof statusLabels
                                                 ]
                                             }
                                         </span>

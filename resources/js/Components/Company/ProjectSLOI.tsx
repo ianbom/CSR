@@ -31,19 +31,19 @@ export default function ProjectSLOI(): ReactNode {
                 <div className="flex-1">
                     <div className="mb-2 flex flex-wrap items-center gap-3">
                         <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                            Trust Dashboard
+                            Dashboard Kepercayaan
                         </h1>
                     </div>
                     <p className="text-sm text-slate-500">
-                        Community trust analytics and Social License to Operate
-                        assessment for Surabaya 2026.
+                        Analitik kepercayaan masyarakat dan penilaian Social
+                        License to Operate untuk Surabaya 2026.
                     </p>
                 </div>
 
                 <div className="flex flex-wrap gap-6">
                     <div className="text-center">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                            Total Responses
+                            Total Respons
                         </p>
                         <p className="text-2xl font-bold text-slate-900">
                             {stats.totalResponses.toLocaleString()}
@@ -51,7 +51,7 @@ export default function ProjectSLOI(): ReactNode {
                     </div>
                     <div className="text-center">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                            Progress
+                            Progres
                         </p>
                         <p className="text-2xl font-bold text-primary">
                             {stats.progress}%
@@ -59,7 +59,7 @@ export default function ProjectSLOI(): ReactNode {
                     </div>
                     <div className="text-center">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                            Target N-Size
+                            Target Responden
                         </p>
                         <p className="text-2xl font-bold text-slate-900">
                             {stats.targetResponses.toLocaleString()}
@@ -74,7 +74,7 @@ export default function ProjectSLOI(): ReactNode {
                 <div className="lg:col-span-2">
                     <div className="flex h-full flex-col items-center justify-center rounded-xl border border-slate-100 bg-white p-8 shadow-sm">
                         <h3 className="mb-6 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                            SLOI Total Score
+                            Total Skor SLOI
                         </h3>
 
                         {/* Gauge Chart */}
@@ -166,32 +166,41 @@ export default function ProjectSLOI(): ReactNode {
                     <div className="h-full rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
                         <div className="mb-6 flex items-center justify-between">
                             <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                Trust Trend Over Time
+                                Tren Kepercayaan
                             </h3>
                             <select className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
-                                <option>Last 6 Months</option>
-                                <option>Last 12 Months</option>
+                                <option>6 Bulan Terakhir</option>
+                                <option>12 Bulan Terakhir</option>
                             </select>
                         </div>
 
                         <div className="flex h-48 items-end justify-between gap-4 px-2">
-                            {trendData.map((item, i) => (
-                                <div
-                                    key={i}
-                                    className="flex flex-1 flex-col items-center gap-2"
-                                >
+                            {trendData.map((item, i) => {
+                                const colors = [
+                                    'bg-primary/40',
+                                    'bg-primary/50',
+                                    'bg-primary/60',
+                                    'bg-primary/70',
+                                    'bg-primary/80',
+                                    'bg-primary',
+                                ];
+                                return (
                                     <div
-                                        className="w-full rounded-t-lg bg-primary transition-all hover:opacity-80"
-                                        style={{
-                                            height: `${item.height}%`,
-                                            opacity: 0.3 + i * 0.14,
-                                        }}
-                                    />
-                                    <span className="text-[10px] font-semibold uppercase text-slate-400">
-                                        {item.month}
-                                    </span>
-                                </div>
-                            ))}
+                                        key={i}
+                                        className="flex flex-1 flex-col items-center gap-2"
+                                    >
+                                        <div
+                                            className={`w-full rounded-t-lg transition-all hover:opacity-90 ${colors[i] || 'bg-primary'}`}
+                                            style={{
+                                                height: `${item.height}%`,
+                                            }}
+                                        />
+                                        <span className="text-[10px] font-semibold uppercase text-slate-400">
+                                            {item.month}
+                                        </span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -202,7 +211,7 @@ export default function ProjectSLOI(): ReactNode {
                 {/* Question Score Composition */}
                 <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
                     <h3 className="mb-6 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                        Question Score Composition (Q1 - Q12)
+                        Komposisi Skor Pertanyaan (Q1 - Q12)
                     </h3>
                     <div className="space-y-4">
                         {questionComposition.slice(0, 4).map((q) => (
@@ -223,32 +232,30 @@ export default function ProjectSLOI(): ReactNode {
                         ))}
                     </div>
                     <div className="mt-6 flex flex-wrap justify-center gap-4 text-[10px] font-medium">
-                        {[
-                            'SCORE 1',
-                            'SCORE 2',
-                            'SCORE 3',
-                            'SCORE 4',
-                            'SCORE 5',
-                        ].map((label, i) => (
-                            <span
-                                key={label}
-                                className="flex items-center gap-1.5"
-                            >
-                                <div
-                                    className={`size-2.5 rounded-sm ${scoreColors[i]}`}
-                                />
-                                <span className="text-slate-500">{label}</span>
-                            </span>
-                        ))}
+                        {['SKOR 1', 'SKOR 2', 'SKOR 3', 'SKOR 4', 'SKOR 5'].map(
+                            (label, i) => (
+                                <span
+                                    key={label}
+                                    className="flex items-center gap-1.5"
+                                >
+                                    <div
+                                        className={`size-2.5 rounded-sm ${scoreColors[i]}`}
+                                    />
+                                    <span className="text-slate-500">
+                                        {label}
+                                    </span>
+                                </span>
+                            ),
+                        )}
                     </div>
                 </div>
 
                 {/* CSR Impact & Age Range */}
                 <div className="space-y-6">
-                    {/* CSR Impact Comparison */}
+                    {/* Perbandingan Dampak CSR */}
                     <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
                         <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                            CSR Impact Comparison
+                            Perbandingan Dampak CSR
                         </h3>
                         <div className="space-y-4">
                             {csrComparison.map((item) => (
@@ -276,29 +283,36 @@ export default function ProjectSLOI(): ReactNode {
                         </div>
                     </div>
 
-                    {/* Trust by Age Range */}
+                    {/* Kepercayaan Berdasarkan Usia */}
                     <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
                         <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                            Trust by Age Range
+                            Kepercayaan Berdasarkan Usia
                         </h3>
                         <div className="flex h-28 items-end justify-between gap-4">
-                            {ageRange.map((item) => (
-                                <div
-                                    key={item.range}
-                                    className="flex flex-1 flex-col items-center gap-2"
-                                >
+                            {ageRange.map((item, i) => {
+                                const colors = [
+                                    'bg-primary/60',
+                                    'bg-primary/75',
+                                    'bg-primary',
+                                    'bg-primary/70',
+                                ];
+                                return (
                                     <div
-                                        className="w-full rounded-t bg-primary"
-                                        style={{
-                                            height: `${item.height}%`,
-                                            opacity: 0.4 + item.height / 250,
-                                        }}
-                                    />
-                                    <span className="text-[10px] font-semibold text-slate-400">
-                                        {item.range}
-                                    </span>
-                                </div>
-                            ))}
+                                        key={item.range}
+                                        className="flex flex-1 flex-col items-center gap-2"
+                                    >
+                                        <div
+                                            className={`w-full rounded-t ${colors[i] || 'bg-primary'}`}
+                                            style={{
+                                                height: `${item.height}%`,
+                                            }}
+                                        />
+                                        <span className="text-[10px] font-semibold text-slate-400">
+                                            {item.range}
+                                        </span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -310,7 +324,7 @@ export default function ProjectSLOI(): ReactNode {
                     <div className="flex items-center gap-3">
                         <Icon name="history" className="text-slate-400" />
                         <h3 className="text-base font-bold text-slate-900">
-                            Trust Data Submission Audit
+                            Audit Pengiriman Data Kepercayaan
                         </h3>
                     </div>
                     <div className="flex gap-2">
@@ -318,7 +332,7 @@ export default function ProjectSLOI(): ReactNode {
                             Filter
                         </button>
                         <button className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50">
-                            Export CSV
+                            Ekspor CSV
                         </button>
                     </div>
                 </div>
@@ -328,19 +342,19 @@ export default function ProjectSLOI(): ReactNode {
                         <thead>
                             <tr className="border-b border-slate-100 bg-slate-50/50">
                                 <th className="px-6 py-4 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                                    Respondent ID
+                                    ID Responden
                                 </th>
                                 <th className="px-6 py-4 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                                    Group
+                                    Grup
                                 </th>
                                 <th className="px-6 py-4 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                                    Submission Date
+                                    Tanggal Pengiriman
                                 </th>
                                 <th className="px-6 py-4 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                                    SLOI Score
+                                    Skor SLOI
                                 </th>
                                 <th className="px-6 py-4 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                                    Validation
+                                    Validasi
                                 </th>
                             </tr>
                         </thead>
@@ -355,14 +369,15 @@ export default function ProjectSLOI(): ReactNode {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span
-                                            className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase ${log.group === 'csr'
+                                            className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase ${
+                                                log.group === 'csr'
                                                     ? 'bg-green-100 text-green-700'
                                                     : 'bg-slate-100 text-slate-600'
-                                                }`}
+                                            }`}
                                         >
                                             {log.group === 'csr'
-                                                ? 'CSR Recipient'
-                                                : 'General'}
+                                                ? 'Penerima CSR'
+                                                : 'Umum'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-slate-600">
@@ -387,10 +402,11 @@ export default function ProjectSLOI(): ReactNode {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span
-                                            className={`inline-flex items-center gap-1.5 text-xs font-semibold ${log.status === 'verified'
+                                            className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
+                                                log.status === 'verified'
                                                     ? 'text-green-600'
                                                     : 'text-amber-600'
-                                                }`}
+                                            }`}
                                         >
                                             <Icon
                                                 name={
@@ -401,8 +417,8 @@ export default function ProjectSLOI(): ReactNode {
                                                 className="text-sm"
                                             />
                                             {log.status === 'verified'
-                                                ? 'Verified'
-                                                : 'Pending'}
+                                                ? 'Terverifikasi'
+                                                : 'Tertunda'}
                                         </span>
                                     </td>
                                 </tr>
@@ -413,8 +429,8 @@ export default function ProjectSLOI(): ReactNode {
 
                 <div className="border-t border-slate-100 bg-slate-50 p-4 text-center">
                     <button className="text-sm font-semibold text-primary hover:underline">
-                        View All {stats.totalResponses.toLocaleString()}{' '}
-                        Submissions
+                        Lihat Semua {stats.totalResponses.toLocaleString()}{' '}
+                        Pengiriman
                     </button>
                 </div>
             </div>

@@ -6,7 +6,7 @@ interface FooterProps {
 }
 
 export default function Footer({
-    companyName = 'ImpactSaaS Platform',
+    companyName = 'CSRSaaS Platform',
     year = new Date().getFullYear(),
 }: FooterProps): ReactNode {
     return (

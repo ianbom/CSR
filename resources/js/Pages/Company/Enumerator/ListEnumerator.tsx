@@ -90,7 +90,7 @@ export default function ListEnumerator() {
         >
             <Head title="Direktori Enumerator" />
 
-            <div className="mx-auto max-w-6xl px-8 py-10">
+            <div className="p-8">
                 {/* Header Halaman */}
                 <div className="mb-8 flex items-start justify-between">
                     <div className="space-y-1">

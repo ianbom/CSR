@@ -59,7 +59,7 @@ export default function Sidebar({
                     <Icon name="analytics" className="text-3xl text-white" />
                 </div>
                 <h1 className="text-xl font-extrabold tracking-tight">
-                    IMPACT<span className="font-light opacity-80">SAAS</span>
+                    CSR<span className="font-light opacity-80">SAAS</span>
                 </h1>
             </div>
 

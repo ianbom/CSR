@@ -54,10 +54,11 @@ export default function ProjectOverview({
                             {[1, 2, 3, 4].map((i) => (
                                 <div
                                     key={i}
-                                    className={`h-1.5 flex-1 rounded-full ${i <= project.sloiProgress
+                                    className={`h-1.5 flex-1 rounded-full ${
+                                        i <= project.sloiProgress
                                             ? 'bg-primary'
                                             : 'bg-slate-200'
-                                        }`}
+                                    }`}
                                 />
                             ))}
                         </div>

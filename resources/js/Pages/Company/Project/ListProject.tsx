@@ -21,7 +21,9 @@ const paginationConfig = projectsData.pagination;
 export default function ListProject() {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
-    const [currentPage, setCurrentPage] = useState(paginationConfig.currentPage);
+    const [currentPage, setCurrentPage] = useState(
+        paginationConfig.currentPage,
+    );
 
     // Filter proyek berdasarkan pencarian dan status
     const filteredProjects = mockProjects.filter((project) => {
@@ -42,7 +44,7 @@ export default function ListProject() {
     };
 
     return (
-        <CompanyLayout breadcrumb={{ parent: 'Halaman', current: 'Proyek' }}>
+        <CompanyLayout breadcrumb={{ parent: 'Dashboard', current: 'Proyek' }}>
             <Head title="Proyek" />
 
             <div className="p-8">
@@ -67,7 +69,7 @@ export default function ListProject() {
                 </div>
 
                 {/* Kartu Ringkasan */}
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-3 mb-6">
+                <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
                     <SummaryCard
                         icon="monitoring"
                         iconBgColor="bg-primary/10"

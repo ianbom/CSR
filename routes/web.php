@@ -19,7 +19,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Company Routes
-Route::middleware(['auth', 'verified'])->prefix('company')->name('company.')->group(function () {
+Route::prefix('company')->name('company.')->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Company/Dashboard');
     })->name('dashboard');

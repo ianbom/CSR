@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 
 interface AgeRangeItem {
     range: string;
-    value: number;
+    count: number;
     height: number;
 }
 

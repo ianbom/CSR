@@ -29,12 +29,12 @@ export default function SLOITrendChart({
                 <div className="flex h-48 items-end justify-between gap-4 px-2">
                     {trendData.map((item, i) => {
                         const colors = [
-                            '#5eead4',
-                            '#2dd4bf',
-                            '#14b8a6',
-                            '#0d9488',
-                            '#0f766e',
-                            '#115e59',
+                            '#00753D',
+                            '#00753D',
+                            '#00753D',
+                            '#00753D',
+                            '#00753D',
+                            '#00753D',
                         ];
                         return (
                             <div

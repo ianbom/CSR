@@ -13,7 +13,7 @@ interface SLOIAgeRangeChartProps {
 export default function SLOIAgeRangeChart({
     ageRange,
 }: SLOIAgeRangeChartProps): ReactNode {
-    const colors = ['#14b8a6', '#0d9488', '#0f766e', '#115e59'];
+    const colors = ['#00753D', '#00753D', '#00753D', '#00753D'];
 
     return (
         <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">

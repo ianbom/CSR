@@ -35,7 +35,7 @@ export default function SROIHeader({
                 </button>
                 <button
                     onClick={onCalculator}
-                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-opacity-90"
+                    className="flex items-center gap-2 rounded-lg bg-primary-btn px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-primary-btn-hover"
                 >
                     <Icon name="calculate" className="text-sm" /> Kalkulator
                     SROI

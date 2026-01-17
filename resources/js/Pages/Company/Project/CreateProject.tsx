@@ -172,7 +172,7 @@ export default function CreateProject() {
                             </span>
                             <button
                                 onClick={handleSubmit}
-                                className="flex items-center gap-2 rounded-lg bg-primary px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-green-700 active:scale-95"
+                                className="flex items-center gap-2 rounded-lg bg-primary-btn px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary-btn/20 transition-all hover:bg-primary-btn-hover active:scale-95"
                             >
                                 Langkah Selanjutnya
                                 <Icon

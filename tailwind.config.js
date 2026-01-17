@@ -13,9 +13,11 @@ export default {
     theme: {
         extend: {
             colors: {
-                primary: '#16a249',
+                primary: '#00753d',
                 'primary-dark': '#15803d',
                 'primary-light': '#dcfce7',
+                'primary-btn': '#70C229',
+                'primary-btn-hover': '#5fa821',
                 'background-light': '#f9fafb',
                 'card-light': '#ffffff',
             },

@@ -61,7 +61,7 @@ export default function ListProject() {
                     </div>
                     <Link
                         href="/company/projects/create"
-                        className="flex items-center gap-2 rounded-lg bg-primary px-5 py-3 font-semibold text-white transition-colors hover:bg-primary-dark"
+                        className="flex items-center gap-2 rounded-lg bg-primary-btn px-5 py-3 font-semibold text-white transition-colors hover:bg-primary-btn-hover"
                     >
                         <Icon name="add" />
                         Buat Proyek

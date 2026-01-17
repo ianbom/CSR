@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-
+// sloi
 interface AgeRangeItem {
     range: string;
     count: number;

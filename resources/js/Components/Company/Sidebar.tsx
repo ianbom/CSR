@@ -96,10 +96,10 @@ export default function Sidebar({
                     </div>
                     <div className="flex-1 overflow-hidden">
                         <p className="truncate text-sm font-bold">
-                            {user.name}
+                            {user.name ?? 'Admin'}
                         </p>
                         <p className="truncate text-xs opacity-70">
-                            {user.email}
+                            {user.email ?? 'admin@gmail.com'}
                         </p>
                     </div>
                     <Link href={route('logout')} method="post" as="button">

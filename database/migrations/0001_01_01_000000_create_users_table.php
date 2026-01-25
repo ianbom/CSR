@@ -17,6 +17,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->foreignId('company_id')->nullable()->constrained('companies')->nullOnDelete();
+            $table->enum('role', ['superadmin', 'admin', 'company', 'enumerator'])->default('company');
+            $table->string('phone', 30)->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();
         });

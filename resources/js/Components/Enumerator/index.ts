@@ -27,3 +27,6 @@ export { default as Modal } from './Modal';
 export { default as ProjectCard } from './ProjectCard';
 export { default as ProjectVerificationModal } from './ProjectVerificationModal';
 export type { ProjectData, ProjectStatus, ProjectType } from './ProjectCard';
+
+// Survey Components
+export { SurveyHeader, SurveyProgressCard, LikertScaleQuestion, SurveyFooter } from './Survey';

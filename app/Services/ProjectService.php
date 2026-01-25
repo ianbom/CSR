@@ -7,64 +7,34 @@ use App\Models\Project;
 use App\Models\ProjectEnumeratorAssignment;
 use App\Models\ProjectLocation;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ProjectService
 {
-    public function __construct()
+    protected const ALLOWED_SORTS = ['name', 'project_code', 'status', 'created_at', 'start_date', 'end_date'];
+
+    protected const LIST_RELATIONS = ['locations.district.city.province', 'submissions', 'company'];
+
+    public function getAllProjectsByCompany(int $companyId, array $params = []): LengthAwarePaginator
     {
-        //
+        $query = Project::query()->where('company_id', $companyId);
+        
+        return $this->buildProjectListQuery($query, $params);
     }
 
-
-    protected function generateProjectCode(): string
+    public function getProjectsByEnumerator(int $enumeratorId, array $params = []): LengthAwarePaginator
     {
-        do {
-            $code = strtoupper(Str::random(6));
-        } while (Project::where('project_code', $code)->exists());
+        $assignedProjectIds = ProjectEnumeratorAssignment::where('enumerator_id', $enumeratorId)
+            ->pluck('project_id');
 
-        return $code;
-    }
-
-    public function getAllProjectsByCompany(int $companyId, array $params = [])
-    {
-        $query = Project::with(['locations.district.city.province', 'submissions'])
-            ->where('company_id', $companyId);
-
-        // Search
-        if (!empty($params['search'])) {
-            $search = $params['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('project_code', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter by status
-        if (!empty($params['status']) && $params['status'] !== 'all') {
-            $query->where('status', $params['status']);
-        }
-
-        // Sorting
-        $sortBy = $params['sort_by'] ?? 'created_at';
-        $sortOrder = $params['sort_order'] ?? 'desc';
-        $allowedSorts = ['name', 'project_code', 'status', 'created_at', 'start_date', 'end_date'];
-
-        if (in_array($sortBy, $allowedSorts)) {
-            $query->orderBy($sortBy, $sortOrder);
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
-
-        // Pagination
-        $perPage = $params['per_page'] ?? 10;
-        $paginated = $query->paginate($perPage)->withQueryString();
-
-        // Transform data
-        $paginated->getCollection()->transform(fn($project) => $this->formatProjectForList($project));
-
-        return $paginated;
+        $query = Project::query()
+            ->whereIn('id', $assignedProjectIds)
+            ->where('status', '!=', 'draft');
+        
+        return $this->buildProjectListQuery($query, $params);
     }
 
     public function getProjectSummary(int $companyId): array
@@ -78,51 +48,6 @@ class ProjectService
             'closedProjects' => $projects->where('status', 'closed')->count(),
             'totalRespondents' => $projects->sum(fn($p) => $p->submissions()->count()),
         ];
-    }
-
-    protected function formatProjectForList(Project $project): array
-    {
-        $locations = $project->locations->map(function ($loc) {
-            $district = $loc->district;
-            $city = $district?->city;
-            return $city ? $city->name : ($district?->name ?? '-');
-        })->unique()->take(2)->implode(', ');
-
-        $type = $this->determineProjectType($project);
-        $currentResponses = $project->submissions->count();
-        $targetResponses = $project->target_ikm_count + $project->target_sloi_count;
-
-        return [
-            'id' => $project->id,
-            'code' => $project->project_code,
-            'institution' => $project->company->name ?? '-', // Added institution
-            'name' => $project->name,
-            'type' => $type,
-            'typeLabel' => $this->getTypeLabel($project),
-            'location' => $locations ?: '-',
-            'status' => $project->status,
-            'currentResponses' => $currentResponses,
-            'targetResponses' => $targetResponses ?: 0,
-            'startDate' => $project->start_date?->format('Y-m-d'),
-            'endDate' => $project->end_date?->format('Y-m-d'),
-        ];
-    }
-
-    protected function determineProjectType(Project $project): string
-    {
-        if ($project->enable_ikm) return 'IKM';
-        if ($project->enable_sloi) return 'SLOI';
-        if ($project->enable_sroi) return 'SROI';
-        return 'IKM';
-    }
-
-    protected function getTypeLabel(Project $project): string
-    {
-        $types = [];
-        if ($project->enable_ikm) $types[] = 'IKM';
-        if ($project->enable_sloi) $types[] = 'SLOI';
-        if ($project->enable_sroi) $types[] = 'SROI';
-        return implode(' + ', $types) ?: 'IKM';
     }
 
     public function getEnumeratorsByCompany(int $companyId): array
@@ -151,12 +76,10 @@ class ProjectService
     public function assignEnumeratorsToProject(int $projectId, array $enumeratorIds, int $companyId): void
     {
         DB::transaction(function () use ($projectId, $enumeratorIds, $companyId) {
-            // Remove existing assignments
             ProjectEnumeratorAssignment::where('project_id', $projectId)
                 ->where('company_id', $companyId)
                 ->delete();
 
-            // Insert new assignments
             if (!empty($enumeratorIds)) {
                 $assignments = collect($enumeratorIds)->map(fn($enumeratorId) => [
                     'company_id' => $companyId,
@@ -178,6 +101,99 @@ class ProjectService
 
             return $project->load('locations.district.city.province');
         });
+    }
+
+    protected function buildProjectListQuery(Builder $query, array $params = []): LengthAwarePaginator
+    {
+        $query->with(self::LIST_RELATIONS);
+
+        $this->applySearchFilter($query, $params['search'] ?? null);
+
+        $this->applyStatusFilter($query, $params['status'] ?? null);
+
+        $this->applySorting($query, $params['sort_by'] ?? null, $params['sort_order'] ?? null);
+
+        $perPage = $params['per_page'] ?? 10;
+        $paginated = $query->paginate($perPage)->withQueryString();
+
+        $paginated->getCollection()->transform(fn($project) => $this->formatProjectForList($project));
+
+        return $paginated;
+    }
+
+    protected function applySearchFilter(Builder $query, ?string $search): void
+    {
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('project_code', 'like', "%{$search}%");
+            });
+        }
+    }
+
+
+    protected function applyStatusFilter(Builder $query, ?string $status): void
+    {
+        if (!empty($status) && $status !== 'all') {
+            $query->where('status', $status);
+        }
+    }
+
+    protected function applySorting(Builder $query, ?string $sortBy, ?string $sortOrder): void
+    {
+        $sortBy = $sortBy ?? 'created_at';
+        $sortOrder = $sortOrder ?? 'desc';
+
+        if (in_array($sortBy, self::ALLOWED_SORTS)) {
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+    }
+
+    protected function formatProjectForList(Project $project): array
+    {
+        $locations = $project->locations->map(function ($loc) {
+            $district = $loc->district;
+            $city = $district?->city;
+            return $city ? $city->name : ($district?->name ?? '-');
+        })->unique()->take(2)->implode(', ');
+
+        $type = $this->determineProjectType($project);
+        $currentResponses = $project->submissions->count();
+        $targetResponses = $project->target_ikm_count + $project->target_sloi_count;
+
+        return [
+            'id' => $project->id,
+            'code' => $project->project_code,
+            'institution' => $project->company->name ?? '-',
+            'name' => $project->name,
+            'type' => $type,
+            'typeLabel' => $this->getTypeLabel($project),
+            'location' => $locations ?: '-',
+            'status' => $project->status,
+            'currentResponses' => $currentResponses,
+            'targetResponses' => $targetResponses ?: 0,
+            'startDate' => $project->start_date?->format('Y-m-d'),
+            'endDate' => $project->end_date?->format('Y-m-d'),
+        ];
+    }
+
+    protected function determineProjectType(Project $project): string
+    {
+        if ($project->enable_ikm) return 'IKM';
+        if ($project->enable_sloi) return 'SLOI';
+        if ($project->enable_sroi) return 'SROI';
+        return 'IKM';
+    }
+
+    protected function getTypeLabel(Project $project): string
+    {
+        $types = [];
+        if ($project->enable_ikm) $types[] = 'IKM';
+        if ($project->enable_sloi) $types[] = 'SLOI';
+        if ($project->enable_sroi) $types[] = 'SROI';
+        return implode(' + ', $types) ?: 'IKM';
     }
 
     protected function storeProject(array $data, int $companyId, ?int $userId): Project
@@ -242,48 +258,13 @@ class ProjectService
 
         ProjectLocation::insert($locations);
     }
-    public function getProjectsByEnumerator(int $enumeratorId, array $params = [])
+
+    protected function generateProjectCode(): string
     {
-        // Get project IDs assigned to the enumerator
-        $assignedProjectIds = ProjectEnumeratorAssignment::where('enumerator_id', $enumeratorId)
-            ->pluck('project_id');
+        do {
+            $code = strtoupper(Str::random(6));
+        } while (Project::where('project_code', $code)->exists());
 
-        $query = Project::with(['locations.district.city.province', 'submissions', 'company']) // Added company relation
-            ->whereIn('id', $assignedProjectIds)
-            ->where('status', '!=', 'draft'); 
-
-        // Search
-        if (!empty($params['search'])) {
-            $search = $params['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('project_code', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter by status if needed
-        if (!empty($params['status']) && $params['status'] !== 'all') {
-            $query->where('status', $params['status']);
-        }
-
-        // Sorting
-        $sortBy = $params['sort_by'] ?? 'created_at';
-        $sortOrder = $params['sort_order'] ?? 'desc';
-        $allowedSorts = ['name', 'project_code', 'status', 'created_at', 'start_date', 'end_date'];
-
-        if (in_array($sortBy, $allowedSorts)) {
-            $query->orderBy($sortBy, $sortOrder);
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
-
-        // Pagination
-        $perPage = $params['per_page'] ?? 10;
-        $paginated = $query->paginate($perPage)->withQueryString();
-
-        // Transform data
-        $paginated->getCollection()->transform(fn($project) => $this->formatProjectForList($project));
-
-        return $paginated;
+        return $code;
     }
 }

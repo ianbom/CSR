@@ -20,6 +20,12 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::prefix('enumerator')->name('enumerator.')->group(function () {
+    Route::get('/list', function () {
+        return Inertia::render('Enumerator/Project/ListProject');
+    })->name('list-survey');
+});
+
 Route::prefix('api/area')->name('api.area.')->group(function () {
     Route::get('/provinces', [AreaController::class, 'getProvinces'])->name('provinces');
     Route::get('/cities', [AreaController::class, 'getCities'])->name('cities');

@@ -7,36 +7,211 @@ import {
 } from '@/Components/Company';
 import { createProjectData } from '@/data';
 import CompanyLayout from '@/Layouts/CompanyLayout';
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+
+// Types
+interface Province {
+    id: number;
+    code: string;
+    name: string;
+}
+
+interface City {
+    id: number;
+    code: string;
+    name: string;
+    province_id: number;
+}
+
+interface District {
+    id: number;
+    code: string;
+    name: string;
+    city_id: number;
+}
+
+interface SelectedLocation {
+    province: Province | null;
+    city: City | null;
+    district: District | null;
+}
+
+interface PageProps {
+    provinces: Province[];
+}
 
 // Menggunakan data dari JSON
 const assessmentTypes = createProjectData.assessmentTypes;
 const formSteps = createProjectData.formSteps;
-const defaultFormData = createProjectData.defaultFormData;
 
 export default function CreateProject() {
-    const [formData, setFormData] = useState({
-        name: defaultFormData.name,
-        description: defaultFormData.description,
-        targetRespondents: defaultFormData.targetRespondents,
-        launchDate: defaultFormData.launchDate,
-        assessmentTypes: defaultFormData.assessmentTypes as string[],
+    const { provinces } = usePage<PageProps>().props;
+
+    // Form state menggunakan Inertia useForm
+    const { data, setData, post, processing, errors, reset } = useForm({
+        name: '',
+        description: '',
+        target_ikm_count: 0,
+        target_sloi_count: 0,
+        start_date: '',
+        end_date: '',
+        enable_ikm: false,
+        enable_sloi: false,
+        enable_sroi: false,
+        ikm_template_id: null as number | null,
+        sloi_template_id: null as number | null,
+        district_ids: [] as number[],
     });
 
+    // Area selection state
+    const [cities, setCities] = useState<City[]>([]);
+    const [districts, setDistricts] = useState<District[]>([]);
+    const [selectedLocation, setSelectedLocation] = useState<SelectedLocation>({
+        province: null,
+        city: null,
+        district: null,
+    });
+    const [selectedLocations, setSelectedLocations] = useState<
+        Array<{
+            id: number;
+            province: Province;
+            city: City;
+            district: District;
+        }>
+    >([]);
+    const [loadingCities, setLoadingCities] = useState(false);
+    const [loadingDistricts, setLoadingDistricts] = useState(false);
+
+    // Fetch cities when province changes
+    useEffect(() => {
+        if (selectedLocation.province) {
+            setLoadingCities(true);
+            setCities([]);
+            setDistricts([]);
+            setSelectedLocation((prev) => ({
+                ...prev,
+                city: null,
+                district: null,
+            }));
+
+            fetch(
+                `/api/area/cities?province_id=${selectedLocation.province.id}`,
+            )
+                .then((res) => res.json())
+                .then((data) => {
+                    setCities(data);
+                    setLoadingCities(false);
+                })
+                .catch(() => setLoadingCities(false));
+        }
+    }, [selectedLocation.province]);
+
+    // Fetch districts when city changes
+    useEffect(() => {
+        if (selectedLocation.city) {
+            setLoadingDistricts(true);
+            setDistricts([]);
+            setSelectedLocation((prev) => ({ ...prev, district: null }));
+
+            fetch(`/api/area/districts?city_id=${selectedLocation.city.id}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    setDistricts(data);
+                    setLoadingDistricts(false);
+                })
+                .catch(() => setLoadingDistricts(false));
+        }
+    }, [selectedLocation.city]);
+
+    // Update district_ids when selectedLocations changes
+    useEffect(() => {
+        setData(
+            'district_ids',
+            selectedLocations.map((loc) => loc.district.id),
+        );
+    }, [selectedLocations]);
+
     const handleAssessmentTypeChange = (typeId: string, checked: boolean) => {
-        setFormData((prev) => ({
+        if (typeId === 'ikm') {
+            setData('enable_ikm', checked);
+        } else if (typeId === 'sloi') {
+            setData('enable_sloi', checked);
+        } else if (typeId === 'sroi') {
+            setData('enable_sroi', checked);
+        }
+    };
+
+    const handleProvinceChange = (provinceId: string) => {
+        const province = provinces.find((p) => p.id === parseInt(provinceId));
+        setSelectedLocation({
+            province: province || null,
+            city: null,
+            district: null,
+        });
+    };
+
+    const handleCityChange = (cityId: string) => {
+        const city = cities.find((c) => c.id === parseInt(cityId));
+        setSelectedLocation((prev) => ({
             ...prev,
-            assessmentTypes: checked
-                ? [...prev.assessmentTypes, typeId]
-                : prev.assessmentTypes.filter((id) => id !== typeId),
+            city: city || null,
+            district: null,
         }));
     };
 
+    const handleDistrictChange = (districtId: string) => {
+        const district = districts.find((d) => d.id === parseInt(districtId));
+        setSelectedLocation((prev) => ({
+            ...prev,
+            district: district || null,
+        }));
+    };
+
+    const addLocation = () => {
+        if (
+            selectedLocation.province &&
+            selectedLocation.city &&
+            selectedLocation.district
+        ) {
+            // Check if already added
+            const exists = selectedLocations.some(
+                (loc) => loc.district.id === selectedLocation.district!.id,
+            );
+
+            if (!exists) {
+                setSelectedLocations((prev) => [
+                    ...prev,
+                    {
+                        id: Date.now(),
+                        province: selectedLocation.province!,
+                        city: selectedLocation.city!,
+                        district: selectedLocation.district!,
+                    },
+                ]);
+
+                // Reset selection
+                setSelectedLocation({
+                    province: null,
+                    city: null,
+                    district: null,
+                });
+                setCities([]);
+                setDistricts([]);
+            }
+        }
+    };
+
+    const removeLocation = (id: number) => {
+        setSelectedLocations((prev) => prev.filter((loc) => loc.id !== id));
+    };
+
     const handleSubmit = () => {
-        // Navigate to next step or submit
-        console.log('Form data:', formData);
-        // router.post('/company/projects', formData);
+        post('/company/projects', {
+            onSuccess: () => {
+                reset();
+            },
+        });
     };
 
     const handleCancel = () => {
@@ -76,55 +251,224 @@ export default function CreateProject() {
                             label="Nama Proyek"
                             required
                             placeholder="contoh: Penilaian Dampak CSR 2024"
-                            value={formData.name}
-                            onChange={(value) =>
-                                setFormData((prev) => ({
-                                    ...prev,
-                                    name: value,
-                                }))
-                            }
+                            value={data.name}
+                            onChange={(value) => setData('name', value)}
+                            error={errors.name}
                         />
 
                         {/* Deskripsi */}
                         <FormTextarea
                             label="Deskripsi Proyek"
                             placeholder="Jelaskan secara singkat tujuan dan konteks proyek penilaian ini..."
-                            value={formData.description}
-                            onChange={(value) =>
-                                setFormData((prev) => ({
-                                    ...prev,
-                                    description: value,
-                                }))
-                            }
+                            value={data.description}
+                            onChange={(value) => setData('description', value)}
+                            error={errors.description}
                         />
 
                         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                            {/* Target Responden */}
+                            {/* Target Responden IKM */}
                             <FormInput
-                                label="Target Responden"
+                                label="Target Responden IKM"
                                 type="number"
-                                value={formData.targetRespondents}
+                                value={data.target_ikm_count.toString()}
                                 onChange={(value) =>
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        targetRespondents: value,
-                                    }))
+                                    setData(
+                                        'target_ikm_count',
+                                        parseInt(value) || 0,
+                                    )
                                 }
-                                helpText="Jumlah peserta yang diharapkan untuk survei ini"
+                                helpText="Jumlah responden IKM yang diharapkan"
+                                error={errors.target_ikm_count}
                             />
 
+                            {/* Target Responden SLOI */}
+                            <FormInput
+                                label="Target Responden SLOI"
+                                type="number"
+                                value={data.target_sloi_count.toString()}
+                                onChange={(value) =>
+                                    setData(
+                                        'target_sloi_count',
+                                        parseInt(value) || 0,
+                                    )
+                                }
+                                helpText="Jumlah responden SLOI yang diharapkan"
+                                error={errors.target_sloi_count}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                             {/* Tanggal Mulai */}
                             <FormInput
-                                label="Estimasi Peluncuran"
+                                label="Tanggal Mulai"
                                 type="date"
-                                value={formData.launchDate}
+                                value={data.start_date}
                                 onChange={(value) =>
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        launchDate: value,
-                                    }))
+                                    setData('start_date', value)
                                 }
+                                error={errors.start_date}
                             />
+
+                            {/* Tanggal Selesai */}
+                            <FormInput
+                                label="Tanggal Selesai"
+                                type="date"
+                                value={data.end_date}
+                                onChange={(value) => setData('end_date', value)}
+                                error={errors.end_date}
+                            />
+                        </div>
+
+                        {/* Lokasi Proyek */}
+                        <div className="space-y-4">
+                            <label className="block text-sm font-bold text-slate-900">
+                                Lokasi Proyek{' '}
+                                <span className="text-red-500">*</span>
+                                <span className="ml-1 font-normal text-slate-400">
+                                    (Pilih kecamatan)
+                                </span>
+                            </label>
+
+                            {/* Area Selection */}
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                                {/* Province */}
+                                <div>
+                                    <select
+                                        className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                                        value={
+                                            selectedLocation.province?.id || ''
+                                        }
+                                        onChange={(e) =>
+                                            handleProvinceChange(e.target.value)
+                                        }
+                                    >
+                                        <option value="">Pilih Provinsi</option>
+                                        {provinces.map((province) => (
+                                            <option
+                                                key={province.id}
+                                                value={province.id}
+                                            >
+                                                {province.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* City */}
+                                <div>
+                                    <select
+                                        className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-slate-100"
+                                        value={selectedLocation.city?.id || ''}
+                                        onChange={(e) =>
+                                            handleCityChange(e.target.value)
+                                        }
+                                        disabled={
+                                            !selectedLocation.province ||
+                                            loadingCities
+                                        }
+                                    >
+                                        <option value="">
+                                            {loadingCities
+                                                ? 'Memuat...'
+                                                : 'Pilih Kota/Kabupaten'}
+                                        </option>
+                                        {cities.map((city) => (
+                                            <option
+                                                key={city.id}
+                                                value={city.id}
+                                            >
+                                                {city.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* District */}
+                                <div>
+                                    <select
+                                        className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-slate-100"
+                                        value={
+                                            selectedLocation.district?.id || ''
+                                        }
+                                        onChange={(e) =>
+                                            handleDistrictChange(e.target.value)
+                                        }
+                                        disabled={
+                                            !selectedLocation.city ||
+                                            loadingDistricts
+                                        }
+                                    >
+                                        <option value="">
+                                            {loadingDistricts
+                                                ? 'Memuat...'
+                                                : 'Pilih Kecamatan'}
+                                        </option>
+                                        {districts.map((district) => (
+                                            <option
+                                                key={district.id}
+                                                value={district.id}
+                                            >
+                                                {district.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Add Button */}
+                                <div>
+                                    <button
+                                        type="button"
+                                        onClick={addLocation}
+                                        disabled={!selectedLocation.district}
+                                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-btn px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-btn-hover disabled:cursor-not-allowed disabled:bg-slate-300"
+                                    >
+                                        <Icon name="add" className="text-sm" />
+                                        Tambah
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Selected Locations */}
+                            {selectedLocations.length > 0 && (
+                                <div className="mt-4 space-y-2">
+                                    <p className="text-sm font-medium text-slate-700">
+                                        Lokasi terpilih ({selectedLocations.length}
+                                        ):
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedLocations.map((loc) => (
+                                            <div
+                                                key={loc.id}
+                                                className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-sm"
+                                            >
+                                                <span className="text-primary">
+                                                    {loc.district.name},{' '}
+                                                    {loc.city.name},{' '}
+                                                    {loc.province.name}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        removeLocation(loc.id)
+                                                    }
+                                                    className="text-primary hover:text-red-500"
+                                                >
+                                                    <Icon
+                                                        name="close"
+                                                        className="text-sm"
+                                                    />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {errors.district_ids && (
+                                <p className="text-sm text-red-500">
+                                    {errors.district_ids}
+                                </p>
+                            )}
                         </div>
 
                         {/* Tipe Penilaian */}
@@ -143,9 +487,13 @@ export default function CreateProject() {
                                         icon={type.icon}
                                         title={type.title}
                                         description={type.description}
-                                        checked={formData.assessmentTypes.includes(
-                                            type.id,
-                                        )}
+                                        checked={
+                                            type.id === 'ikm'
+                                                ? data.enable_ikm
+                                                : type.id === 'sloi'
+                                                  ? data.enable_sloi
+                                                  : data.enable_sroi
+                                        }
                                         onChange={(checked) =>
                                             handleAssessmentTypeChange(
                                                 type.id,
@@ -172,13 +520,20 @@ export default function CreateProject() {
                             </span>
                             <button
                                 onClick={handleSubmit}
-                                className="flex items-center gap-2 rounded-lg bg-primary-btn px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary-btn/20 transition-all hover:bg-primary-btn-hover active:scale-95"
+                                disabled={processing}
+                                className="flex items-center gap-2 rounded-lg bg-primary-btn px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary-btn/20 transition-all hover:bg-primary-btn-hover active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Langkah Selanjutnya
-                                <Icon
-                                    name="arrow_forward"
-                                    className="text-sm"
-                                />
+                                {processing ? (
+                                    'Menyimpan...'
+                                ) : (
+                                    <>
+                                        Simpan Proyek
+                                        <Icon
+                                            name="save"
+                                            className="text-sm"
+                                        />
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>

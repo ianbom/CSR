@@ -38,6 +38,14 @@ class District extends Model
     }
 
     /**
+     * Get the villages for this district.
+     */
+    public function villages(): HasMany
+    {
+        return $this->hasMany(Village::class);
+    }
+
+    /**
      * Get the project locations for this district.
      */
     public function projectLocations(): HasMany

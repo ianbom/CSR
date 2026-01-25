@@ -61,8 +61,8 @@ class UserSeeder extends Seeder
         User::create([
             'company_id' => $companyA->id,
             'name' => 'Admin Maju Bersama',
-            'email' => 'admin@majubersama.co.id',
-            'password' => Hash::make('password'),
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('admin123'),
             'role' => 'company',
             'phone' => '081345678901',
             'email_verified_at' => now(),

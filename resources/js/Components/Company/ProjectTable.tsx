@@ -5,7 +5,7 @@ import ProgressBar from './ProgressBar';
 import StatusBadge from './StatusBadge';
 
 export interface Project {
-    id: string;
+    id: number | string;
     code: string;
     name: string;
     type: 'IKM' | 'SLOI' | 'SROI';
@@ -14,6 +14,8 @@ export interface Project {
     status: 'active' | 'draft' | 'closed';
     currentResponses: number;
     targetResponses: number;
+    startDate?: string;
+    endDate?: string;
 }
 
 interface ProjectTableProps {

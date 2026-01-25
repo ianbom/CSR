@@ -7,26 +7,38 @@ import {
     SearchInput,
     SummaryCard,
 } from '@/Components/Company';
-import { projectsData } from '@/data';
 import CompanyLayout from '@/Layouts/CompanyLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-// Menggunakan data dari JSON
-const mockProjects = projectsData.projects as Project[];
-const filterTabs = projectsData.filterTabs;
-const summaryStats = projectsData.summaryStats;
-const paginationConfig = projectsData.pagination;
+interface Summary {
+    totalProjects: number;
+    activeProjects: number;
+    draftProjects: number;
+    closedProjects: number;
+    totalRespondents: number;
+}
 
-export default function ListProject() {
+interface Props {
+    projects: Project[];
+    summary: Summary;
+}
+
+const filterTabs = [
+    { id: 'all', label: 'Semua' },
+    { id: 'active', label: 'Aktif' },
+    { id: 'draft', label: 'Draft' },
+    { id: 'closed', label: 'Selesai' },
+];
+
+export default function ListProject({ projects, summary }: Props) {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
-    const [currentPage, setCurrentPage] = useState(
-        paginationConfig.currentPage,
-    );
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     // Filter proyek berdasarkan pencarian dan status
-    const filteredProjects = mockProjects.filter((project) => {
+    const filteredProjects = projects.filter((project) => {
         const matchesSearch =
             project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             project.code.toLowerCase().includes(searchQuery.toLowerCase());
@@ -34,6 +46,13 @@ export default function ListProject() {
             activeFilter === 'all' || project.status === activeFilter;
         return matchesSearch && matchesFilter;
     });
+
+    // Pagination
+    const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+    const paginatedProjects = filteredProjects.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage,
+    );
 
     const handleEdit = (project: Project) => {
         console.log('Edit proyek:', project);
@@ -71,28 +90,28 @@ export default function ListProject() {
                 {/* Kartu Ringkasan */}
                 <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
                     <SummaryCard
-                        icon="monitoring"
+                        icon="folder"
                         iconBgColor="bg-primary/10"
                         iconColor="text-primary"
-                        title="Total ROI Terlacak"
-                        value={summaryStats.totalROI}
-                        subtitle={summaryStats.totalROITrend}
+                        title="Total Proyek"
+                        value={summary.totalProjects.toString()}
+                        subtitle={`${summary.activeProjects} aktif`}
                     />
                     <SummaryCard
                         icon="groups"
                         iconBgColor="bg-primary/10"
                         iconColor="text-primary"
                         title="Total Responden"
-                        value={summaryStats.totalRespondents}
-                        subtitle={summaryStats.totalRespondentsSubtitle}
+                        value={summary.totalRespondents.toString()}
+                        subtitle="Dari semua proyek"
                     />
                     <SummaryCard
                         icon="draft"
                         iconBgColor="bg-amber-50"
                         iconColor="text-amber-600"
                         title="Proposal Draft"
-                        value={summaryStats.draftProposals}
-                        subtitle={summaryStats.draftProposalsSubtitle}
+                        value={summary.draftProjects.toString()}
+                        subtitle="Menunggu aktivasi"
                     />
                 </div>
 
@@ -116,23 +135,37 @@ export default function ListProject() {
 
                 {/* Tabel Proyek */}
                 <div className="mb-6">
-                    <ProjectTable
-                        projects={filteredProjects}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                    />
+                    {paginatedProjects.length > 0 ? (
+                        <ProjectTable
+                            projects={paginatedProjects}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                        />
+                    ) : (
+                        <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
+                            <Icon name="folder_off" className="mx-auto text-5xl text-slate-300" />
+                            <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                                Belum ada proyek
+                            </h3>
+                            <p className="mt-2 text-slate-500">
+                                Mulai buat proyek pertama Anda untuk melacak dampak sosial.
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Pagination */}
-                <div className="mb-8">
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={paginationConfig.totalPages}
-                        totalItems={paginationConfig.totalItems}
-                        itemsPerPage={paginationConfig.itemsPerPage}
-                        onPageChange={setCurrentPage}
-                    />
-                </div>
+                {totalPages > 1 && (
+                    <div className="mb-8">
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalItems={filteredProjects.length}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={setCurrentPage}
+                        />
+                    </div>
+                )}
             </div>
         </CompanyLayout>
     );

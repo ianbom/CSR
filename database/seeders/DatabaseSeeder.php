@@ -25,6 +25,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             InstrumentTemplateSeeder::class,
+            ProvinceSeeder::class,
+            CitySeeder::class,
+            DistrictSeeder::class,
+            // VillageSeeder::class,
+
         ]);
     }
 }

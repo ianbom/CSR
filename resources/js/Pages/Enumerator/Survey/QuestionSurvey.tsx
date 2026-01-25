@@ -42,15 +42,7 @@ export default function QuestionSurvey() {
     // State to track answers: { questionId: answerValue }
     const [answers, setAnswers] = useState<Record<number, number>>({});
 
-    // Calculate which question is currently active (first unanswered)
-    const activeQuestionId = useMemo(() => {
-        for (const question of sampleQuestions) {
-            if (answers[question.id] === undefined) {
-                return question.id;
-            }
-        }
-        return null; // All answered
-    }, [answers]);
+
 
     // Calculate progress percentage
     const progressPercentage = useMemo(() => {
@@ -90,18 +82,18 @@ export default function QuestionSurvey() {
     const isComplete = Object.keys(answers).length === sampleQuestions.length;
 
     return (
-        <EnumeratorLayout activeNav="tugasku">
+       <EnumeratorLayout>
             <Head title="Kuesioner Survei" />
 
-            {/* Survey Header */}
-            <SurveyHeader
-                title="Survei Kepuasan"
-                subtitle="Publik & Masyarakat"
-                onClose={handleClose}
-            />
+            {/* Main Container - Centered */}
+            <div className="w-full max-w-2xl mx-auto flex flex-col gap-4 pb-8">
+                {/* Survey Header */}
+                <SurveyHeader
+                    title="Survei Kepuasan"
+                    subtitle="Publik & Masyarakat"
+                    onClose={handleClose}
+                />
 
-            {/* Content Container */}
-            <div className="max-w-2xl mx-auto flex flex-col gap-6">
                 {/* Progress Card */}
                 <SurveyProgressCard
                     percentage={progressPercentage}
@@ -119,25 +111,22 @@ export default function QuestionSurvey() {
                             name={`q${question.id}`}
                             value={answers[question.id]}
                             onChange={(value) => handleAnswerChange(question.id, value)}
-                            isActive={activeQuestionId === question.id}
+                            isActive={false}
                             isAnswered={answers[question.id] !== undefined}
                         />
                     ))}
                 </div>
 
-                {/* Spacer for fixed footer */}
-                <div className="h-24" />
+                {/* Footer Actions */}
+                <SurveyFooter
+                    onBack={handleBack}
+                    onSubmit={handleSubmit}
+                    backLabel="Kembali"
+                    submitLabel="Submit Review"
+                    submitIcon="check"
+                    isSubmitDisabled={!isComplete}
+                />
             </div>
-
-            {/* Fixed Footer */}
-            <SurveyFooter
-                onBack={handleBack}
-                onSubmit={handleSubmit}
-                backLabel="Kembali"
-                submitLabel="Submit Review"
-                submitIcon="check"
-                isSubmitDisabled={!isComplete}
-            />
         </EnumeratorLayout>
     );
 }

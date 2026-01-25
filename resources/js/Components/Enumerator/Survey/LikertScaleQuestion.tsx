@@ -25,38 +25,17 @@ export default function LikertScaleQuestion({
 }: LikertScaleQuestionProps) {
     const scales = Array.from({ length: scaleSize }, (_, i) => i + 1);
 
-    // Determine card styling based on state
-    const getCardClasses = () => {
-        if (isActive) {
-            return 'bg-white rounded-xl shadow-md shadow-primary/5 border border-primary/20 p-5 flex flex-col gap-4 relative overflow-hidden';
-        }
-        if (!isAnswered && !isActive) {
-            return 'bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col gap-4 opacity-75 hover:opacity-100 transition-opacity';
-        }
-        return 'bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col gap-4';
-    };
+    // Card styling - consistent for all states to prevent layout shifts
+    const cardClasses = 'bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col gap-4';
 
-    // Determine number badge styling
-    const getNumberBadgeClasses = () => {
-        if (isActive) {
-            return 'flex-shrink-0 flex items-center justify-center size-7 rounded-full bg-primary text-white text-sm font-bold';
-        }
-        if (isAnswered) {
-            return 'flex-shrink-0 flex items-center justify-center size-7 rounded-full bg-primary/10 text-primary text-sm font-bold';
-        }
-        return 'flex-shrink-0 flex items-center justify-center size-7 rounded-full bg-gray-100 text-gray-500 text-sm font-bold';
-    };
+    // Number badge styling - consistent color for all states
+    const numberBadgeClasses = 'flex-shrink-0 flex items-center justify-center size-7 rounded-full bg-gray-100 text-gray-600 text-sm font-bold';
 
     return (
-        <div className={getCardClasses()}>
-            {/* Active indicator bar */}
-            {isActive && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
-            )}
-
+        <div className={cardClasses}>
             {/* Question header */}
             <div className="flex gap-3">
-                <span className={getNumberBadgeClasses()}>{questionNumber}</span>
+                <span className={numberBadgeClasses}>{questionNumber}</span>
                 <h3 className="text-base font-bold text-gray-900 leading-snug pt-0.5">
                     {question}
                 </h3>
@@ -77,28 +56,17 @@ export default function LikertScaleQuestion({
                 {/* Scale buttons */}
                 <div className="flex items-center justify-between gap-2">
                     {scales.map((scaleValue) => (
-                        <label
+                        <button
                             key={scaleValue}
-                            className="group cursor-pointer flex flex-col items-center gap-1"
-                        >
-                            <input
-                                type="radio"
-                                name={name}
-                                value={scaleValue}
-                                checked={value === scaleValue}
-                                onChange={() => onChange?.(scaleValue)}
-                                className="peer sr-only"
-                            />
-                            <div
-                                className={`size-9 md:size-11 rounded-full bg-white border flex items-center justify-center text-sm font-medium transition-all hover:border-primary/50 ${
-                                    value === scaleValue
-                                        ? 'border-primary bg-primary text-white shadow-md shadow-primary/20'
-                                        : 'border-gray-300 text-gray-500'
+                            type="button"
+                            onClick={() => onChange?.(scaleValue)}
+                            className={`size-9 md:size-11 rounded-full flex items-center justify-center text-sm font-semibold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-1 ${value === scaleValue
+                                    ? 'bg-primary border-2 border-primary text-white shadow-lg shadow-primary/30'
+                                    : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-primary/50 hover:text-primary'
                                 }`}
-                            >
-                                {scaleValue}
-                            </div>
-                        </label>
+                        >
+                            {scaleValue}
+                        </button>
                     ))}
                 </div>
             </div>

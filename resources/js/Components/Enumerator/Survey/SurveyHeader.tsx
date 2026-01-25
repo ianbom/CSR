@@ -12,8 +12,8 @@ export default function SurveyHeader({
     onClose,
 }: SurveyHeaderProps) {
     return (
-        <div className="bg-white border-b border-gray-100 px-4 py-3 -mx-4 md:-mx-8 -mt-4 md:-mt-8 mb-2">
-            <div className="max-w-2xl mx-auto flex items-center justify-between">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+            <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="flex items-center justify-center size-10 rounded-full bg-primary/10 text-primary">
                         <MaterialIcon name="assignment" />

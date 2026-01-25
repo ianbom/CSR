@@ -1,4 +1,3 @@
-import { ReactNode } from 'react';
 import MaterialIcon from '../Icons/MaterialIcon';
 
 interface SurveyFooterProps {
@@ -19,12 +18,12 @@ export default function SurveyFooter({
     isSubmitDisabled = false,
 }: SurveyFooterProps) {
     return (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t border-gray-100 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-            <div className="max-w-2xl mx-auto flex gap-4">
+        <div className="p-4 bg-white border border-gray-100 rounded-xl mt-4">
+            <div className="flex gap-4">
                 {onBack && (
                     <button
                         onClick={onBack}
-                        className="flex-1 h-12 flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-transparent text-gray-700 font-bold text-sm transition-colors hover:bg-gray-50"
+                        className="flex-1 h-12 flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white text-gray-700 font-bold text-sm transition-colors hover:bg-gray-50"
                     >
                         {backLabel}
                     </button>

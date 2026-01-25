@@ -1,6 +1,8 @@
 // Export all Company components for easy importing
 export { default as ActivityFeed } from './ActivityFeed';
 export { default as AssessmentTypeCard } from './AssessmentTypeCard';
+export { default as AssignEnumeratorModal } from './AssignEnumeratorModal';
+export type { Enumerator as EnumeratorType } from './AssignEnumeratorModal';
 export { default as BarChart } from './BarChart';
 export { default as EnumeratorCard } from './EnumeratorCard';
 export type { Enumerator } from './EnumeratorCard';

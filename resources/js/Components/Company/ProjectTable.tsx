@@ -18,8 +18,16 @@ export interface Project {
     endDate?: string;
 }
 
+interface SortConfig {
+    key: string;
+    order: 'asc' | 'desc';
+}
+
 interface ProjectTableProps {
     projects: Project[];
+    startIndex?: number;
+    sortConfig?: SortConfig;
+    onSort?: (key: string) => void;
     onEdit?: (project: Project) => void;
     onDelete?: (project: Project) => void;
 }
@@ -30,29 +38,73 @@ const typeColors = {
     SROI: 'text-primary',
 };
 
+function SortIcon({ columnKey, sortConfig }: { columnKey: string; sortConfig?: SortConfig }) {
+    if (!sortConfig || sortConfig.key !== columnKey) {
+        return <Icon name="unfold_more" className="text-sm text-slate-300" />;
+    }
+    return sortConfig.order === 'asc'
+        ? <Icon name="expand_less" className="text-sm text-primary" />
+        : <Icon name="expand_more" className="text-sm text-primary" />;
+}
+
 export default function ProjectTable({
     projects,
+    startIndex = 0,
+    sortConfig,
+    onSort,
     onEdit,
     onDelete,
 }: ProjectTableProps): ReactNode {
+    const handleSort = (key: string) => {
+        if (onSort) {
+            onSort(key);
+        }
+    };
+
     return (
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
             {/* Table Header */}
             <div className="grid grid-cols-12 gap-4 border-b border-slate-100 bg-slate-50 px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                <div className="col-span-2">Code</div>
-                <div className="col-span-4">Project Details</div>
-                <div className="col-span-1 text-center">Status</div>
+                <div className="col-span-1 text-center">No</div>
+                <div
+                    className="col-span-2 flex cursor-pointer items-center gap-1 hover:text-slate-700"
+                    onClick={() => handleSort('project_code')}
+                >
+                    Code
+                    <SortIcon columnKey="project_code" sortConfig={sortConfig} />
+                </div>
+                <div
+                    className="col-span-3 flex cursor-pointer items-center gap-1 hover:text-slate-700"
+                    onClick={() => handleSort('name')}
+                >
+                    Project Details
+                    <SortIcon columnKey="name" sortConfig={sortConfig} />
+                </div>
+                <div
+                    className="col-span-1 flex cursor-pointer items-center justify-center gap-1 hover:text-slate-700"
+                    onClick={() => handleSort('status')}
+                >
+                    Status
+                    <SortIcon columnKey="status" sortConfig={sortConfig} />
+                </div>
                 <div className="col-span-4">Completion Progress</div>
                 <div className="col-span-1 text-center">Actions</div>
             </div>
 
             {/* Table Body */}
             <div className="divide-y divide-slate-100">
-                {projects.map((project) => (
+                {projects.map((project, index) => (
                     <div
                         key={project.id}
                         className="grid grid-cols-12 items-center gap-4 px-6 py-5 transition-colors hover:bg-slate-50"
                     >
+                        {/* No */}
+                        <div className="col-span-1 text-center">
+                            <span className="text-sm font-medium text-slate-600">
+                                {startIndex + index + 1}
+                            </span>
+                        </div>
+
                         {/* Code */}
                         <div className="col-span-2">
                             <span className="rounded border border-slate-200 bg-slate-50 px-2 py-1 font-mono text-sm font-medium text-slate-700">
@@ -61,7 +113,7 @@ export default function ProjectTable({
                         </div>
 
                         {/* Project Details */}
-                        <div className="col-span-4">
+                        <div className="col-span-3">
                             <Link
                                 href={`/company/projects/${project.id}`}
                                 className="font-semibold text-slate-900 hover:text-primary"

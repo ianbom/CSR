@@ -1,4 +1,6 @@
 import {
+    AssignEnumeratorModal,
+    EnumeratorType,
     FilterTabs,
     Icon,
     Pagination,
@@ -8,8 +10,9 @@ import {
     SummaryCard,
 } from '@/Components/Company';
 import CompanyLayout from '@/Layouts/CompanyLayout';
-import { Head, Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useCallback, useState } from 'react';
+import debounce from 'lodash/debounce';
 
 interface Summary {
     totalProjects: number;
@@ -19,47 +22,139 @@ interface Summary {
     totalRespondents: number;
 }
 
+interface PaginatedProjects {
+    data: Project[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number;
+    to: number;
+}
+
+interface Filters {
+    search: string | null;
+    status: string;
+    sort_by: string;
+    sort_order: string;
+    per_page: number;
+}
+
 interface Props {
-    projects: Project[];
+    projects: PaginatedProjects;
     summary: Summary;
+    enumerators: EnumeratorType[];
+    filters: Filters;
 }
 
 const filterTabs = [
-    { id: 'all', label: 'Semua' },
-    { id: 'active', label: 'Aktif' },
-    { id: 'draft', label: 'Draft' },
-    { id: 'closed', label: 'Selesai' },
+    { key: 'all', label: 'Semua' },
+    { key: 'active', label: 'Aktif' },
+    { key: 'draft', label: 'Draft' },
+    { key: 'closed', label: 'Selesai' },
 ];
 
-export default function ListProject({ projects, summary }: Props) {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [activeFilter, setActiveFilter] = useState('all');
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+const perPageOptions = [10, 25, 50, 100];
 
-    // Filter proyek berdasarkan pencarian dan status
-    const filteredProjects = projects.filter((project) => {
-        const matchesSearch =
-            project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            project.code.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesFilter =
-            activeFilter === 'all' || project.status === activeFilter;
-        return matchesSearch && matchesFilter;
-    });
+export default function ListProject({ projects, summary, enumerators, filters }: Props) {
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
-    // Pagination
-    const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
-    const paginatedProjects = filteredProjects.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage,
+    // Modal state
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+    const [assignedEnumeratorIds, setAssignedEnumeratorIds] = useState<number[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Debounced search
+    const debouncedSearch = useCallback(
+        debounce((value: string) => {
+            router.get(
+                '/company/projects',
+                { ...filters, search: value || null, page: 1 },
+                { preserveState: true, preserveScroll: true },
+            );
+        }, 300),
+        [filters],
     );
 
-    const handleEdit = (project: Project) => {
-        console.log('Edit proyek:', project);
+    const handleSearchChange = (value: string) => {
+        setSearchQuery(value);
+        debouncedSearch(value);
+    };
+
+    const handleFilterChange = (status: string) => {
+        router.get(
+            '/company/projects',
+            { ...filters, status, page: 1 },
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const handleSort = (key: string) => {
+        const newOrder = filters.sort_by === key && filters.sort_order === 'asc' ? 'desc' : 'asc';
+        router.get(
+            '/company/projects',
+            { ...filters, sort_by: key, sort_order: newOrder, page: 1 },
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const handlePageChange = (page: number) => {
+        router.get(
+            '/company/projects',
+            { ...filters, page },
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const handlePerPageChange = (perPage: number) => {
+        router.get(
+            '/company/projects',
+            { ...filters, per_page: perPage, page: 1 },
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const handleEdit = async (project: Project) => {
+        setSelectedProject(project);
+        // Fetch assigned enumerators for this project
+        try {
+            const response = await fetch(`/api/projects/${project.id}/enumerators`);
+            const data = await response.json();
+            setAssignedEnumeratorIds(data.map((e: { id: number }) => e.id));
+        } catch (error) {
+            setAssignedEnumeratorIds([]);
+        }
+        setIsModalOpen(true);
     };
 
     const handleDelete = (project: Project) => {
-        console.log('Hapus proyek:', project);
+        if (confirm(`Apakah Anda yakin ingin menghapus proyek "${project.name}"?`)) {
+            router.delete(`/company/projects/${project.id}`);
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedProject(null);
+        setAssignedEnumeratorIds([]);
+    };
+
+    const handleAssignEnumerators = (projectId: number | string, enumeratorIds: number[]) => {
+        setIsSubmitting(true);
+        router.post(
+            `/company/projects/${projectId}/assign-enumerators`,
+            { enumerator_ids: enumeratorIds },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    handleCloseModal();
+                },
+                onFinish: () => {
+                    setIsSubmitting(false);
+                },
+            },
+        );
     };
 
     return (
@@ -116,28 +211,44 @@ export default function ListProject({ projects, summary }: Props) {
                 </div>
 
                 {/* Bagian Filter */}
-                <div className="mb-6 flex items-center gap-4">
+                <div className="mb-6 flex flex-wrap items-center gap-4">
                     <SearchInput
-                        placeholder="Cari berdasarkan nama proyek, kode, atau analis..."
+                        placeholder="Cari berdasarkan nama proyek atau kode..."
                         value={searchQuery}
-                        onChange={setSearchQuery}
+                        onChange={handleSearchChange}
                     />
                     <FilterTabs
                         tabs={filterTabs}
-                        activeTab={activeFilter}
-                        onTabChange={setActiveFilter}
+                        activeTab={filters.status}
+                        onTabChange={handleFilterChange}
                     />
-                    <button className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50">
-                        <Icon name="tune" className="text-lg" />
-                        Filter Lanjutan
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-slate-500">Tampilkan:</span>
+                        <select
+                            value={filters.per_page}
+                            onChange={(e) => handlePerPageChange(Number(e.target.value))}
+                            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                            {perPageOptions.map((option) => (
+                                <option key={option} value={option}>
+                                    {option}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 {/* Tabel Proyek */}
                 <div className="mb-6">
-                    {paginatedProjects.length > 0 ? (
+                    {projects.data.length > 0 ? (
                         <ProjectTable
-                            projects={paginatedProjects}
+                            projects={projects.data}
+                            startIndex={(projects.current_page - 1) * projects.per_page}
+                            sortConfig={{
+                                key: filters.sort_by,
+                                order: filters.sort_order as 'asc' | 'desc',
+                            }}
+                            onSort={handleSort}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
                         />
@@ -145,28 +256,50 @@ export default function ListProject({ projects, summary }: Props) {
                         <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
                             <Icon name="folder_off" className="mx-auto text-5xl text-slate-300" />
                             <h3 className="mt-4 text-lg font-semibold text-slate-900">
-                                Belum ada proyek
+                                {searchQuery || filters.status !== 'all'
+                                    ? 'Tidak ada proyek yang ditemukan'
+                                    : 'Belum ada proyek'}
                             </h3>
                             <p className="mt-2 text-slate-500">
-                                Mulai buat proyek pertama Anda untuk melacak dampak sosial.
+                                {searchQuery || filters.status !== 'all'
+                                    ? 'Coba ubah filter atau kata kunci pencarian Anda.'
+                                    : 'Mulai buat proyek pertama Anda untuk melacak dampak sosial.'}
                             </p>
                         </div>
                     )}
                 </div>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
+                {projects.last_page > 1 && (
                     <div className="mb-8">
                         <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            totalItems={filteredProjects.length}
-                            itemsPerPage={itemsPerPage}
-                            onPageChange={setCurrentPage}
+                            currentPage={projects.current_page}
+                            totalPages={projects.last_page}
+                            totalItems={projects.total}
+                            itemsPerPage={projects.per_page}
+                            onPageChange={handlePageChange}
                         />
                     </div>
                 )}
+
+                {/* Info total data */}
+                {projects.total > 0 && (
+                    <div className="text-sm text-slate-500">
+                        Menampilkan {projects.from} - {projects.to} dari {projects.total} proyek
+                    </div>
+                )}
             </div>
+
+            {/* Assign Enumerator Modal */}
+            <AssignEnumeratorModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                project={selectedProject}
+                enumerators={enumerators || []}
+                assignedEnumeratorIds={assignedEnumeratorIds}
+                onSubmit={handleAssignEnumerators}
+                isLoading={isSubmitting}
+            />
         </CompanyLayout>
     );
 }

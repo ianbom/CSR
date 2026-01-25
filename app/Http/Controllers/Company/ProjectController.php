@@ -21,17 +21,28 @@ class ProjectController extends Controller
         $this->areaService = $areaService;
     }
 
-    public function listProjectPage()
+    public function listProjectPage(Request $request)
     {
         $user = Auth::user();
         $companyId = $user->company_id;
 
-        $projects = $this->projectService->getAllProjectsByCompany($companyId);
+        $params = [
+            'search' => $request->input('search'),
+            'status' => $request->input('status', 'all'),
+            'sort_by' => $request->input('sort_by', 'created_at'),
+            'sort_order' => $request->input('sort_order', 'desc'),
+            'per_page' => $request->input('per_page', 10),
+        ];
+
+        $projects = $this->projectService->getAllProjectsByCompany($companyId, $params);
         $summary = $this->projectService->getProjectSummary($companyId);
+        $enumerators = $this->projectService->getEnumeratorsByCompany($companyId);
 
         return Inertia::render('Company/Project/ListProject', [
             'projects' => $projects,
             'summary' => $summary,
+            'enumerators' => $enumerators,
+            'filters' => $params,
         ]);
     }
 
@@ -63,5 +74,32 @@ class ProjectController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat membuat proyek: ' . $th->getMessage());
         }
 
+    }
+
+    public function getProjectEnumerators(int $projectId)
+    {
+        $user = Auth::user();
+        $enumerators = $this->projectService->getProjectEnumerators($projectId, $user->company_id);
+
+        return response()->json($enumerators);
+    }
+
+    public function assignEnumerators(Request $request, int $projectId)
+    {
+        $request->validate([
+            'enumerator_ids' => 'array',
+            'enumerator_ids.*' => 'integer|exists:users,id',
+        ]);
+
+        $user = Auth::user();
+        $companyId = $user->company_id;
+
+        $this->projectService->assignEnumeratorsToProject(
+            $projectId,
+            $request->input('enumerator_ids', []),
+            $companyId
+        );
+
+        return redirect()->back()->with('success', 'Enumerator berhasil di-assign.');
     }
 }

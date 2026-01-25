@@ -20,11 +20,13 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Area API Routes
 Route::prefix('api/area')->name('api.area.')->group(function () {
     Route::get('/provinces', [AreaController::class, 'getProvinces'])->name('provinces');
     Route::get('/cities', [AreaController::class, 'getCities'])->name('cities');
     Route::get('/districts', [AreaController::class, 'getDistricts'])->name('districts');
+});
+Route::prefix('api/projects')->name('api.projects.')->group(function () {
+    Route::get('/{id}/enumerators', [ProjectController::class, 'getProjectEnumerators'])->name('enumerators');
 });
 
 // Company Routes
@@ -39,6 +41,7 @@ Route::prefix('company')->name('company.')->group(function () {
     Route::get('/projects', [ProjectController::class, 'listProjectPage'])->name('projects');
     Route::get('/projects/create', [ProjectController::class, 'createProjectPage'])->name('projects.create');
     Route::post('/projects', [ProjectController::class, 'storeProject'])->name('projects.store');
+    Route::post('/projects/{id}/assign-enumerators', [ProjectController::class, 'assignEnumerators'])->name('projects.assign-enumerators');
 
 
     Route::get('/projects/{id}', function ($id) {

@@ -8,6 +8,8 @@ import {
     ProjectCard,
     ProjectData,
     ProjectStatus,
+    ProjectType,
+    ProjectVerificationModal,
 } from '@/Components/Enumerator';
 
 type FilterStatus = 'all' | ProjectStatus;
@@ -66,6 +68,8 @@ const filterOptions: FilterOption[] = [
 export default function ListProject() {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null);
 
     const filteredProjects = useMemo(() => {
         return sampleProjects.filter((project) => {
@@ -88,13 +92,18 @@ export default function ListProject() {
     }, [searchQuery, activeFilter]);
 
     const handleStartSurvey = (project: ProjectData) => {
-        console.log('Starting survey:', project);
-        // Navigate to survey page
+        setSelectedProject(project);
+        setIsModalOpen(true);
     };
 
     const handleViewReport = (project: ProjectData) => {
         console.log('Viewing report:', project);
         // Navigate to report page
+    };
+
+    const handleVerificationSubmit = (projectCode: string, surveyType: ProjectType) => {
+        console.log('Verification submitted:', { projectCode, surveyType, project: selectedProject });
+        // Navigate to survey page with verified data
     };
 
     return (
@@ -151,6 +160,14 @@ export default function ListProject() {
                     </div>
                 )}
             </div>
+
+            {/* Verification Modal */}
+            <ProjectVerificationModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                project={selectedProject}
+                onSubmit={handleVerificationSubmit}
+            />
         </EnumeratorLayout>
     );
 }

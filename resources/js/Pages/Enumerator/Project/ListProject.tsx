@@ -109,12 +109,24 @@ export default function ListProject({ projects, filters }: ListProjectProps) {
         projectCode: string,
         surveyType: ProjectType,
     ) => {
-        console.log('Verification submitted:', {
-            projectCode,
-            surveyType,
-            project: selectedProject,
-        });
-        // Navigate to survey page with verified data
+        if (!selectedProject) return;
+
+        router.get(
+            route('enumerator.survey.respondent', selectedProject.id),
+            {
+                projectCode,
+                surveyType,
+            },
+            {
+                onError: (errors) => {
+                    console.error('Verification failed:', errors);
+                    // You might want to handle flash errors here if your layout supports them
+                },
+                onFinish: () => {
+                    setIsModalOpen(false);
+                },
+            },
+        );
     };
 
     return (

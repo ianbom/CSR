@@ -3,6 +3,7 @@
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\Company\ProjectController;
 use App\Http\Controllers\Enumerator\ProjectController as EnumeratorProjectController;
+use App\Http\Controllers\Enumerator\SurveyController as EnumeratorSurveyController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -23,10 +24,7 @@ Route::get('/dashboard', function () {
 
 Route::prefix('enumerator')->name('enumerator.')->group(function () {
     Route::get('/list', [EnumeratorProjectController::class, 'listProjectPage'])->name('list-survey');
-
-    Route::get('/survey/respondent', function () {
-        return Inertia::render('Enumerator/Survey/RespondentSurvey');
-    })->name('survey.respondent');
+    Route::get('/survey/respondent/{projectId}', [EnumeratorSurveyController::class, 'surveyRespondentPage'])->name('survey.respondent');
 
     Route::get('/survey/questions', function () {
         return Inertia::render('Enumerator/Survey/QuestionSurvey');

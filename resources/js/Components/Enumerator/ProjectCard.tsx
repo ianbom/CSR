@@ -7,7 +7,7 @@ export type ProjectType = 'IKM' | 'SLOI';
 
 export interface ProjectData {
     id: string | number;
-    title: string;
+    name: string;
     institution: string;
     type: ProjectType;
     status: ProjectStatus;
@@ -114,7 +114,7 @@ export default function ProjectCard({
                 {/* Title and Institution */}
                 <div>
                     <h3 className="mb-1 text-lg font-bold leading-snug text-gray-900 transition-colors group-hover:text-primary">
-                        {project.title}
+                        {project.name}
                     </h3>
                     <div className="flex items-center gap-1.5 text-gray-500">
                         <MaterialIcon

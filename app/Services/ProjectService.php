@@ -95,6 +95,7 @@ class ProjectService
         return [
             'id' => $project->id,
             'code' => $project->project_code,
+            'institution' => $project->company->name ?? '-', // Added institution
             'name' => $project->name,
             'type' => $type,
             'typeLabel' => $this->getTypeLabel($project),
@@ -240,5 +241,49 @@ class ProjectService
         ])->toArray();
 
         ProjectLocation::insert($locations);
+    }
+    public function getProjectsByEnumerator(int $enumeratorId, array $params = [])
+    {
+        // Get project IDs assigned to the enumerator
+        $assignedProjectIds = ProjectEnumeratorAssignment::where('enumerator_id', $enumeratorId)
+            ->pluck('project_id');
+
+        $query = Project::with(['locations.district.city.province', 'submissions', 'company']) // Added company relation
+            ->whereIn('id', $assignedProjectIds)
+            ->where('status', '!=', 'draft'); 
+
+        // Search
+        if (!empty($params['search'])) {
+            $search = $params['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('project_code', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by status if needed
+        if (!empty($params['status']) && $params['status'] !== 'all') {
+            $query->where('status', $params['status']);
+        }
+
+        // Sorting
+        $sortBy = $params['sort_by'] ?? 'created_at';
+        $sortOrder = $params['sort_order'] ?? 'desc';
+        $allowedSorts = ['name', 'project_code', 'status', 'created_at', 'start_date', 'end_date'];
+
+        if (in_array($sortBy, $allowedSorts)) {
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        // Pagination
+        $perPage = $params['per_page'] ?? 10;
+        $paginated = $query->paginate($perPage)->withQueryString();
+
+        // Transform data
+        $paginated->getCollection()->transform(fn($project) => $this->formatProjectForList($project));
+
+        return $paginated;
     }
 }

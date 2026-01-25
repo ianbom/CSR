@@ -9,50 +9,11 @@ import {
     SearchInput,
 } from '@/Components/Enumerator';
 import EnumeratorLayout from '@/Layouts/EnumeratorLayout';
-import { Head } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { Head, router } from '@inertiajs/react';
+import { debounce } from 'lodash';
+import { useCallback, useEffect, useState } from 'react';
 
 type FilterStatus = 'all' | ProjectStatus;
-
-// Sample data - in real app, this would come from props/API
-const sampleProjects: ProjectData[] = [
-    {
-        id: 1,
-        title: 'Survei Kepuasan Masyarakat 2024',
-        institution: 'Dinas Kependudukan',
-        type: 'IKM',
-        status: 'active',
-        startDate: '10 Jan',
-        endDate: '25 Jan 2024',
-    },
-    {
-        id: 2,
-        title: 'Indeks Layanan Online Terpadu',
-        institution: 'Kementerian Komunikasi',
-        type: 'SLOI',
-        status: 'active',
-        startDate: '15 Jan',
-        endDate: '20 Feb 2024',
-    },
-    {
-        id: 3,
-        title: 'Evaluasi Kinerja Pelayanan Publik',
-        institution: 'Pemerintah Kota Bandung',
-        type: 'IKM',
-        status: 'upcoming',
-        startDate: '01 Mar',
-        endDate: '30 Mar 2024',
-    },
-    {
-        id: 4,
-        title: 'Survei Kesehatan Lingkungan',
-        institution: 'Dinas Kesehatan',
-        type: 'SLOI',
-        status: 'finished',
-        startDate: '01 Des',
-        endDate: '31 Des 2023',
-    },
-];
 
 interface FilterOption {
     label: string;
@@ -65,33 +26,74 @@ const filterOptions: FilterOption[] = [
     { label: 'Akan Datang', value: 'upcoming' },
 ];
 
-export default function ListProject() {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
+interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+interface ListProjectProps {
+    projects: {
+        data: ProjectData[];
+        links: PaginationLink[];
+        meta: {
+            current_page: number;
+            last_page: number;
+            from: number;
+            to: number;
+            total: number;
+        };
+    };
+    filters: {
+        search?: string;
+        status?: FilterStatus;
+        sort_by?: string;
+        sort_order?: 'asc' | 'desc';
+    };
+}
+
+export default function ListProject({ projects, filters }: ListProjectProps) {
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
+    const [activeFilter, setActiveFilter] = useState<FilterStatus>(
+        filters.status || 'all',
+    );
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<ProjectData | null>(
         null,
     );
 
-    const filteredProjects = useMemo(() => {
-        return sampleProjects.filter((project) => {
-            // Filter by status
-            if (activeFilter !== 'all' && project.status !== activeFilter) {
-                return false;
-            }
+    // Debounce search to prevent excessive API calls
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const debouncedSearch = useCallback(
+        debounce((query: string, status: FilterStatus) => {
+            router.get(
+                route('enumerator.list-survey'),
+                { search: query, status: status },
+                { preserveState: true, replace: true },
+            );
+        }, 300),
+        [],
+    );
 
-            // Filter by search query
-            if (searchQuery) {
-                const query = searchQuery.toLowerCase();
-                return (
-                    project.title.toLowerCase().includes(query) ||
-                    project.institution.toLowerCase().includes(query)
-                );
-            }
+    // Initial search query sync
+    useEffect(() => {
+        setSearchQuery(filters.search || '');
+    }, [filters.search]);
 
-            return true;
-        });
-    }, [searchQuery, activeFilter]);
+    const handleSearchChange = (query: string) => {
+        setSearchQuery(query);
+        debouncedSearch(query, activeFilter);
+    };
+
+    const handleFilterChange = (status: FilterStatus) => {
+        setActiveFilter(status);
+        // Direct update for better UX on filter click
+        router.get(
+            route('enumerator.list-survey'),
+            { search: searchQuery, status: status },
+            { preserveState: true, replace: true },
+        );
+    };
 
     const handleStartSurvey = (project: ProjectData) => {
         setSelectedProject(project);
@@ -131,7 +133,7 @@ export default function ListProject() {
                 <SearchInput
                     placeholder="Cari berdasarkan nama project atau instansi..."
                     value={searchQuery}
-                    onChange={setSearchQuery}
+                    onChange={handleSearchChange}
                     className="w-full lg:max-w-md"
                 />
 
@@ -141,7 +143,7 @@ export default function ListProject() {
                         <FilterChip
                             key={option.value}
                             active={activeFilter === option.value}
-                            onClick={() => setActiveFilter(option.value)}
+                            onClick={() => handleFilterChange(option.value)}
                             showDropdown={option.value === 'all'}
                         >
                             {option.label}
@@ -152,7 +154,7 @@ export default function ListProject() {
 
             {/* Project Grid */}
             <div className="grid grid-cols-1 gap-6 pb-10 md:grid-cols-2 xl:grid-cols-3">
-                {filteredProjects.map((project) => (
+                {projects.data.map((project) => (
                     <ProjectCard
                         key={project.id}
                         project={project}
@@ -161,7 +163,7 @@ export default function ListProject() {
                     />
                 ))}
 
-                {filteredProjects.length === 0 && (
+                {projects.data.length === 0 && (
                     <div className="col-span-full py-12 text-center">
                         <p className="text-lg text-gray-500">
                             Tidak ada project yang ditemukan.

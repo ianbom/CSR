@@ -65,14 +65,23 @@ export default function EnumeratorLayout({
                 onMobileClose={closeMobileMenu}
             />
 
-            {/* Main Content */}
-            <main className="flex flex-1 flex-col overflow-y-auto">
+            {/* Main Content Wrapper */}
+            <main className="relative flex h-full flex-1 flex-col overflow-hidden">
+                {/* Mobile Header */}
                 <MobileHeader
                     onMenuClick={toggleMobileMenu}
                     isMenuOpen={mobileMenuOpen}
                 />
+
+                {/* Desktop Top Bar */}
                 <TopBar profileImage="https://lh3.googleusercontent.com/aida-public/AB6AXuA3Akw0BRi5rbwckYP1b0uFE48O5Kzcz4Bqnw6dYEHhksrtKrnxqDUvLhiCjVIY7Z1jIJ_S4OnL6Rg5qNiHaJlgDgATV9AHam64rZXvmdsdbdBXFf2qlLGgqvQ6ssrei7iAZkbkFQOLO3i9Dkiw5R46Nag0bicWMRkdcNMTvuspmiTCKQKXlIqP04fy5p0PwdHkN0C1aMKZQFa93c85fQ7SeWSWW9iK2hHfLho4cD_STDyGBJdAV1DTqAOuw2sULydiuMSB3-COyAU" />
-                <div className="flex-1 p-4 md:px-6 md:py-6">{children}</div>
+
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-8">
+                    <div className="mx-auto flex max-w-[1200px] flex-col gap-6">
+                        {children}
+                    </div>
+                </div>
             </main>
         </div>
     );

@@ -32,6 +32,10 @@ Route::prefix('enumerator')->name('enumerator.')->group(function () {
     Route::get('/survey/questions', function () {
         return Inertia::render('Enumerator/Survey/QuestionSurvey');
     })->name('survey.questions');
+
+    Route::get('/survey/review', function () {
+        return Inertia::render('Enumerator/Survey/ReviewSurvey');
+    })->name('survey.review');
 });
 
 Route::prefix('api/area')->name('api.area.')->group(function () {

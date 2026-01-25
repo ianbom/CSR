@@ -15,14 +15,11 @@ interface ButtonProps {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-    primary:
-        'bg-primary hover:bg-primary-dark text-white',
-    secondary:
-        'bg-gray-100 text-gray-400 cursor-not-allowed',
+    primary: 'bg-primary hover:bg-primary-dark text-white',
+    secondary: 'bg-gray-100 text-gray-400 cursor-not-allowed',
     outline:
         'bg-transparent border border-gray-200 hover:bg-gray-50 text-gray-700',
-    disabled:
-        'bg-gray-100 text-gray-400 cursor-not-allowed',
+    disabled: 'bg-gray-100 text-gray-400 cursor-not-allowed',
 };
 
 export default function Button({
@@ -42,7 +39,7 @@ export default function Button({
         <button
             onClick={onClick}
             disabled={disabled}
-            className={`flex items-center justify-center gap-2 font-bold py-2.5 px-4 rounded-lg transition-colors duration-200 ${variantStyles[actualVariant]} ${widthClass} ${className}`}
+            className={`flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-bold transition-colors duration-200 ${variantStyles[actualVariant]} ${widthClass} ${className}`}
         >
             {icon && iconPosition === 'left' && (
                 <MaterialIcon name={icon} className="text-[18px]" />

@@ -12,10 +12,10 @@ export default function SurveyHeader({
     onClose,
 }: SurveyHeaderProps) {
     return (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+        <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center size-10 rounded-full bg-primary/10 text-primary">
+                    <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
                         <MaterialIcon name="assignment" />
                     </div>
                     <div>
@@ -32,7 +32,7 @@ export default function SurveyHeader({
                 {onClose && (
                     <button
                         onClick={onClose}
-                        className="flex size-10 items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+                        className="flex size-10 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100"
                     >
                         <MaterialIcon name="close" />
                     </button>

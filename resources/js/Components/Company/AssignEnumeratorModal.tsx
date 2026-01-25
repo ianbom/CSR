@@ -1,4 +1,3 @@
-import { useForm } from '@inertiajs/react';
 import { FormEvent, useEffect, useState } from 'react';
 import Icon from './Icon';
 
@@ -87,7 +86,8 @@ export default function AssignEnumeratorModal({
                             Assign Enumerator
                         </h2>
                         <p className="text-sm text-slate-500">
-                            Proyek: <span className="font-medium">{project.name}</span>{' '}
+                            Proyek:{' '}
+                            <span className="font-medium">{project.name}</span>{' '}
                             <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">
                                 {project.code}
                             </span>
@@ -115,7 +115,9 @@ export default function AssignEnumeratorModal({
                                     type="text"
                                     placeholder="Cari enumerator..."
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={(e) =>
+                                        setSearchQuery(e.target.value)
+                                    }
                                     className="w-full rounded-lg border border-slate-200 py-2.5 pl-10 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                                 />
                             </div>
@@ -128,7 +130,8 @@ export default function AssignEnumeratorModal({
                                     <input
                                         type="checkbox"
                                         checked={
-                                            selectedIds.length === filteredEnumerators.length &&
+                                            selectedIds.length ===
+                                                filteredEnumerators.length &&
                                             filteredEnumerators.length > 0
                                         }
                                         onChange={handleSelectAll}
@@ -154,12 +157,18 @@ export default function AssignEnumeratorModal({
                                     >
                                         <input
                                             type="checkbox"
-                                            checked={selectedIds.includes(enumerator.id)}
-                                            onChange={() => handleToggle(enumerator.id)}
+                                            checked={selectedIds.includes(
+                                                enumerator.id,
+                                            )}
+                                            onChange={() =>
+                                                handleToggle(enumerator.id)
+                                            }
                                             className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
                                         />
                                         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                                            {enumerator.name.charAt(0).toUpperCase()}
+                                            {enumerator.name
+                                                .charAt(0)
+                                                .toUpperCase()}
                                         </div>
                                         <div className="flex-1">
                                             <p className="text-sm font-medium text-slate-900">
@@ -169,7 +178,9 @@ export default function AssignEnumeratorModal({
                                                 {enumerator.email}
                                             </p>
                                         </div>
-                                        {assignedEnumeratorIds.includes(enumerator.id) && (
+                                        {assignedEnumeratorIds.includes(
+                                            enumerator.id,
+                                        ) && (
                                             <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
                                                 Assigned
                                             </span>
@@ -208,7 +219,10 @@ export default function AssignEnumeratorModal({
                         >
                             {isLoading ? (
                                 <>
-                                    <Icon name="sync" className="animate-spin" />
+                                    <Icon
+                                        name="sync"
+                                        className="animate-spin"
+                                    />
                                     Menyimpan...
                                 </>
                             ) : (

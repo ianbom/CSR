@@ -1,4 +1,3 @@
-import { ReactNode } from 'react';
 import MaterialIcon from '../Icons/MaterialIcon';
 
 interface RadioOption {
@@ -27,17 +26,14 @@ export default function RadioGroup({
     return (
         <div className="flex flex-col gap-2">
             {label && (
-                <label className="text-gray-700 text-sm font-medium">
+                <label className="text-sm font-medium text-gray-700">
                     {label}
-                    {required && <span className="text-red-500 ml-1">*</span>}
+                    {required && <span className="ml-1 text-red-500">*</span>}
                 </label>
             )}
             <div className="flex gap-3">
                 {options.map((option) => (
-                    <label
-                        key={option.value}
-                        className="flex-1 cursor-pointer"
-                    >
+                    <label key={option.value} className="flex-1 cursor-pointer">
                         <input
                             type="radio"
                             name={name}
@@ -46,11 +42,16 @@ export default function RadioGroup({
                             onChange={() => onChange?.(option.value)}
                             className="peer sr-only"
                         />
-                        <div className="flex items-center justify-center gap-2 h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 transition-all peer-checked:border-primary peer-checked:ring-1 peer-checked:ring-primary peer-checked:bg-primary/5 peer-checked:text-primary hover:border-primary/50">
+                        <div className="flex h-12 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-700 transition-all hover:border-primary/50 peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary peer-checked:ring-1 peer-checked:ring-primary">
                             {option.icon && (
-                                <MaterialIcon name={option.icon} className="text-lg" />
+                                <MaterialIcon
+                                    name={option.icon}
+                                    className="text-lg"
+                                />
                             )}
-                            <span className="font-medium text-sm">{option.label}</span>
+                            <span className="text-sm font-medium">
+                                {option.label}
+                            </span>
                         </div>
                     </label>
                 ))}

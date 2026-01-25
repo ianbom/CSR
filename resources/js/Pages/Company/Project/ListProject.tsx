@@ -11,8 +11,8 @@ import {
 } from '@/Components/Company';
 import CompanyLayout from '@/Layouts/CompanyLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import { useCallback, useState } from 'react';
 import debounce from 'lodash/debounce';
+import { useCallback, useState } from 'react';
 
 interface Summary {
     totalProjects: number;
@@ -56,13 +56,22 @@ const filterTabs = [
 
 const perPageOptions = [10, 25, 50, 100];
 
-export default function ListProject({ projects, summary, enumerators, filters }: Props) {
+export default function ListProject({
+    projects,
+    summary,
+    enumerators,
+    filters,
+}: Props) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-    const [assignedEnumeratorIds, setAssignedEnumeratorIds] = useState<number[]>([]);
+    const [selectedProject, setSelectedProject] = useState<Project | null>(
+        null,
+    );
+    const [assignedEnumeratorIds, setAssignedEnumeratorIds] = useState<
+        number[]
+    >([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Debounced search
@@ -91,7 +100,10 @@ export default function ListProject({ projects, summary, enumerators, filters }:
     };
 
     const handleSort = (key: string) => {
-        const newOrder = filters.sort_by === key && filters.sort_order === 'asc' ? 'desc' : 'asc';
+        const newOrder =
+            filters.sort_by === key && filters.sort_order === 'asc'
+                ? 'desc'
+                : 'asc';
         router.get(
             '/company/projects',
             { ...filters, sort_by: key, sort_order: newOrder, page: 1 },
@@ -119,7 +131,9 @@ export default function ListProject({ projects, summary, enumerators, filters }:
         setSelectedProject(project);
         // Fetch assigned enumerators for this project
         try {
-            const response = await fetch(`/api/projects/${project.id}/enumerators`);
+            const response = await fetch(
+                `/api/projects/${project.id}/enumerators`,
+            );
             const data = await response.json();
             setAssignedEnumeratorIds(data.map((e: { id: number }) => e.id));
         } catch (error) {
@@ -129,7 +143,11 @@ export default function ListProject({ projects, summary, enumerators, filters }:
     };
 
     const handleDelete = (project: Project) => {
-        if (confirm(`Apakah Anda yakin ingin menghapus proyek "${project.name}"?`)) {
+        if (
+            confirm(
+                `Apakah Anda yakin ingin menghapus proyek "${project.name}"?`,
+            )
+        ) {
             router.delete(`/company/projects/${project.id}`);
         }
     };
@@ -140,7 +158,10 @@ export default function ListProject({ projects, summary, enumerators, filters }:
         setAssignedEnumeratorIds([]);
     };
 
-    const handleAssignEnumerators = (projectId: number | string, enumeratorIds: number[]) => {
+    const handleAssignEnumerators = (
+        projectId: number | string,
+        enumeratorIds: number[],
+    ) => {
         setIsSubmitting(true);
         router.post(
             `/company/projects/${projectId}/assign-enumerators`,
@@ -223,10 +244,14 @@ export default function ListProject({ projects, summary, enumerators, filters }:
                         onTabChange={handleFilterChange}
                     />
                     <div className="flex items-center gap-2">
-                        <span className="text-sm text-slate-500">Tampilkan:</span>
+                        <span className="text-sm text-slate-500">
+                            Tampilkan:
+                        </span>
                         <select
                             value={filters.per_page}
-                            onChange={(e) => handlePerPageChange(Number(e.target.value))}
+                            onChange={(e) =>
+                                handlePerPageChange(Number(e.target.value))
+                            }
                             className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                         >
                             {perPageOptions.map((option) => (
@@ -243,7 +268,9 @@ export default function ListProject({ projects, summary, enumerators, filters }:
                     {projects.data.length > 0 ? (
                         <ProjectTable
                             projects={projects.data}
-                            startIndex={(projects.current_page - 1) * projects.per_page}
+                            startIndex={
+                                (projects.current_page - 1) * projects.per_page
+                            }
                             sortConfig={{
                                 key: filters.sort_by,
                                 order: filters.sort_order as 'asc' | 'desc',
@@ -254,7 +281,10 @@ export default function ListProject({ projects, summary, enumerators, filters }:
                         />
                     ) : (
                         <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
-                            <Icon name="folder_off" className="mx-auto text-5xl text-slate-300" />
+                            <Icon
+                                name="folder_off"
+                                className="mx-auto text-5xl text-slate-300"
+                            />
                             <h3 className="mt-4 text-lg font-semibold text-slate-900">
                                 {searchQuery || filters.status !== 'all'
                                     ? 'Tidak ada proyek yang ditemukan'
@@ -285,7 +315,8 @@ export default function ListProject({ projects, summary, enumerators, filters }:
                 {/* Info total data */}
                 {projects.total > 0 && (
                     <div className="text-sm text-slate-500">
-                        Menampilkan {projects.from} - {projects.to} dari {projects.total} proyek
+                        Menampilkan {projects.from} - {projects.to} dari{' '}
+                        {projects.total} proyek
                     </div>
                 )}
             </div>

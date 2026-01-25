@@ -432,7 +432,8 @@ export default function CreateProject() {
                             {selectedLocations.length > 0 && (
                                 <div className="mt-4 space-y-2">
                                     <p className="text-sm font-medium text-slate-700">
-                                        Lokasi terpilih ({selectedLocations.length}
+                                        Lokasi terpilih (
+                                        {selectedLocations.length}
                                         ):
                                     </p>
                                     <div className="flex flex-wrap gap-2">
@@ -528,10 +529,7 @@ export default function CreateProject() {
                                 ) : (
                                     <>
                                         Simpan Proyek
-                                        <Icon
-                                            name="save"
-                                            className="text-sm"
-                                        />
+                                        <Icon name="save" className="text-sm" />
                                     </>
                                 )}
                             </button>

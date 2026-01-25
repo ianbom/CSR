@@ -24,9 +24,9 @@ export default function ChipGroup({
     return (
         <div className="flex flex-col gap-2">
             {label && (
-                <label className="text-gray-700 text-sm font-medium">
+                <label className="text-sm font-medium text-gray-700">
                     {label}
-                    {required && <span className="text-red-500 ml-1">*</span>}
+                    {required && <span className="ml-1 text-red-500">*</span>}
                 </label>
             )}
             <div className="flex flex-wrap gap-2">
@@ -35,14 +35,17 @@ export default function ChipGroup({
                         key={option.value}
                         type="button"
                         onClick={() => onChange?.(option.value)}
-                        className={`flex items-center gap-2 h-10 px-4 rounded-full border transition-all text-sm font-medium ${
+                        className={`flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-all ${
                             value === option.value
                                 ? 'border-primary bg-primary text-white shadow-sm'
                                 : 'border-gray-200 bg-white text-gray-700 hover:border-primary/50'
                         }`}
                     >
                         {option.icon && (
-                            <MaterialIcon name={option.icon} className="text-lg" />
+                            <MaterialIcon
+                                name={option.icon}
+                                className="text-lg"
+                            />
                         )}
                         <span>{option.label}</span>
                     </button>

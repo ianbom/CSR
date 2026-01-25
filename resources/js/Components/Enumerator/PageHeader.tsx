@@ -6,11 +6,11 @@ interface PageHeaderProps {
 export default function PageHeader({ title, description }: PageHeaderProps) {
     return (
         <div className="flex flex-col gap-2">
-            <h1 className="text-gray-900 text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+            <h1 className="text-3xl font-black leading-tight tracking-[-0.033em] text-gray-900 md:text-4xl">
                 {title}
             </h1>
             {description && (
-                <p className="text-gray-500 text-base font-normal">
+                <p className="text-base font-normal text-gray-500">
                     {description}
                 </p>
             )}

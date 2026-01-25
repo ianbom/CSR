@@ -38,13 +38,21 @@ const typeColors = {
     SROI: 'text-primary',
 };
 
-function SortIcon({ columnKey, sortConfig }: { columnKey: string; sortConfig?: SortConfig }) {
+function SortIcon({
+    columnKey,
+    sortConfig,
+}: {
+    columnKey: string;
+    sortConfig?: SortConfig;
+}) {
     if (!sortConfig || sortConfig.key !== columnKey) {
         return <Icon name="unfold_more" className="text-sm text-slate-300" />;
     }
-    return sortConfig.order === 'asc'
-        ? <Icon name="expand_less" className="text-sm text-primary" />
-        : <Icon name="expand_more" className="text-sm text-primary" />;
+    return sortConfig.order === 'asc' ? (
+        <Icon name="expand_less" className="text-sm text-primary" />
+    ) : (
+        <Icon name="expand_more" className="text-sm text-primary" />
+    );
 }
 
 export default function ProjectTable({
@@ -71,7 +79,10 @@ export default function ProjectTable({
                     onClick={() => handleSort('project_code')}
                 >
                     Code
-                    <SortIcon columnKey="project_code" sortConfig={sortConfig} />
+                    <SortIcon
+                        columnKey="project_code"
+                        sortConfig={sortConfig}
+                    />
                 </div>
                 <div
                     className="col-span-3 flex cursor-pointer items-center gap-1 hover:text-slate-700"

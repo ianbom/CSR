@@ -11,11 +11,11 @@ export default function StepIndicator({
 }: StepIndicatorProps) {
     return (
         <div className="flex flex-col items-end text-right">
-            <span className="text-primary font-bold text-sm underline">
+            <span className="text-sm font-bold text-primary underline">
                 Langkah {currentStep} dari {totalSteps}
             </span>
             {stepLabel && (
-                <span className="text-gray-500 text-xs">{stepLabel}</span>
+                <span className="text-xs text-gray-500">{stepLabel}</span>
             )}
         </div>
     );

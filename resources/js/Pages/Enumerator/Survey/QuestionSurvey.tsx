@@ -1,12 +1,12 @@
-import { useState, useMemo } from 'react';
-import { Head, router } from '@inertiajs/react';
-import EnumeratorLayout from '@/Layouts/EnumeratorLayout';
 import {
-    SurveyHeader,
-    SurveyProgressCard,
     LikertScaleQuestion,
     SurveyFooter,
+    SurveyHeader,
+    SurveyProgressCard,
 } from '@/Components/Enumerator';
+import EnumeratorLayout from '@/Layouts/EnumeratorLayout';
+import { Head, router } from '@inertiajs/react';
+import { useMemo, useState } from 'react';
 
 // Question interface
 interface Question {
@@ -42,8 +42,6 @@ export default function QuestionSurvey() {
     // State to track answers: { questionId: answerValue }
     const [answers, setAnswers] = useState<Record<number, number>>({});
 
-
-
     // Calculate progress percentage
     const progressPercentage = useMemo(() => {
         const answeredCount = Object.keys(answers).length;
@@ -65,7 +63,11 @@ export default function QuestionSurvey() {
 
     // Handle close survey
     const handleClose = () => {
-        if (confirm('Apakah Anda yakin ingin menutup survei? Data yang belum disimpan akan hilang.')) {
+        if (
+            confirm(
+                'Apakah Anda yakin ingin menutup survei? Data yang belum disimpan akan hilang.',
+            )
+        ) {
             router.visit(route('enumerator.list-survey'));
         }
     };
@@ -82,11 +84,11 @@ export default function QuestionSurvey() {
     const isComplete = Object.keys(answers).length === sampleQuestions.length;
 
     return (
-       <EnumeratorLayout>
+        <EnumeratorLayout>
             <Head title="Kuesioner Survei" />
 
             {/* Main Container - Centered */}
-            <div className="w-full max-w-2xl mx-auto flex flex-col gap-4 pb-8">
+            <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-8">
                 {/* Survey Header */}
                 <SurveyHeader
                     title="Survei Kepuasan"
@@ -110,7 +112,9 @@ export default function QuestionSurvey() {
                             question={question.text}
                             name={`q${question.id}`}
                             value={answers[question.id]}
-                            onChange={(value) => handleAnswerChange(question.id, value)}
+                            onChange={(value) =>
+                                handleAnswerChange(question.id, value)
+                            }
                             isActive={false}
                             isAnswered={answers[question.id] !== undefined}
                         />

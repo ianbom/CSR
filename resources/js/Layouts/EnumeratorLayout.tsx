@@ -1,6 +1,6 @@
-import { PropsWithChildren, useState } from 'react';
+import { MobileHeader, Sidebar, TopBar } from '@/Components/Enumerator';
 import { router } from '@inertiajs/react';
-import { Sidebar, MobileHeader, TopBar } from '@/Components/Enumerator';
+import { PropsWithChildren, useState } from 'react';
 
 interface NavItem {
     label: string;
@@ -71,10 +71,8 @@ export default function EnumeratorLayout({
                     onMenuClick={toggleMobileMenu}
                     isMenuOpen={mobileMenuOpen}
                 />
-                <TopBar
-                    profileImage="https://lh3.googleusercontent.com/aida-public/AB6AXuA3Akw0BRi5rbwckYP1b0uFE48O5Kzcz4Bqnw6dYEHhksrtKrnxqDUvLhiCjVIY7Z1jIJ_S4OnL6Rg5qNiHaJlgDgATV9AHam64rZXvmdsdbdBXFf2qlLGgqvQ6ssrei7iAZkbkFQOLO3i9Dkiw5R46Nag0bicWMRkdcNMTvuspmiTCKQKXlIqP04fy5p0PwdHkN0C1aMKZQFa93c85fQ7SeWSWW9iK2hHfLho4cD_STDyGBJdAV1DTqAOuw2sULydiuMSB3-COyAU"
-                />
-                <div className="flex-1">{children}</div>
+                <TopBar profileImage="https://lh3.googleusercontent.com/aida-public/AB6AXuA3Akw0BRi5rbwckYP1b0uFE48O5Kzcz4Bqnw6dYEHhksrtKrnxqDUvLhiCjVIY7Z1jIJ_S4OnL6Rg5qNiHaJlgDgATV9AHam64rZXvmdsdbdBXFf2qlLGgqvQ6ssrei7iAZkbkFQOLO3i9Dkiw5R46Nag0bicWMRkdcNMTvuspmiTCKQKXlIqP04fy5p0PwdHkN0C1aMKZQFa93c85fQ7SeWSWW9iK2hHfLho4cD_STDyGBJdAV1DTqAOuw2sULydiuMSB3-COyAU" />
+                <div className="flex-1 p-4 md:px-6 md:py-6">{children}</div>
             </main>
         </div>
     );

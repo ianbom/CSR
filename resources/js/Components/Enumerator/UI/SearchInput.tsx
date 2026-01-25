@@ -15,13 +15,13 @@ export default function SearchInput({
 }: SearchInputProps) {
     return (
         <div className={`relative ${className}`}>
-            <div className="flex w-full items-center rounded-xl bg-white border border-gray-200 focus-within:ring-2 focus-within:ring-primary/20 h-12 overflow-hidden shadow-sm">
-                <div className="pl-4 flex items-center justify-center text-gray-400">
+            <div className="flex h-12 w-full items-center overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm focus-within:ring-2 focus-within:ring-primary/20">
+                <div className="flex items-center justify-center pl-4 text-gray-400">
                     <MaterialIcon name="search" />
                 </div>
                 <input
                     type="text"
-                    className="w-full h-full bg-transparent border-none text-gray-900 placeholder:text-gray-400 px-3 focus:ring-0 text-base"
+                    className="h-full w-full border-none bg-transparent px-3 text-base text-gray-900 placeholder:text-gray-400 focus:ring-0"
                     placeholder={placeholder}
                     value={value}
                     onChange={(e) => onChange?.(e.target.value)}

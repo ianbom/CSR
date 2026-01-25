@@ -14,7 +14,10 @@ export default function MaterialIcon({
             className={`material-symbols-outlined ${filled ? 'icon-fill' : ''} ${className}`}
             style={
                 filled
-                    ? { fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }
+                    ? {
+                          fontVariationSettings:
+                              "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24",
+                      }
                     : undefined
             }
         >

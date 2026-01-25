@@ -23,19 +23,19 @@ export default function TextInputField({
 }: TextInputFieldProps) {
     return (
         <div className="flex flex-col gap-2">
-            <label className="text-gray-700 text-sm font-medium">
+            <label className="text-sm font-medium text-gray-700">
                 {label}
-                {required && <span className="text-red-500 ml-1">*</span>}
+                {required && <span className="ml-1 text-red-500">*</span>}
             </label>
             <div className="relative">
                 {icon && (
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
                         <MaterialIcon name={icon} className="text-xl" />
                     </div>
                 )}
                 <input
                     type={type}
-                    className={`w-full h-12 ${icon ? 'pl-12' : 'pl-4'} pr-4 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all disabled:bg-gray-100 disabled:cursor-not-allowed`}
+                    className={`h-12 w-full ${icon ? 'pl-12' : 'pl-4'} rounded-xl border border-gray-200 bg-gray-50 pr-4 text-gray-900 transition-all placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:bg-gray-100`}
                     placeholder={placeholder}
                     value={value}
                     onChange={(e) => onChange?.(e.target.value)}

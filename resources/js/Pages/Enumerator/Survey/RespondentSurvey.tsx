@@ -1,17 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Head, router } from '@inertiajs/react';
-import EnumeratorLayout from '@/Layouts/EnumeratorLayout';
 import {
     Button,
-    FormSection,
-    TextInputField,
-    SelectField,
-    RadioGroup,
     ChipGroup,
-    ProgressBar,
-    StepIndicator,
+    FormSection,
     MaterialIcon,
+    RadioGroup,
+    SelectField,
+    TextInputField,
 } from '@/Components/Enumerator';
+import EnumeratorLayout from '@/Layouts/EnumeratorLayout';
+import { Head, router } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 interface Province {
     id: string;
@@ -52,7 +50,11 @@ const genderOptions = [
 
 // Service type options
 const serviceTypeOptions = [
-    { value: 'walk-in', label: 'Layanan Langsung (Walk-in)', icon: 'storefront' },
+    {
+        value: 'walk-in',
+        label: 'Layanan Langsung (Walk-in)',
+        icon: 'storefront',
+    },
     { value: 'online', label: 'Layanan Online / Digital', icon: 'computer' },
     { value: 'call', label: 'Layanan Panggilan', icon: 'call' },
 ];
@@ -122,7 +124,7 @@ export default function RespondentSurvey() {
         setLoading((prev) => ({ ...prev, cities: true }));
         try {
             const response = await fetch(
-                route('api.area.cities', { province_id: provinceId })
+                route('api.area.cities', { province_id: provinceId }),
             );
             const data = await response.json();
             setCities(data);
@@ -137,7 +139,7 @@ export default function RespondentSurvey() {
         setLoading((prev) => ({ ...prev, districts: true }));
         try {
             const response = await fetch(
-                route('api.area.districts', { city_id: cityId })
+                route('api.area.districts', { city_id: cityId }),
             );
             const data = await response.json();
             setDistricts(data);
@@ -184,17 +186,17 @@ export default function RespondentSurvey() {
             {/* Header with Progress */}
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
-                    <h1 className="text-gray-900 text-2xl sm:text-3xl font-bold">
+                    <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
                         Data Responden
                     </h1>
-                    <p className="text-gray-500 text-sm">
+                    <p className="text-sm text-gray-500">
                         Silakan isi data demografi responden dengan lengkap.
                     </p>
                 </div>
             </div>
 
             {/* Form Card */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8 flex flex-col gap-8">
+            <div className="flex flex-col gap-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
                 {/* Section 1: Identitas Pribadi */}
                 <FormSection icon="person" title="Identitas Pribadi">
                     <TextInputField
@@ -205,7 +207,7 @@ export default function RespondentSurvey() {
                         onChange={(value) => updateFormData('fullName', value)}
                     />
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <TextInputField
                             label="Usia"
                             placeholder="Tahun"
@@ -220,20 +222,28 @@ export default function RespondentSurvey() {
                             name="gender"
                             options={genderOptions}
                             value={formData.gender}
-                            onChange={(value) => updateFormData('gender', value)}
+                            onChange={(value) =>
+                                updateFormData('gender', value)
+                            }
                         />
                     </div>
                 </FormSection>
 
                 {/* Section 2: Sosial & Ekonomi */}
-                <FormSection icon="payments" title="Sosial & Ekonomi" iconColor="text-primary">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormSection
+                    icon="payments"
+                    title="Sosial & Ekonomi"
+                    iconColor="text-primary"
+                >
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <SelectField
                             label="Pendidikan Terakhir"
                             placeholder="Pilih pendidikan"
                             options={educationOptions}
                             value={formData.education}
-                            onChange={(value) => updateFormData('education', value)}
+                            onChange={(value) =>
+                                updateFormData('education', value)
+                            }
                         />
 
                         <TextInputField
@@ -241,27 +251,37 @@ export default function RespondentSurvey() {
                             placeholder="Contoh: Pegawai Swasta, Guru"
                             icon="work"
                             value={formData.occupation}
-                            onChange={(value) => updateFormData('occupation', value)}
+                            onChange={(value) =>
+                                updateFormData('occupation', value)
+                            }
                         />
                     </div>
                 </FormSection>
 
                 {/* Section 3: Lokasi & Layanan */}
-                <FormSection icon="location_on" title="Lokasi & Layanan" iconColor="text-primary">
+                <FormSection
+                    icon="location_on"
+                    title="Lokasi & Layanan"
+                    iconColor="text-primary"
+                >
                     <ChipGroup
                         label="Jenis Layanan yang Diterima"
                         options={serviceTypeOptions}
                         value={formData.serviceType}
-                        onChange={(value) => updateFormData('serviceType', value)}
+                        onChange={(value) =>
+                            updateFormData('serviceType', value)
+                        }
                     />
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <SelectField
                             label="Provinsi"
                             placeholder="Pilih Provinsi"
                             options={provinceOptions}
                             value={formData.provinceId}
-                            onChange={(value) => updateFormData('provinceId', value)}
+                            onChange={(value) =>
+                                updateFormData('provinceId', value)
+                            }
                             disabled={loading.provinces}
                         />
 
@@ -270,7 +290,9 @@ export default function RespondentSurvey() {
                             placeholder="Pilih Kabupaten/Kota"
                             options={cityOptions}
                             value={formData.cityId}
-                            onChange={(value) => updateFormData('cityId', value)}
+                            onChange={(value) =>
+                                updateFormData('cityId', value)
+                            }
                             disabled={!formData.provinceId || loading.cities}
                         />
                     </div>
@@ -280,17 +302,19 @@ export default function RespondentSurvey() {
                         placeholder="Pilih Kecamatan"
                         options={districtOptions}
                         value={formData.districtId}
-                        onChange={(value) => updateFormData('districtId', value)}
+                        onChange={(value) =>
+                            updateFormData('districtId', value)
+                        }
                         disabled={!formData.cityId || loading.districts}
                     />
                 </FormSection>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pb-8">
+            <div className="flex flex-col-reverse items-center justify-between gap-4 pb-8 sm:flex-row">
                 <button
                     onClick={handleBack}
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                    className="flex items-center gap-2 font-medium text-gray-600 transition-colors hover:text-gray-900"
                 >
                     <MaterialIcon name="arrow_back" className="text-lg" />
                     <span>Kembali</span>
@@ -300,7 +324,7 @@ export default function RespondentSurvey() {
                     variant="primary"
                     icon="arrow_forward"
                     onClick={handleSubmit}
-                    className="w-full sm:w-auto px-8"
+                    className="w-full px-8 sm:w-auto"
                 >
                     Lanjut ke Kuesioner
                 </Button>

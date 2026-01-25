@@ -26,13 +26,13 @@ export default function SelectField({
 }: SelectFieldProps) {
     return (
         <div className="flex flex-col gap-2">
-            <label className="text-gray-700 text-sm font-medium">
+            <label className="text-sm font-medium text-gray-700">
                 {label}
-                {required && <span className="text-red-500 ml-1">*</span>}
+                {required && <span className="ml-1 text-red-500">*</span>}
             </label>
             <div className="relative">
                 <select
-                    className="w-full h-12 pl-4 pr-10 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="h-12 w-full appearance-none rounded-xl border border-gray-200 bg-gray-50 pl-4 pr-10 text-gray-900 transition-all focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:bg-gray-100"
                     value={value}
                     onChange={(e) => onChange?.(e.target.value)}
                     required={required}
@@ -47,7 +47,7 @@ export default function SelectField({
                         </option>
                     ))}
                 </select>
-                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
                     <MaterialIcon name="expand_more" className="text-xl" />
                 </div>
             </div>

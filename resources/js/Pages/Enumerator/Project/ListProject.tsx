@@ -1,16 +1,16 @@
-import { useState, useMemo } from 'react';
-import { Head } from '@inertiajs/react';
-import EnumeratorLayout from '@/Layouts/EnumeratorLayout';
 import {
-    PageHeader,
-    SearchInput,
     FilterChip,
+    PageHeader,
     ProjectCard,
     ProjectData,
     ProjectStatus,
     ProjectType,
     ProjectVerificationModal,
+    SearchInput,
 } from '@/Components/Enumerator';
+import EnumeratorLayout from '@/Layouts/EnumeratorLayout';
+import { Head } from '@inertiajs/react';
+import { useMemo, useState } from 'react';
 
 type FilterStatus = 'all' | ProjectStatus;
 
@@ -69,7 +69,9 @@ export default function ListProject() {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState<FilterStatus>('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null);
+    const [selectedProject, setSelectedProject] = useState<ProjectData | null>(
+        null,
+    );
 
     const filteredProjects = useMemo(() => {
         return sampleProjects.filter((project) => {
@@ -101,8 +103,15 @@ export default function ListProject() {
         // Navigate to report page
     };
 
-    const handleVerificationSubmit = (projectCode: string, surveyType: ProjectType) => {
-        console.log('Verification submitted:', { projectCode, surveyType, project: selectedProject });
+    const handleVerificationSubmit = (
+        projectCode: string,
+        surveyType: ProjectType,
+    ) => {
+        console.log('Verification submitted:', {
+            projectCode,
+            surveyType,
+            project: selectedProject,
+        });
         // Navigate to survey page with verified data
     };
 
@@ -117,7 +126,7 @@ export default function ListProject() {
             />
 
             {/* Filters & Search */}
-            <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+            <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center">
                 {/* Search Bar */}
                 <SearchInput
                     placeholder="Cari berdasarkan nama project atau instansi..."
@@ -127,7 +136,7 @@ export default function ListProject() {
                 />
 
                 {/* Filter Chips */}
-                <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0 w-full lg:w-auto">
+                <div className="flex w-full gap-2 overflow-x-auto pb-2 lg:w-auto lg:pb-0">
                     {filterOptions.map((option) => (
                         <FilterChip
                             key={option.value}
@@ -142,7 +151,7 @@ export default function ListProject() {
             </div>
 
             {/* Project Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-10">
+            <div className="grid grid-cols-1 gap-6 pb-10 md:grid-cols-2 xl:grid-cols-3">
                 {filteredProjects.map((project) => (
                     <ProjectCard
                         key={project.id}
@@ -153,8 +162,8 @@ export default function ListProject() {
                 ))}
 
                 {filteredProjects.length === 0 && (
-                    <div className="col-span-full text-center py-12">
-                        <p className="text-gray-500 text-lg">
+                    <div className="col-span-full py-12 text-center">
+                        <p className="text-lg text-gray-500">
                             Tidak ada project yang ditemukan.
                         </p>
                     </div>

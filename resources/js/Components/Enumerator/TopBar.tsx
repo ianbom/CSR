@@ -14,7 +14,7 @@ export default function TopBar({
     onProfileClick,
 }: TopBarProps) {
     return (
-        <header className="hidden md:flex items-center justify-end px-8 py-4 border-b border-gray-200 bg-gray-50">
+        <header className="hidden items-center justify-end border-b border-gray-200 bg-gray-50 px-8 py-4 md:flex">
             <div className="flex items-center gap-4">
                 <div className="flex gap-2">
                     <IconButton
@@ -25,7 +25,7 @@ export default function TopBar({
                 </div>
                 <button
                     onClick={onProfileClick}
-                    className="bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-gray-200"
+                    className="size-10 rounded-full bg-cover bg-center bg-no-repeat ring-2 ring-gray-200"
                     style={{
                         backgroundImage: profileImage
                             ? `url("${profileImage}")`

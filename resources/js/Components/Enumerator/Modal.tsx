@@ -53,13 +53,13 @@ export default function Modal({
             {/* Modal Container */}
             <div className="flex min-h-full items-center justify-center p-4">
                 <div
-                    className={`relative w-full ${maxWidthClasses[maxWidth]} bg-white rounded-2xl shadow-xl transform transition-all`}
+                    className={`relative w-full ${maxWidthClasses[maxWidth]} transform rounded-2xl bg-white shadow-xl transition-all`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Close Button */}
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors z-10"
+                        className="absolute right-4 top-4 z-10 rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
                     >
                         <MaterialIcon name="close" />
                     </button>

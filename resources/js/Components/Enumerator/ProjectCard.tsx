@@ -1,5 +1,5 @@
-import Badge from './UI/Badge';
 import MaterialIcon from './Icons/MaterialIcon';
+import Badge from './UI/Badge';
 import Button from './UI/Button';
 
 export type ProjectStatus = 'active' | 'upcoming' | 'finished';
@@ -31,7 +31,11 @@ const statusConfig: Record<
     { label: string; variant: 'green' | 'amber' | 'gray'; icon: string }
 > = {
     active: { label: 'Sedang Berjalan', variant: 'green', icon: 'date_range' },
-    upcoming: { label: 'Akan Datang', variant: 'amber', icon: 'event_upcoming' },
+    upcoming: {
+        label: 'Akan Datang',
+        variant: 'amber',
+        icon: 'event_upcoming',
+    },
     finished: { label: 'Selesai', variant: 'gray', icon: 'event_available' },
 };
 
@@ -41,7 +45,12 @@ export default function ProjectCard({
     onViewReport,
 }: ProjectCardProps) {
     const statusInfo = statusConfig[project.status];
-    const opacityClass = project.status === 'finished' ? 'opacity-75' : project.status === 'upcoming' ? 'opacity-90' : '';
+    const opacityClass =
+        project.status === 'finished'
+            ? 'opacity-75'
+            : project.status === 'upcoming'
+              ? 'opacity-90'
+              : '';
 
     const renderButton = () => {
         switch (project.status) {
@@ -89,11 +98,11 @@ export default function ProjectCard({
 
     return (
         <article
-            className={`group flex flex-col bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-300 ${opacityClass}`}
+            className={`group flex flex-col rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:border-primary/30 hover:shadow-md ${opacityClass}`}
         >
-            <div className="p-5 flex flex-col gap-4 flex-1">
+            <div className="flex flex-1 flex-col gap-4 p-5">
                 {/* Header with badges */}
-                <div className="flex justify-between items-start">
+                <div className="flex items-start justify-between">
                     <Badge variant={typeVariants[project.type]}>
                         {project.type}
                     </Badge>
@@ -104,7 +113,7 @@ export default function ProjectCard({
 
                 {/* Title and Institution */}
                 <div>
-                    <h3 className="text-lg font-bold text-gray-900 leading-snug mb-1 group-hover:text-primary transition-colors">
+                    <h3 className="mb-1 text-lg font-bold leading-snug text-gray-900 transition-colors group-hover:text-primary">
                         {project.title}
                     </h3>
                     <div className="flex items-center gap-1.5 text-gray-500">
@@ -119,7 +128,7 @@ export default function ProjectCard({
                 </div>
 
                 {/* Date Range */}
-                <div className="mt-auto pt-4 border-t border-gray-200">
+                <div className="mt-auto border-t border-gray-200 pt-4">
                     <div className="flex items-center gap-2 text-gray-700">
                         <MaterialIcon
                             name={statusInfo.icon}

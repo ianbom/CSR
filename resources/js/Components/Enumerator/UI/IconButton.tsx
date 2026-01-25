@@ -14,7 +14,7 @@ export default function IconButton({
     return (
         <button
             onClick={onClick}
-            className={`flex size-10 items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors ${className}`}
+            className={`flex size-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 transition-colors hover:bg-gray-50 ${className}`}
         >
             <MaterialIcon name={icon} className="text-[20px]" />
         </button>

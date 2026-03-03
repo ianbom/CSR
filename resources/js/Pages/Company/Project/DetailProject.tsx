@@ -1,7 +1,10 @@
 import { TabNavigation } from '@/Components/Company';
+import ProjectEnumeratorList from '@/Components/Company/ProjectEnumeratorList';
 import ProjectIKM from '@/Components/Company/ProjectIKM';
+import ProjectIKMRespondent from '@/Components/Company/ProjectIKMRespondent';
 import ProjectOverview from '@/Components/Company/ProjectOverview';
 import ProjectSLOI from '@/Components/Company/ProjectSLOI';
+import ProjectSLOIRespondent from '@/Components/Company/ProjectSLOIRespondent';
 import ProjectSROI from '@/Components/Company/ProjectSROI';
 import CompanyLayout from '@/Layouts/CompanyLayout';
 import { Head, router } from '@inertiajs/react';
@@ -74,6 +77,8 @@ interface QuestionScoreItem {
     id: string;
     question: string;
     score: number;
+    importance: number;
+    performance: number;
 }
 
 interface AuditLogItem {
@@ -92,6 +97,51 @@ interface TrendDataItem {
     height: number;
 }
 
+interface RespondentsData {
+    questions: { code: string; question: string }[];
+    rows: {
+        submissionId: number;
+        submittedAt: string | null;
+        status: string;
+        enumerator: string;
+        latitude: number | null;
+        longitude: number | null;
+        photoPath: string | null;
+        avgScore: number;
+        respondent: {
+            id: number;
+            name: string;
+            address: string | null;
+            phone: string | null;
+            age: number | null;
+            gender: string | null;
+            status: string | null;
+            educationLevel: string | null;
+            occupation: string | null;
+            monthlyIncome: number | null;
+        } | null;
+        answers: Record<string, number | null>;
+    }[];
+}
+
+interface EnumeratorListItem {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    isActive: boolean;
+    totalSubmissions: number;
+    avgScore: number;
+    lastSubmittedAt: string | null;
+    submissions: {
+        id: number;
+        respondentName: string;
+        assessmentType: string;
+        status: string;
+        submittedAt: string | null;
+    }[];
+}
+
 interface Props {
     project: ProjectData;
     detailType: string;
@@ -100,18 +150,37 @@ interface Props {
     questionScores: QuestionScoreItem[];
     auditLog: AuditLogItem[];
     trendData: TrendDataItem[];
+    respondents: RespondentsData;
+    enumeratorList: EnumeratorListItem[];
 }
 
 // ─── Tab Config ────────────────────────────────────────────
 
 function buildTabs(project: ProjectData) {
     const tabs = [{ key: 'overview', label: 'Overview', icon: 'dashboard' }];
-    if (project.enableIkm)
+    if (project.enableIkm) {
         tabs.push({ key: 'ikm', label: 'IKM', icon: 'sentiment_satisfied' });
-    if (project.enableSloi)
+        tabs.push({
+            key: 'ikm_respondent',
+            label: 'IKM Respondent',
+            icon: 'group',
+        });
+    }
+    if (project.enableSloi) {
         tabs.push({ key: 'sloi', label: 'SLOI', icon: 'handshake' });
+        tabs.push({
+            key: 'sloi_respondent',
+            label: 'SLOI Respondent',
+            icon: 'group',
+        });
+    }
     if (project.enableSroi)
         tabs.push({ key: 'sroi', label: 'SROI', icon: 'payments' });
+    tabs.push({
+        key: 'enumerator',
+        label: 'Enumerator',
+        icon: 'badge',
+    });
     return tabs;
 }
 
@@ -125,6 +194,8 @@ export default function DetailProject({
     questionScores,
     auditLog,
     trendData,
+    respondents,
+    enumeratorList,
 }: Props) {
     const activeTab = detailType || 'overview';
     const tabs = buildTabs(project);
@@ -173,8 +244,16 @@ export default function DetailProject({
                         trendData={trendData}
                     />
                 );
+            case 'ikm_respondent':
+                return <ProjectIKMRespondent respondents={respondents} />;
+            case 'sloi_respondent':
+                return <ProjectSLOIRespondent respondents={respondents} />;
             case 'sroi':
                 return <ProjectSROI />;
+            case 'enumerator':
+                return (
+                    <ProjectEnumeratorList enumeratorList={enumeratorList} />
+                );
             default:
                 return (
                     <ProjectOverview

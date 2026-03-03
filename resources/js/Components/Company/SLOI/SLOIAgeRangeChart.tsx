@@ -20,16 +20,19 @@ export default function SLOIAgeRangeChart({
             <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Responden Berdasarkan Usia
             </h3>
-            <div className="flex h-28 items-end justify-between gap-4">
+            <div className="mt-6 flex h-32 items-end justify-between gap-4 pt-4">
                 {ageRange.map((item, i) => (
                     <div
                         key={item.range}
-                        className="flex flex-1 flex-col items-center gap-2"
+                        className="flex h-full flex-1 flex-col items-center justify-end gap-1"
                     >
+                        <span className="text-[10px] font-bold text-slate-600">
+                            {item.count}
+                        </span>
                         <div
-                            className="w-full rounded-t"
+                            className="w-full rounded-t transition-all duration-500"
                             style={{
-                                height: 40,
+                                height: `${Math.max(item.height, 2)}%`,
                                 backgroundColor: colors[i] || '#0d9488',
                             }}
                         />

@@ -10,23 +10,23 @@ interface SLOIEducationChartProps {
     data?: EducationItem[];
 }
 
+const ALL_EDUCATION_LEVELS = ['SD', 'SMP', 'SMA', 'D1-D3', 'D4/S1', 'S2', 'S3'];
+
 export default function SLOIEducationChart({
-    data = [
-        { label: 'SD', value: 120, percentage: 6.5 },
-        { label: 'SMP', value: 245, percentage: 13.3 },
-        { label: 'SMA', value: 612, percentage: 33.2 },
-        { label: 'S1/D4', value: 680, percentage: 36.9 },
-        { label: 'S2', value: 152, percentage: 8.3 },
-        { label: 'S3', value: 33, percentage: 1.8 },
-    ],
+    data = [],
 }: SLOIEducationChartProps): ReactNode {
+    // Merge incoming data into all education levels
+    const mergedData = ALL_EDUCATION_LEVELS.map((level) => {
+        const found = data.find((d) => d.label === level);
+        return found ?? { label: level, value: 0, percentage: 0 };
+    });
     return (
         <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Tingkat Pendidikan Responden
             </h3>
             <div className="space-y-3">
-                {data.map((item) => (
+                {mergedData.map((item) => (
                     <div key={item.label} className="flex items-center gap-3">
                         <span className="w-12 text-xs font-bold text-slate-600">
                             {item.label}

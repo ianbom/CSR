@@ -6,6 +6,7 @@ use App\Models\InstrumentTemplate;
 use App\Models\Project;
 use App\Models\ProjectEnumeratorAssignment;
 use App\Models\ProjectLocation;
+use App\Models\Respondent;
 use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -143,16 +144,18 @@ class ProjectService
             'questionScores' => $this->computeQuestionScores($submissionIds, $templateId),
             'auditLog'       => $this->computeAuditLog($projectId, $assessmentType),
             'trendData'      => $this->computeTrendData($projectId, $assessmentType),
+            'respondents'    => $this->computeRespondents($projectId, $assessmentType, $templateId),
+            'enumeratorList' => $this->computeEnumeratorList($project),
         ];
     }
 
     protected function resolveAssessmentType(string $detailType): ?string
     {
         return match (strtolower($detailType)) {
-            'ikm'  => 'IKM',
-            'sloi' => 'SLOI',
+            'ikm', 'ikm_respondent'   => 'IKM',
+            'sloi', 'sloi_respondent' => 'SLOI',
             'sroi' => 'SROI',
-            default => null, // overview = all types
+            default => null, // overview, enumerator = all types
         };
     }
 
@@ -253,16 +256,28 @@ class ProjectService
             ];
         }
 
-        $respondents = \App\Models\Respondent::whereIn('id', $respondentIds)->get();
+        $respondents = Respondent::whereIn('id', $respondentIds)->get();
         $total = $respondents->count();
 
-        // Gender distribution
-        $genderGroups = $respondents->groupBy('gender');
-        $genderDistribution = $genderGroups->map(function ($group, $gender) use ($total) {
+        // Gender distribution — normalize raw DB values
+        $genderMap = [
+            'male'      => 'Laki-laki',
+            'female'    => 'Perempuan',
+            'laki-laki' => 'Laki-laki',
+            'perempuan' => 'Perempuan',
+        ];
+
+        $normalizedGenders = $respondents->map(function ($r) use ($genderMap) {
+            $raw = strtolower(trim($r->gender ?? ''));
+            return $genderMap[$raw] ?? ($r->gender ?: 'Tidak Diketahui');
+        });
+
+        $genderCounts = $normalizedGenders->countBy();
+        $genderDistribution = $genderCounts->map(function ($count, $gender) use ($total) {
             return [
-                'gender'     => $gender ?: 'Tidak Diketahui',
-                'count'      => $group->count(),
-                'percentage' => $total > 0 ? round(($group->count() / $total) * 100, 1) : 0,
+                'gender'     => $gender,
+                'count'      => $count,
+                'percentage' => $total > 0 ? round(($count / $total) * 100, 1) : 0,
             ];
         })->values()->toArray();
 
@@ -286,13 +301,31 @@ class ProjectService
             ];
         })->values()->toArray();
 
-        // Education level
-        $eduGroups = $respondents->groupBy('education_level');
-        $educationLevel = $eduGroups->map(function ($group, $level) use ($total) {
+        $eduMap = [
+            'sd'    => 'SD',
+            'smp'   => 'SMP',
+            'sma'   => 'SMA',
+            'smk'   => 'SMA',
+            'd1'    => 'D1-D3',
+            'd2'    => 'D1-D3',
+            'd3'    => 'D1-D3',
+            'd4'    => 'D4/S1',
+            's1'    => 'D4/S1',
+            's2'    => 'S2',
+            's3'    => 'S3',
+        ];
+
+        $normalized = $respondents->map(function ($r) use ($eduMap) {
+            $raw = strtolower(trim($r->education_level ?? ''));
+            return $eduMap[$raw] ?? ($r->education_level ?: 'Tidak Diketahui');
+        });
+
+        $eduGroups = $normalized->countBy();
+        $educationLevel = $eduGroups->map(function ($count, $label) use ($total) {
             return [
-                'label'      => $level ?: 'Tidak Diketahui',
-                'value'      => $group->count(),
-                'percentage' => $total > 0 ? round(($group->count() / $total) * 100, 1) : 0,
+                'label'      => $label,
+                'value'      => $count,
+                'percentage' => $total > 0 ? round(($count / $total) * 100, 1) : 0,
             ];
         })->values()->toArray();
 
@@ -322,10 +355,13 @@ class ProjectService
             ->pluck('avg_score', 'question_id');
 
         return $questions->map(function ($q) use ($avgScores) {
+            $score = (float) ($avgScores[$q->id] ?? 0);
             return [
-                'id'       => $q->code,
-                'question' => $q->question_text,
-                'score'    => (float) ($avgScores[$q->id] ?? 0),
+                'id'          => $q->code,
+                'question'    => $q->question_text,
+                'score'       => $score,
+                'importance'  => $score,  // X-axis: Aspek Kepentingan
+                'performance' => $score,  // Y-axis: Aspek Kinerja
             ];
         })->toArray();
     }
@@ -388,6 +424,122 @@ class ProjectService
                 'month'  => strtoupper($row->month),
                 'score'  => (float) $row->score,
                 'height' => round(($row->score / $maxScore) * 100),
+            ];
+        })->toArray();
+    }
+
+    protected function computeRespondents(int $projectId, ?string $assessmentType, ?int $templateId): array
+    {
+        $query = Submission::where('project_id', $projectId)
+            ->with(['respondent', 'enumerator', 'templateAnswers.question']);
+
+        if ($assessmentType) {
+            $query->where('assessment_type', $assessmentType);
+        }
+
+        $submissions = $query->orderByDesc('submitted_at')->get();
+
+        // Get question headers if template exists
+        $questions = [];
+        if ($templateId) {
+            $questions = \App\Models\TemplateQuestion::where('template_id', $templateId)
+                ->orderBy('order_no')
+                ->get()
+                ->map(fn($q) => [
+                    'code'     => $q->code,
+                    'question' => $q->question_text,
+                ])
+                ->toArray();
+        }
+
+        $rows = $submissions->map(function ($sub) {
+            $respondent = $sub->respondent;
+
+            // Build answer map: question_code => value
+            $answers = [];
+            $totalScore = 0;
+            $answerCount = 0;
+            foreach ($sub->templateAnswers as $answer) {
+                $code = $answer->question?->code ?? 'Q' . $answer->question_id;
+                $answers[$code] = $answer->value;
+                $totalScore += $answer->value ?? 0;
+                $answerCount++;
+            }
+
+            return [
+                'submissionId'     => $sub->id,
+                'submittedAt'      => $sub->submitted_at?->format('Y-m-d H:i'),
+                'status'           => $sub->status,
+                'enumerator'       => $sub->enumerator?->name ?? '-',
+                'latitude'         => $sub->latitude,
+                'longitude'        => $sub->longitude,
+                'photoPath'        => $sub->photo_path,
+                'avgScore'         => $answerCount > 0 ? round($totalScore / $answerCount, 2) : 0,
+                'respondent'       => $respondent ? [
+                    'id'             => $respondent->id,
+                    'name'           => $respondent->name,
+                    'address'        => $respondent->address,
+                    'phone'          => $respondent->phone,
+                    'age'            => $respondent->age,
+                    'gender'         => $respondent->gender,
+                    'status'         => $respondent->respondent_status,
+                    'educationLevel' => $respondent->education_level,
+                    'occupation'     => $respondent->main_occupation,
+                    'monthlyIncome'  => $respondent->monthly_income,
+                ] : null,
+                'answers'          => $answers,
+            ];
+        })->toArray();
+
+        return [
+            'questions' => $questions,
+            'rows'      => $rows,
+        ];
+    }
+
+    protected function computeEnumeratorList(Project $project): array
+    {
+        $assignments = ProjectEnumeratorAssignment::where('project_id', $project->id)
+            ->with('enumerator')
+            ->get();
+
+        $allSubmissions = Submission::where('project_id', $project->id)
+            ->with('respondent')
+            ->get()
+            ->groupBy('enumerator_id');
+
+        return $assignments->map(function ($assignment) use ($allSubmissions) {
+            $enumerator = $assignment->enumerator;
+            $submissions = $allSubmissions->get($enumerator->id, collect());
+
+            $totalSubmissions = $submissions->count();
+            $latestSubmission = $submissions->sortByDesc('submitted_at')->first();
+            $avgScore = 0;
+            if ($totalSubmissions > 0) {
+                $submissionIds = $submissions->pluck('id');
+                $avg = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+                    ->avg('value');
+                $avgScore = round((float) $avg, 2);
+            }
+
+            return [
+                'id'               => $enumerator->id,
+                'name'             => $enumerator->name,
+                'email'            => $enumerator->email,
+                'phone'            => $enumerator->phone,
+                'isActive'         => $enumerator->is_active,
+                'totalSubmissions' => $totalSubmissions,
+                'avgScore'         => $avgScore,
+                'lastSubmittedAt'  => $latestSubmission?->submitted_at?->format('Y-m-d H:i'),
+                'submissions'      => $submissions->map(function ($sub) {
+                    return [
+                        'id'             => $sub->id,
+                        'respondentName' => $sub->respondent?->name ?? '-',
+                        'assessmentType' => $sub->assessment_type,
+                        'status'         => $sub->status,
+                        'submittedAt'    => $sub->submitted_at?->format('Y-m-d H:i'),
+                    ];
+                })->values()->toArray(),
             ];
         })->toArray();
     }

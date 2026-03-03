@@ -60,6 +60,8 @@ class ProjectController extends Controller
             'questionScores' => $data['questionScores'],
             'auditLog'       => $data['auditLog'],
             'trendData'      => $data['trendData'],
+            'respondents'    => $data['respondents'],
+            'enumeratorList' => $data['enumeratorList'],
         ]);
     }
 

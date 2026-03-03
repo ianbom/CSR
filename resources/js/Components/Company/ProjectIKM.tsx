@@ -49,6 +49,8 @@ interface QuestionScoreItem {
     id: string;
     question: string;
     score: number;
+    importance: number;
+    performance: number;
 }
 
 interface AuditLogItem {
@@ -80,7 +82,6 @@ export default function ProjectIKM({
     demographics,
     questionScores,
     auditLog,
-    trendData,
 }: ProjectIKMProps): ReactNode {
     // Transform gender data for GenderPieChart
     const genderData = (() => {
@@ -123,7 +124,7 @@ export default function ProjectIKM({
                     IKMScore={stats.score}
                     trustLevel={stats.scoreLabel}
                 />
-                <IKMTrendChart trendData={trendData} />
+                <IKMTrendChart questionScores={questionScores} />
             </div>
 
             {/* Demographics Row */}

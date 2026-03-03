@@ -49,6 +49,8 @@ interface QuestionScoreItem {
     id: string;
     question: string;
     score: number;
+    importance: number;
+    performance: number;
 }
 
 interface AuditLogItem {
@@ -80,7 +82,6 @@ export default function ProjectSLOI({
     demographics,
     questionScores,
     auditLog,
-    trendData,
 }: ProjectSLOIProps): ReactNode {
     // Transform gender data for GenderPieChart
     const genderData = (() => {
@@ -123,7 +124,7 @@ export default function ProjectSLOI({
                     sloiScore={stats.score}
                     trustLevel={stats.scoreLabel}
                 />
-                <SLOITrendChart trendData={trendData} />
+                <SLOITrendChart questionScores={questionScores} />
             </div>
 
             {/* Demographics Row */}

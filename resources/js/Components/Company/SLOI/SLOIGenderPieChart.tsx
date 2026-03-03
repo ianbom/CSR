@@ -26,27 +26,41 @@ export default function SLOIGenderPieChart({
                 {/* Pie Chart */}
                 <div className="relative my-12 size-64">
                     <svg viewBox="0 0 100 100" className="-rotate-90">
-                        {/* Male */}
-                        <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                            fill="transparent"
-                            stroke="#3b82f6"
-                            strokeWidth="20"
-                            strokeDasharray={`${data.male.percentage} 100`}
-                        />
-                        {/* Female */}
-                        <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                            fill="transparent"
-                            stroke="#ec4899"
-                            strokeWidth="20"
-                            strokeDasharray={`${data.female.percentage} 100`}
-                            strokeDashoffset={`-${data.male.percentage}`}
-                        />
+                        {(() => {
+                            const r = 40;
+                            const circumference = 2 * Math.PI * r;
+                            const maleDash =
+                                (data.male.percentage / 100) *
+                                circumference;
+                            const femaleDash =
+                                (data.female.percentage / 100) *
+                                circumference;
+                            return (
+                                <>
+                                    {/* Male */}
+                                    <circle
+                                        cx="50"
+                                        cy="50"
+                                        r={r}
+                                        fill="transparent"
+                                        stroke="#3b82f6"
+                                        strokeWidth="20"
+                                        strokeDasharray={`${maleDash} ${circumference}`}
+                                    />
+                                    {/* Female */}
+                                    <circle
+                                        cx="50"
+                                        cy="50"
+                                        r={r}
+                                        fill="transparent"
+                                        stroke="#ec4899"
+                                        strokeWidth="20"
+                                        strokeDasharray={`${femaleDash} ${circumference}`}
+                                        strokeDashoffset={`${-maleDash}`}
+                                    />
+                                </>
+                            );
+                        })()}
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                         <span className="text-xs font-bold uppercase text-slate-400">

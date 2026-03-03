@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AreaController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\EnumeratorController;
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\InstrumentTemplateController;
 use App\Http\Controllers\Enumerator\ProjectController as EnumeratorProjectController;
 use App\Http\Controllers\Enumerator\SurveyController as EnumeratorSurveyController;
 use App\Http\Controllers\ProfileController;
@@ -19,9 +22,6 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::prefix('enumerator')->name('enumerator.')->group(function () {
     Route::get('/list', [EnumeratorProjectController::class, 'listProjectPage'])->name('list-survey');
@@ -47,25 +47,28 @@ Route::prefix('api/projects')->name('api.projects.')->group(function () {
 });
 
 // Company Routes
-Route::prefix('')->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Company/Dashboard');
-    })->name('dashboard');
-
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     // Projects
     Route::get('/projects', [ProjectController::class, 'listProjectPage'])->name('projects');
     Route::get('/projects/create', [ProjectController::class, 'createProjectPage'])->name('projects.create');
     Route::post('/projects', [ProjectController::class, 'storeProject'])->name('projects.store');
     Route::post('/projects/{id}/assign-enumerators', [ProjectController::class, 'assignEnumerators'])->name('projects.assign-enumerators');
     Route::put('/projects/{id}', [ProjectController::class, 'updateProject'])->name('projects.update');
-
     Route::get('/projects/{id}', [ProjectController::class, 'detailProject'])->name('projects.show');
-
     // Enumerators
     Route::get('/enumerators', [EnumeratorController::class, 'index'])->name('enumerators.index');
     Route::post('/enumerators', [EnumeratorController::class, 'store'])->name('enumerators.store');
     Route::put('/enumerators/{id}', [EnumeratorController::class, 'update'])->name('enumerators.update');
     Route::delete('/enumerators/{id}', [EnumeratorController::class, 'destroy'])->name('enumerators.destroy');
+    // Companies
+    Route::get('/companies', [CompanyController::class, 'index'])->name('companies.index');
+    // Templates
+    Route::get('/templates', [InstrumentTemplateController::class, 'index'])->name('templates.index');
+    Route::get('/templates/{id}', [InstrumentTemplateController::class, 'show'])->name('templates.show');
+    Route::post('/templates/{templateId}/questions', [InstrumentTemplateController::class, 'storeQuestion'])->name('templates.questions.store');
+    Route::put('/templates/{templateId}/questions/{questionId}', [InstrumentTemplateController::class, 'updateQuestion'])->name('templates.questions.update');
+    Route::delete('/templates/{templateId}/questions/{questionId}', [InstrumentTemplateController::class, 'destroyQuestion'])->name('templates.questions.destroy');
 });
 
 Route::middleware('auth')->group(function () {

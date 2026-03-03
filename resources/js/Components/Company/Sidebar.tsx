@@ -24,7 +24,9 @@ const navItems: NavItemProps[] = [
     { href: '/enumerators', icon: 'group', label: 'Enumerators' },
     { href: '/inbox', icon: 'move_to_inbox', label: 'Data Inbox' },
     { href: '/reports', icon: 'description', label: 'Reports' },
-    { href: '/settings', icon: 'settings', label: 'Settings' },
+    { href: '/profile', icon: 'settings', label: 'Settings' },
+    { href: '/templates', icon: 'folder', label: 'Templates' },
+    { href: '/companies', icon: 'business', label: 'Companies' },
 ];
 
 function NavItem({

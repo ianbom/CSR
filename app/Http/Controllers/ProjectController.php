@@ -41,7 +41,7 @@ class ProjectController extends Controller
         $enumerators = $this->projectService->getEnumeratorsByCompany($companyId);
         $provinces = $this->areaService->getAllProvinces();
 
-        return Inertia::render('Company/Project/ListProject', [
+        return Inertia::render('Project/ListProject', [
             'projects' => $projects,
             'summary' => $summary,
             'enumerators' => $enumerators,
@@ -55,7 +55,7 @@ class ProjectController extends Controller
         $detailType = $request->input('detailType', 'overview');
         $data = $this->projectService->getProjectDetail($id, $detailType);
 
-        return Inertia::render('Company/Project/DetailProject', [
+        return Inertia::render('Project/DetailProject', [
             'project'        => $data['project'],
             'detailType'     => $detailType,
             'stats'          => $data['stats'],
@@ -72,7 +72,7 @@ class ProjectController extends Controller
     {
         $provinces = $this->areaService->getAllProvinces();
 
-        return Inertia::render('Company/Project/CreateProject', [
+        return Inertia::render('Project/CreateProject', [
             'provinces' => $provinces,
         ]);
     }
@@ -116,13 +116,13 @@ class ProjectController extends Controller
         }
     }
 
-    public function getProjectForEdit(int $id)
-    {
-        $user = Auth::user();
-        $data = $this->projectService->getProjectForEdit($id, $user->company_id);
+    // public function getProjectForEdit(int $id)
+    // {
+    //     $user = Auth::user();
+    //     $data = $this->projectService->getProjectForEdit($id, $user->company_id);
 
-        return response()->json($data);
-    }
+    //     return response()->json($data);
+    // }
 
     public function getProjectEnumerators(int $projectId)
     {

@@ -60,9 +60,7 @@ Route::prefix('company')->name('company.')->group(function () {
     Route::post('/projects/{id}/assign-enumerators', [ProjectController::class, 'assignEnumerators'])->name('projects.assign-enumerators');
 
 
-    Route::get('/projects/{id}', function ($id) {
-        return Inertia::render('Company/Project/DetailProject', ['id' => $id]);
-    })->name('projects.show');
+    Route::get('/projects/{id}', [ProjectController::class, 'detailProject'])->name('projects.show');
 
     // Enumerators
     Route::get('/enumerators', function () {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Company\CreateProjectRequest;
+use App\Models\Project;
 use App\Services\AreaService;
 use App\Services\ProjectService;
 use Illuminate\Http\Request;
@@ -43,6 +44,22 @@ class ProjectController extends Controller
             'summary' => $summary,
             'enumerators' => $enumerators,
             'filters' => $params,
+        ]);
+    }
+
+    public function detailProject(Request $request, int $id)
+    {
+        $detailType = $request->input('detailType', 'overview');
+        $data = $this->projectService->getProjectDetail($id, $detailType);
+
+        return Inertia::render('Company/Project/DetailProject', [
+            'project'        => $data['project'],
+            'detailType'     => $detailType,
+            'stats'          => $data['stats'],
+            'demographics'   => $data['demographics'],
+            'questionScores' => $data['questionScores'],
+            'auditLog'       => $data['auditLog'],
+            'trendData'      => $data['trendData'],
         ]);
     }
 

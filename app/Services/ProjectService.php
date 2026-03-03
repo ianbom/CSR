@@ -6,6 +6,7 @@ use App\Models\InstrumentTemplate;
 use App\Models\Project;
 use App\Models\ProjectEnumeratorAssignment;
 use App\Models\ProjectLocation;
+use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -102,6 +103,296 @@ class ProjectService
             return $project->load('locations.district.city.province');
         });
     }
+
+    // ─── PROJECT DETAIL ───────────────────────────────────────────
+
+    public function getProjectDetail(int $projectId, string $detailType = 'overview'): array
+    {
+        $project = Project::with([
+            'company',
+            'locations.district.city.province',
+            'enumeratorAssignments.enumerator',
+            'ikmTemplate',
+            'sloiTemplate',
+        ])->findOrFail($projectId);
+
+        $assessmentType = $this->resolveAssessmentType($detailType);
+
+        // Base query: submissions for this project, optionally filtered by type
+        $submissionsQuery = Submission::where('project_id', $projectId);
+        if ($assessmentType) {
+            $submissionsQuery->where('assessment_type', $assessmentType);
+        }
+
+        $submissions = $submissionsQuery->get();
+        $submissionIds = $submissions->pluck('id');
+        $respondentIds = $submissions->pluck('respondent_id')->filter()->unique();
+
+        // Determine template_id for question scores
+        $templateId = null;
+        if ($assessmentType === 'IKM') {
+            $templateId = $project->ikm_template_id;
+        } elseif ($assessmentType === 'SLOI') {
+            $templateId = $project->sloi_template_id;
+        }
+
+        return [
+            'project'        => $this->formatProjectDetail($project),
+            'stats'          => $this->computeStats($project, $submissions, $assessmentType),
+            'demographics'   => $this->computeDemographics($respondentIds),
+            'questionScores' => $this->computeQuestionScores($submissionIds, $templateId),
+            'auditLog'       => $this->computeAuditLog($projectId, $assessmentType),
+            'trendData'      => $this->computeTrendData($projectId, $assessmentType),
+        ];
+    }
+
+    protected function resolveAssessmentType(string $detailType): ?string
+    {
+        return match (strtolower($detailType)) {
+            'ikm'  => 'IKM',
+            'sloi' => 'SLOI',
+            'sroi' => 'SROI',
+            default => null, // overview = all types
+        };
+    }
+
+    protected function formatProjectDetail(Project $project): array
+    {
+        $locations = $project->locations->map(function ($loc) {
+            $district = $loc->district;
+            $city = $district?->city;
+            $province = $city?->province;
+            return [
+                'district' => $district?->name,
+                'city'     => $city?->name,
+                'province' => $province?->name,
+            ];
+        });
+
+        $enumerators = $project->enumeratorAssignments->map(function ($a) {
+            return [
+                'id'    => $a->enumerator?->id,
+                'name'  => $a->enumerator?->name,
+                'email' => $a->enumerator?->email,
+            ];
+        })->filter(fn($e) => $e['id'] !== null)->values();
+
+        return [
+            'id'               => $project->id,
+            'name'             => $project->name,
+            'description'      => $project->description,
+            'projectCode'      => $project->project_code,
+            'status'           => $project->status,
+            'companyName'      => $project->company?->name,
+            'enableIkm'        => $project->enable_ikm,
+            'enableSloi'       => $project->enable_sloi,
+            'enableSroi'       => $project->enable_sroi,
+            'targetIkmCount'   => $project->target_ikm_count,
+            'targetSloiCount'  => $project->target_sloi_count,
+            'startDate'        => $project->start_date?->format('Y-m-d'),
+            'endDate'          => $project->end_date?->format('Y-m-d'),
+            'locations'        => $locations,
+            'enumerators'      => $enumerators,
+        ];
+    }
+
+    protected function computeStats(Project $project, $submissions, ?string $assessmentType): array
+    {
+        $totalResponses = $submissions->count();
+
+        // Target depends on type
+        $targetResponses = match ($assessmentType) {
+            'IKM'   => $project->target_ikm_count,
+            'SLOI'  => $project->target_sloi_count,
+            default => $project->target_ikm_count + $project->target_sloi_count,
+        };
+
+        $progress = $targetResponses > 0
+            ? round(($totalResponses / $targetResponses) * 100, 1)
+            : 0;
+
+        // Average score from all answers in these submissions
+        $avgScore = 0;
+        $submissionIds = $submissions->pluck('id');
+        if ($submissionIds->isNotEmpty()) {
+            $avgScore = round(
+                \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+                    ->avg('value') ?? 0,
+                2
+            );
+        }
+
+        // Score label
+        $scoreLabel = $this->getScoreLabel($avgScore);
+
+        return [
+            'totalResponses'  => $totalResponses,
+            'targetResponses' => $targetResponses ?: 0,
+            'progress'        => $progress,
+            'score'           => $avgScore,
+            'scoreLabel'      => $scoreLabel,
+        ];
+    }
+
+    protected function getScoreLabel(float $score): string
+    {
+        if ($score >= 4.0) return 'Sangat Baik';
+        if ($score >= 3.0) return 'Baik';
+        if ($score >= 2.0) return 'Cukup';
+        if ($score >= 1.0) return 'Kurang';
+        return 'Belum Ada Data';
+    }
+
+    protected function computeDemographics($respondentIds): array
+    {
+        if ($respondentIds->isEmpty()) {
+            return [
+                'genderDistribution' => [],
+                'ageRange'           => [],
+                'educationLevel'     => [],
+            ];
+        }
+
+        $respondents = \App\Models\Respondent::whereIn('id', $respondentIds)->get();
+        $total = $respondents->count();
+
+        // Gender distribution
+        $genderGroups = $respondents->groupBy('gender');
+        $genderDistribution = $genderGroups->map(function ($group, $gender) use ($total) {
+            return [
+                'gender'     => $gender ?: 'Tidak Diketahui',
+                'count'      => $group->count(),
+                'percentage' => $total > 0 ? round(($group->count() / $total) * 100, 1) : 0,
+            ];
+        })->values()->toArray();
+
+        // Age range buckets
+        $ageBuckets = [
+            '18-25' => 0, '26-40' => 0, '41-60' => 0, '60+' => 0,
+        ];
+        foreach ($respondents as $r) {
+            if ($r->age === null) continue;
+            if ($r->age <= 25) $ageBuckets['18-25']++;
+            elseif ($r->age <= 40) $ageBuckets['26-40']++;
+            elseif ($r->age <= 60) $ageBuckets['41-60']++;
+            else $ageBuckets['60+']++;
+        }
+        $maxAge = max($ageBuckets) ?: 1;
+        $ageRange = collect($ageBuckets)->map(function ($count, $range) use ($maxAge) {
+            return [
+                'range'  => $range,
+                'count'  => $count,
+                'height' => round(($count / $maxAge) * 100),
+            ];
+        })->values()->toArray();
+
+        // Education level
+        $eduGroups = $respondents->groupBy('education_level');
+        $educationLevel = $eduGroups->map(function ($group, $level) use ($total) {
+            return [
+                'label'      => $level ?: 'Tidak Diketahui',
+                'value'      => $group->count(),
+                'percentage' => $total > 0 ? round(($group->count() / $total) * 100, 1) : 0,
+            ];
+        })->values()->toArray();
+
+        return [
+            'genderDistribution' => $genderDistribution,
+            'ageRange'           => $ageRange,
+            'educationLevel'     => $educationLevel,
+        ];
+    }
+
+    protected function computeQuestionScores($submissionIds, ?int $templateId): array
+    {
+        if ($submissionIds->isEmpty() || !$templateId) {
+            return [];
+        }
+
+        // Get all questions for this template
+        $questions = \App\Models\TemplateQuestion::where('template_id', $templateId)
+            ->orderBy('order_no')
+            ->get();
+
+        // Get avg score per question
+        $avgScores = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+            ->whereIn('question_id', $questions->pluck('id'))
+            ->groupBy('question_id')
+            ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
+            ->pluck('avg_score', 'question_id');
+
+        return $questions->map(function ($q) use ($avgScores) {
+            return [
+                'id'       => $q->code,
+                'question' => $q->question_text,
+                'score'    => (float) ($avgScores[$q->id] ?? 0),
+            ];
+        })->toArray();
+    }
+
+    protected function computeAuditLog(int $projectId, ?string $assessmentType): array
+    {
+        $query = Submission::where('project_id', $projectId)
+            ->with(['respondent', 'enumerator'])
+            ->orderByDesc('submitted_at')
+            ->limit(10);
+
+        if ($assessmentType) {
+            $query->where('assessment_type', $assessmentType);
+        }
+
+        return $query->get()->map(function ($sub) {
+            // Compute avg score for this submission
+            $avgScore = $sub->templateAnswers()->avg('value');
+
+            return [
+                'id'             => '#' . strtoupper($sub->assessment_type) . '-' . $sub->id,
+                'respondentName' => $sub->respondent?->name ?? '-',
+                'enumerator'     => $sub->enumerator?->name ?? '-',
+                'date'           => $sub->submitted_at?->format('M d, Y • H:i'),
+                'score'          => round($avgScore ?? 0, 1),
+                'status'         => $sub->status,
+                'group'          => $sub->respondent?->respondent_status === 'Penerima CSR' ? 'csr' : 'general',
+            ];
+        })->toArray();
+    }
+
+    protected function computeTrendData(int $projectId, ?string $assessmentType): array
+    {
+        $query = DB::table('submissions')
+            ->join('submission_template_answers', 'submissions.id', '=', 'submission_template_answers.submission_id')
+            ->where('submissions.project_id', $projectId)
+            ->whereNotNull('submissions.submitted_at');
+
+        if ($assessmentType) {
+            $query->where('submissions.assessment_type', $assessmentType);
+        }
+
+        $monthly = $query
+            ->selectRaw("DATE_FORMAT(submissions.submitted_at, '%Y-%m') as month_key")
+            ->selectRaw("DATE_FORMAT(submissions.submitted_at, '%b') as month")
+            ->selectRaw('ROUND(AVG(submission_template_answers.value), 2) as score')
+            ->groupBy('month_key', 'month')
+            ->orderBy('month_key')
+            ->limit(6)
+            ->get();
+
+        if ($monthly->isEmpty()) {
+            return [];
+        }
+
+        $maxScore = $monthly->max('score') ?: 1;
+
+        return $monthly->map(function ($row) use ($maxScore) {
+            return [
+                'month'  => strtoupper($row->month),
+                'score'  => (float) $row->score,
+                'height' => round(($row->score / $maxScore) * 100),
+            ];
+        })->toArray();
+    }
+
+    // ─── PROJECT LIST ───────────────────────────────────────────
 
     protected function buildProjectListQuery(Builder $query, array $params = []): LengthAwarePaginator
     {

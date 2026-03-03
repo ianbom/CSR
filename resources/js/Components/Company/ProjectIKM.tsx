@@ -1,59 +1,154 @@
-import { ikmData } from '@/data';
 import { ReactNode } from 'react';
 
 import {
-    IKMAnswerDistribution,
+    IKMAgeRangeChart,
     IKMAuditLog,
-    IKMAutoInsight,
+    IKMEducationChart,
+    IKMGenderPieChart,
+    IKMHeader,
     IKMQuestionScores,
-    IKMScoreTrend,
-    IKMStatsCards,
+    IKMScoreGauge,
+    IKMTrendChart,
 } from './IKM';
 
-// Menggunakan data dari JSON
-const stats = ikmData.stats;
-const answerDistribution = ikmData.answerDistribution;
-const scoreTrend = ikmData.scoreTrend;
-const questionScores = ikmData.questionScores;
-const autoInsights = ikmData.autoInsights;
-const auditLog = ikmData.auditLog;
+// ─── Types ─────────────────────────────────────────────────
 
-export default function ProjectIKM(): ReactNode {
-    const handleLoadMore = () => {
-        console.log('Load more audit logs');
-    };
+interface StatsData {
+    totalResponses: number;
+    targetResponses: number;
+    progress: number;
+    score: number;
+    scoreLabel: string;
+}
+
+interface GenderItem {
+    gender: string;
+    count: number;
+    percentage: number;
+}
+
+interface AgeRangeItem {
+    range: string;
+    count: number;
+    height: number;
+}
+
+interface EducationItem {
+    label: string;
+    value: number;
+    percentage: number;
+}
+
+interface DemographicsData {
+    genderDistribution: GenderItem[];
+    ageRange: AgeRangeItem[];
+    educationLevel: EducationItem[];
+}
+
+interface QuestionScoreItem {
+    id: string;
+    question: string;
+    score: number;
+}
+
+interface AuditLogItem {
+    id: string;
+    respondentName: string;
+    enumerator: string;
+    date: string;
+    score: number;
+    status: string;
+    group: string;
+}
+
+interface TrendDataItem {
+    month: string;
+    score: number;
+    height: number;
+}
+
+interface ProjectIKMProps {
+    stats: StatsData;
+    demographics: DemographicsData;
+    questionScores: QuestionScoreItem[];
+    auditLog: AuditLogItem[];
+    trendData: TrendDataItem[];
+}
+
+export default function ProjectIKM({
+    stats,
+    demographics,
+    questionScores,
+    auditLog,
+    trendData,
+}: ProjectIKMProps): ReactNode {
+    // Transform gender data for GenderPieChart
+    const genderData = (() => {
+        const male = demographics.genderDistribution.find(
+            (g) => g.gender === 'Laki-laki',
+        );
+        const female = demographics.genderDistribution.find(
+            (g) => g.gender === 'Perempuan',
+        );
+        const total =
+            demographics.genderDistribution.reduce(
+                (sum, g) => sum + g.count,
+                0,
+            ) || 0;
+        return {
+            male: {
+                count: male?.count ?? 0,
+                percentage: male?.percentage ?? 0,
+            },
+            female: {
+                count: female?.count ?? 0,
+                percentage: female?.percentage ?? 0,
+            },
+            total,
+        };
+    })();
 
     return (
         <div className="space-y-6">
-            {/* Stats Cards Row */}
-            <IKMStatsCards
+            {/* Header Section */}
+            <IKMHeader
                 totalResponses={stats.totalResponses}
+                progress={stats.progress}
                 targetResponses={stats.targetResponses}
-                targetProgress={stats.targetProgress}
-                ikmScore={stats.ikmScore}
-                ikmScoreMax={stats.ikmScoreMax}
-                lastSubmissionTime={stats.lastSubmissionTime}
-                lastEnumerator={stats.lastEnumerator}
-                weeklyTrend={stats.weeklyTrend}
             />
 
-            {/* Charts Row */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <IKMScoreTrend scoreTrend={scoreTrend} />
-                <IKMAnswerDistribution distribution={answerDistribution} />
-            </div>
-
-            {/* Question Scores + Auto-Insight */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <IKMQuestionScores questionScores={questionScores} />
-                <IKMAutoInsight
-                    positiveTrend={autoInsights.positiveTrend}
-                    criticalAttention={autoInsights.criticalAttention}
+            {/* Main Score & Trend Row */}
+            <div className="grid gap-6 lg:grid-cols-5">
+                <IKMScoreGauge
+                    IKMScore={stats.score}
+                    trustLevel={stats.scoreLabel}
                 />
+                <IKMTrendChart trendData={trendData} />
             </div>
 
-            {/* Audit Log Table */}
-            <IKMAuditLog auditLog={auditLog} onLoadMore={handleLoadMore} />
+            {/* Demographics Row */}
+            <div className="grid gap-6 lg:grid-cols-2">
+                <IKMGenderPieChart data={genderData} />
+
+                <div className="space-y-6">
+                    <IKMEducationChart data={demographics.educationLevel} />
+                    <IKMAgeRangeChart ageRange={demographics.ageRange} />
+                </div>
+            </div>
+
+            {/* Question Scores */}
+            <IKMQuestionScores
+                scores={questionScores.map((q) => ({
+                    id: q.id,
+                    score: q.score,
+                }))}
+            />
+
+            {/* Audit Log */}
+            <IKMAuditLog
+                auditLog={auditLog}
+                totalResponses={stats.totalResponses}
+            />
         </div>
     );
 }

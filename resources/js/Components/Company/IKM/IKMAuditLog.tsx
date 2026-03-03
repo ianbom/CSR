@@ -2,152 +2,151 @@ import { Icon } from '@/Components/Company';
 import { ReactNode } from 'react';
 
 interface AuditLogItem {
-    time: string;
-    enumerator: string;
-    enumeratorId: string;
-    respondent: string;
-    avgScore: number;
+    id: string;
+    group: string;
+    date: string;
+    score: number;
     status: string;
-    photoUrl: string;
-    location: { lat: number; lng: number };
 }
 
 interface IKMAuditLogProps {
     auditLog: AuditLogItem[];
-    onLoadMore?: () => void;
+    totalResponses: number;
+    onViewAll?: () => void;
 }
-
-const statusStyles: Record<string, string> = {
-    verified: 'bg-green-50 text-green-600',
-    pending: 'bg-amber-50 text-amber-600',
-};
-
-const statusLabels: Record<string, string> = {
-    verified: 'TERVERIFIKASI',
-    pending: 'TERTUNDA',
-};
 
 export default function IKMAuditLog({
     auditLog,
-    onLoadMore,
+    totalResponses,
+    onViewAll,
 }: IKMAuditLogProps): ReactNode {
+    const getScoreColor = (score: number) => {
+        if (score >= 3.5) return 'text-green-600';
+        if (score >= 2.5) return 'text-amber-600';
+        return 'text-red-600';
+    };
+
+    const getScoreBarColor = (score: number) => {
+        if (score >= 3.5) return 'bg-green-500';
+        if (score >= 2.5) return 'bg-amber-500';
+        return 'bg-red-500';
+    };
+
     return (
         <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-100 p-6">
                 <div className="flex items-center gap-3">
-                    <Icon name="inventory" className="text-slate-400" />
-                    <h3 className="text-lg font-bold">Log Audit Survei</h3>
+                    <Icon name="history" className="text-slate-400" />
+                    <h3 className="text-base font-bold text-slate-900">
+                        Audit Pengiriman Data Kepercayaan
+                    </h3>
                 </div>
                 <div className="flex gap-2">
-                    <input
-                        className="rounded-lg border-slate-200 px-3 py-1.5 text-xs focus:ring-primary"
-                        placeholder="Cari responden..."
-                        type="text"
-                    />
-                    <button className="rounded-lg bg-primary/10 px-4 py-1.5 text-sm font-bold text-primary hover:bg-primary/20">
+                    <button className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50">
                         Filter
+                    </button>
+                    <button className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50">
+                        Ekspor CSV
                     </button>
                 </div>
             </div>
+
             <div className="overflow-x-auto">
-                <table className="w-full text-left">
+                <table className="w-full">
                     <thead>
-                        <tr className="bg-slate-50/50">
-                            <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                Waktu
+                        <tr className="border-b border-slate-100 bg-slate-50/50">
+                            <th className="px-6 py-4 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                ID Responden
                             </th>
-                            <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                Enumerator
+                            <th className="px-6 py-4 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                Grup
                             </th>
-                            <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                Nama Responden
+                            <th className="px-6 py-4 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                Tanggal Pengiriman
                             </th>
-                            <th className="px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                Skor Rata-rata
+                            <th className="px-6 py-4 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                Skor IKM
                             </th>
-                            <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                Status
-                            </th>
-                            <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                Verifikasi
+                            <th className="px-6 py-4 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                Validasi
                             </th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                        {auditLog.map((log, i) => (
+                        {auditLog.map((log) => (
                             <tr
-                                key={i}
+                                key={log.id}
                                 className="transition-colors hover:bg-slate-50"
                             >
+                                <td className="px-6 py-4 font-mono text-sm text-slate-900">
+                                    {log.id}
+                                </td>
+                                <td className="px-6 py-4">
+                                    <span
+                                        className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase ${
+                                            log.group === 'csr'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-slate-100 text-slate-600'
+                                        }`}
+                                    >
+                                        {log.group === 'csr'
+                                            ? 'Penerima CSR'
+                                            : 'Umum'}
+                                    </span>
+                                </td>
                                 <td className="px-6 py-4 text-sm text-slate-600">
-                                    {log.time}
+                                    {log.date}
                                 </td>
                                 <td className="px-6 py-4">
-                                    <p className="text-sm font-bold">
-                                        {log.enumerator}
-                                    </p>
-                                    <p className="text-[10px] text-slate-400">
-                                        ID: {log.enumeratorId}
-                                    </p>
-                                </td>
-                                <td className="px-6 py-4 text-sm font-medium">
-                                    {log.respondent}
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center justify-center">
+                                    <div className="flex items-center gap-3">
                                         <span
-                                            className={`rounded px-2 py-1 text-sm font-black ${
-                                                log.avgScore >= 4
-                                                    ? 'bg-green-50 text-green-600'
-                                                    : 'bg-yellow-50 text-yellow-600'
-                                            }`}
+                                            className={`text-sm font-bold ${getScoreColor(log.score)}`}
                                         >
-                                            {log.avgScore}
+                                            {log.score}
                                         </span>
+                                        <div className="h-2 w-16 overflow-hidden rounded-full bg-slate-100">
+                                            <div
+                                                className={`h-full rounded-full ${getScoreBarColor(log.score)}`}
+                                                style={{
+                                                    width: `${(log.score / 5) * 100}%`,
+                                                }}
+                                            />
+                                        </div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
                                     <span
-                                        className={`inline-flex items-center rounded px-2 py-1 text-[10px] font-bold ${statusStyles[log.status]}`}
+                                        className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
+                                            log.status === 'verified'
+                                                ? 'text-green-600'
+                                                : 'text-amber-600'
+                                        }`}
                                     >
-                                        {statusLabels[log.status]}
+                                        <Icon
+                                            name={
+                                                log.status === 'verified'
+                                                    ? 'check_circle'
+                                                    : 'pending'
+                                            }
+                                            className="text-sm"
+                                        />
+                                        {log.status === 'verified'
+                                            ? 'Terverifikasi'
+                                            : 'Tertunda'}
                                     </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex gap-4">
-                                        <a
-                                            className="flex items-center gap-1 text-[10px] font-bold text-primary hover:underline"
-                                            href="#"
-                                        >
-                                            <Icon
-                                                name="photo"
-                                                className="text-sm"
-                                            />{' '}
-                                            Foto
-                                        </a>
-                                        <a
-                                            className="flex items-center gap-1 text-[10px] font-bold text-blue-600 hover:underline"
-                                            href="#"
-                                        >
-                                            <Icon
-                                                name="location_on"
-                                                className="text-sm"
-                                            />{' '}
-                                            Maps
-                                        </a>
-                                    </div>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
             <div className="border-t border-slate-100 bg-slate-50 p-4 text-center">
                 <button
-                    onClick={onLoadMore}
-                    className="text-xs font-bold text-slate-500 transition-colors hover:text-primary"
+                    onClick={onViewAll}
+                    className="text-sm font-semibold text-primary hover:underline"
                 >
-                    Muat Lebih Banyak
+                    Lihat Semua {totalResponses.toLocaleString()} Pengiriman
                 </button>
             </div>
         </div>

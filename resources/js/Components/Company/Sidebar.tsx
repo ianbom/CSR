@@ -19,12 +19,12 @@ interface SidebarProps {
 }
 
 const navItems: NavItemProps[] = [
-    { href: '/company/dashboard', icon: 'dashboard', label: 'Dashboard' },
-    { href: '/company/projects', icon: 'assignment', label: 'Projects' },
-    { href: '/company/enumerators', icon: 'group', label: 'Enumerators' },
-    { href: '/company/inbox', icon: 'move_to_inbox', label: 'Data Inbox' },
-    { href: '/company/reports', icon: 'description', label: 'Reports' },
-    { href: '/company/settings', icon: 'settings', label: 'Settings' },
+    { href: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
+    { href: '/projects', icon: 'assignment', label: 'Projects' },
+    { href: '/enumerators', icon: 'group', label: 'Enumerators' },
+    { href: '/inbox', icon: 'move_to_inbox', label: 'Data Inbox' },
+    { href: '/reports', icon: 'description', label: 'Reports' },
+    { href: '/settings', icon: 'settings', label: 'Settings' },
 ];
 
 function NavItem({

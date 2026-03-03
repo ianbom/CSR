@@ -1,7 +1,7 @@
 import { Icon, StepProgress } from '@/Components/Company';
 import ProjectForm from '@/Components/Company/ProjectForm';
 import { createProjectData } from '@/data';
-import CompanyLayout from '@/Layouts/CompanyLayout';
+import CompanyLayout from '@/Layouts/AppLayout';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 
 // Types
@@ -36,7 +36,7 @@ export default function CreateProject() {
     });
 
     const handleSubmit = () => {
-        post('/company/projects', {
+        post('/projects', {
             onSuccess: () => {
                 reset();
             },
@@ -44,7 +44,7 @@ export default function CreateProject() {
     };
 
     const handleCancel = () => {
-        router.visit('/company/projects');
+        router.visit('/projects');
     };
 
     return (

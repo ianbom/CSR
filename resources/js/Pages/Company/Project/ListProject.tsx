@@ -9,9 +9,11 @@ import {
     SearchInput,
     SummaryCard,
 } from '@/Components/Company';
-import EditProjectModal from '@/Components/Company/EditProjectModal';
+import EditProjectModal, {
+    type EditProjectData,
+} from '@/Components/Company/EditProjectModal';
 import type { Province } from '@/Components/Company/ProjectForm';
-import CompanyLayout from '@/Layouts/CompanyLayout';
+import CompanyLayout from '@/Layouts/AppLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import debounce from 'lodash/debounce';
 import { useCallback, useState } from 'react';
@@ -80,7 +82,7 @@ export default function ListProject({
 
     // Edit Project Modal state
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [editProjectId, setEditProjectId] = useState<number | string | null>(
+    const [editProject, setEditProject] = useState<EditProjectData | null>(
         null,
     );
 
@@ -88,7 +90,7 @@ export default function ListProject({
     const debouncedSearch = useCallback(
         debounce((value: string) => {
             router.get(
-                '/company/projects',
+                '/projects',
                 { ...filters, search: value || null, page: 1 },
                 { preserveState: true, preserveScroll: true },
             );
@@ -103,7 +105,7 @@ export default function ListProject({
 
     const handleFilterChange = (status: string) => {
         router.get(
-            '/company/projects',
+            '/projects',
             { ...filters, status, page: 1 },
             { preserveState: true, preserveScroll: true },
         );
@@ -115,7 +117,7 @@ export default function ListProject({
                 ? 'desc'
                 : 'asc';
         router.get(
-            '/company/projects',
+            '/projects',
             { ...filters, sort_by: key, sort_order: newOrder, page: 1 },
             { preserveState: true, preserveScroll: true },
         );
@@ -123,7 +125,7 @@ export default function ListProject({
 
     const handlePageChange = (page: number) => {
         router.get(
-            '/company/projects',
+            '/projects',
             { ...filters, page },
             { preserveState: true, preserveScroll: true },
         );
@@ -131,7 +133,7 @@ export default function ListProject({
 
     const handlePerPageChange = (perPage: number) => {
         router.get(
-            '/company/projects',
+            '/projects',
             { ...filters, per_page: perPage, page: 1 },
             { preserveState: true, preserveScroll: true },
         );
@@ -158,7 +160,7 @@ export default function ListProject({
                 `Apakah Anda yakin ingin menghapus proyek "${project.name}"?`,
             )
         ) {
-            router.delete(`/company/projects/${project.id}`);
+            router.delete(`/projects/${project.id}`);
         }
     };
 
@@ -174,7 +176,7 @@ export default function ListProject({
     ) => {
         setIsSubmitting(true);
         router.post(
-            `/company/projects/${projectId}/assign-enumerators`,
+            `/projects/${projectId}/assign-enumerators`,
             { enumerator_ids: enumeratorIds },
             {
                 preserveScroll: true,
@@ -205,7 +207,7 @@ export default function ListProject({
                         </p>
                     </div>
                     <Link
-                        href="/company/projects/create"
+                        href="/projects/create"
                         className="flex items-center gap-2 rounded-lg bg-primary-btn px-5 py-3 font-semibold text-white transition-colors hover:bg-primary-btn-hover"
                     >
                         <Icon name="add" />
@@ -288,7 +290,9 @@ export default function ListProject({
                             onSort={handleSort}
                             onEdit={handleEdit}
                             onEditProject={(project) => {
-                                setEditProjectId(project.id);
+                                setEditProject(
+                                    project as unknown as EditProjectData,
+                                );
                                 setIsEditModalOpen(true);
                             }}
                             onDelete={handleDelete}
@@ -349,11 +353,11 @@ export default function ListProject({
             {/* Edit Project Modal */}
             <EditProjectModal
                 isOpen={isEditModalOpen}
-                projectId={editProjectId}
+                project={editProject}
                 provinces={provinces || []}
                 onClose={() => {
                     setIsEditModalOpen(false);
-                    setEditProjectId(null);
+                    setEditProject(null);
                 }}
             />
         </CompanyLayout>

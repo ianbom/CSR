@@ -1,7 +1,8 @@
 <?php
 
 use App\Http\Controllers\AreaController;
-use App\Http\Controllers\Company\ProjectController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\EnumeratorController;
 use App\Http\Controllers\Enumerator\ProjectController as EnumeratorProjectController;
 use App\Http\Controllers\Enumerator\SurveyController as EnumeratorSurveyController;
 use App\Http\Controllers\ProfileController;
@@ -43,11 +44,10 @@ Route::prefix('api/area')->name('api.area.')->group(function () {
 });
 Route::prefix('api/projects')->name('api.projects.')->group(function () {
     Route::get('/{id}/enumerators', [ProjectController::class, 'getProjectEnumerators'])->name('enumerators');
-    Route::get('/{id}', [ProjectController::class, 'getProjectForEdit'])->name('edit');
 });
 
 // Company Routes
-Route::prefix('company')->name('company.')->group(function () {
+Route::prefix('')->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Company/Dashboard');
     })->name('dashboard');
@@ -62,9 +62,10 @@ Route::prefix('company')->name('company.')->group(function () {
     Route::get('/projects/{id}', [ProjectController::class, 'detailProject'])->name('projects.show');
 
     // Enumerators
-    Route::get('/enumerators', function () {
-        return Inertia::render('Company/Enumerator/ListEnumerator');
-    })->name('enumerators.index');
+    Route::get('/enumerators', [EnumeratorController::class, 'index'])->name('enumerators.index');
+    Route::post('/enumerators', [EnumeratorController::class, 'store'])->name('enumerators.store');
+    Route::put('/enumerators/{id}', [EnumeratorController::class, 'update'])->name('enumerators.update');
+    Route::delete('/enumerators/{id}', [EnumeratorController::class, 'destroy'])->name('enumerators.destroy');
 });
 
 Route::middleware('auth')->group(function () {

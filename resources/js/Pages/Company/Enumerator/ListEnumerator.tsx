@@ -1,87 +1,73 @@
-import {
-    Enumerator,
-    EnumeratorCard,
-    Icon,
-    SearchInput,
-} from '@/Components/Company';
-import CompanyLayout from '@/Layouts/CompanyLayout';
-import { Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { Icon, SearchInput } from '@/Components/Company';
+import CreateEnumeratorModal from '@/Components/Company/CreateEnumeratorModal';
+import EditEnumeratorModal from '@/Components/Company/EditEnumeratorModal';
+import CompanyLayout from '@/Layouts/AppLayout';
+import { Head, router } from '@inertiajs/react';
+import debounce from 'lodash/debounce';
+import { useCallback, useState } from 'react';
 
-// Data dummy - ganti dengan props dari backend
-const mockEnumerators: Enumerator[] = [
-    {
-        id: '1',
-        name: 'Johnathan Doe',
-        email: 'j.doe@company.com',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-        isOnline: true,
-        submissions: 42,
-        activeProjects: 3,
-    },
-    {
-        id: '2',
-        name: 'Sarah Jenkins',
-        email: 's.jenkins@company.com',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face',
-        isOnline: true,
-        submissions: 28,
-        activeProjects: 2,
-    },
-    {
-        id: '3',
-        name: 'Michael Chen',
-        email: 'm.chen@company.com',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-        isOnline: false,
-        submissions: 56,
-        activeProjects: 5,
-    },
-    {
-        id: '4',
-        name: 'Elena Rodriguez',
-        email: 'e.rod@company.com',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-        isOnline: true,
-        submissions: 12,
-        activeProjects: 1,
-    },
-    {
-        id: '5',
-        name: 'David Park',
-        email: 'd.park@company.com',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
-        isOnline: true,
-        submissions: 89,
-        activeProjects: 4,
-    },
-    {
-        id: '6',
-        name: 'Amina Diallo',
-        email: 'a.diallo@company.com',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
-        isOnline: false,
-        submissions: 34,
-        activeProjects: 2,
-    },
-];
+// ─── Types ─────────────────────────────────────────────────
 
-export default function ListEnumerator() {
-    const [searchQuery, setSearchQuery] = useState('');
+interface EnumeratorData {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    isActive: boolean;
+    submissions: number;
+    activeProjects: number;
+    createdAt: string | null;
+}
 
-    // Filter enumerator berdasarkan pencarian
-    const filteredEnumerators = mockEnumerators.filter(
-        (enumerator) =>
-            enumerator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            enumerator.email.toLowerCase().includes(searchQuery.toLowerCase()),
+interface Filters {
+    search?: string | null;
+}
+
+interface Props {
+    enumerators: EnumeratorData[];
+    filters: Filters;
+}
+
+// ─── Component ─────────────────────────────────────────────
+
+export default function ListEnumerator({ enumerators, filters }: Props) {
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
+
+    // Modal states
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editEnumerator, setEditEnumerator] = useState<EnumeratorData | null>(
+        null,
     );
 
-    const handleEdit = (enumerator: Enumerator) => {
-        console.log('Edit enumerator:', enumerator);
+    // Debounced search
+    const debouncedSearch = useCallback(
+        debounce((value: string) => {
+            router.get(
+                '/enumerators',
+                { search: value || undefined },
+                { preserveState: true, preserveScroll: true },
+            );
+        }, 400),
+        [],
+    );
+
+    const handleSearch = (value: string) => {
+        setSearchQuery(value);
+        debouncedSearch(value);
     };
 
-    const handleDelete = (enumerator: Enumerator) => {
-        console.log('Hapus enumerator:', enumerator);
+    const handleEdit = (en: EnumeratorData) => {
+        setEditEnumerator(en);
+        setIsEditOpen(true);
+    };
+
+    const handleDelete = (en: EnumeratorData) => {
+        if (confirm(`Hapus enumerator "${en.name}"?`)) {
+            router.delete(`/company/enumerators/${en.id}`, {
+                preserveScroll: true,
+            });
+        }
     };
 
     return (
@@ -91,7 +77,7 @@ export default function ListEnumerator() {
             <Head title="Direktori Enumerator" />
 
             <div className="p-8">
-                {/* Header Halaman */}
+                {/* Header */}
                 <div className="mb-8 flex items-start justify-between">
                     <div className="space-y-1">
                         <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
@@ -102,52 +88,178 @@ export default function ListEnumerator() {
                             produktivitas, dan penugasan proyek aktif.
                         </p>
                     </div>
-                    <Link
-                        href="/company/enumerators/create"
+                    <button
+                        onClick={() => setIsCreateOpen(true)}
                         className="flex items-center gap-2 rounded-lg bg-primary-btn px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary-btn/20 transition-all hover:bg-primary-btn-hover"
                     >
                         <Icon name="person_add" className="text-lg" />
                         <span>Tambah Enumerator</span>
-                    </Link>
+                    </button>
                 </div>
 
-                {/* Filter & Pencarian */}
+                {/* Search & Stats */}
                 <div className="mb-8 flex items-center gap-4">
                     <SearchInput
-                        placeholder="Cari berdasarkan nama, email, atau ID proyek..."
+                        placeholder="Cari berdasarkan nama, email, atau telepon..."
                         value={searchQuery}
-                        onChange={setSearchQuery}
+                        onChange={handleSearch}
                     />
-                    <button className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50">
-                        <Icon name="filter_list" className="text-lg" />
-                        <span>Filter</span>
-                    </button>
-                    <button className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50">
-                        <Icon name="download" className="text-lg" />
-                        <span>Ekspor</span>
-                    </button>
+                    <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600">
+                        <Icon name="group" className="text-lg text-primary" />
+                        <span>
+                            <strong className="text-slate-900">
+                                {enumerators.length}
+                            </strong>{' '}
+                            Enumerator
+                        </span>
+                    </div>
                 </div>
 
-                {/* Grid Enumerator */}
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredEnumerators.map((enumerator) => (
-                        <EnumeratorCard
-                            key={enumerator.id}
-                            enumerator={enumerator}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
+                {/* Grid */}
+                {enumerators.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white py-16">
+                        <Icon
+                            name="person_search"
+                            className="mb-4 text-5xl text-slate-300"
                         />
-                    ))}
+                        <h3 className="text-lg font-bold text-slate-700">
+                            Belum ada enumerator
+                        </h3>
+                        <p className="mt-1 text-sm text-slate-400">
+                            Tambahkan enumerator pertama untuk memulai
+                        </p>
+                        <button
+                            onClick={() => setIsCreateOpen(true)}
+                            className="mt-4 flex items-center gap-2 rounded-lg bg-primary-btn px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-primary-btn-hover"
+                        >
+                            <Icon name="person_add" className="text-lg" />
+                            Tambah Enumerator
+                        </button>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {enumerators.map((en) => (
+                            <EnumeratorCardItem
+                                key={en.id}
+                                enumerator={en}
+                                onEdit={() => handleEdit(en)}
+                                onDelete={() => handleDelete(en)}
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Create Modal */}
+            <CreateEnumeratorModal
+                isOpen={isCreateOpen}
+                onClose={() => setIsCreateOpen(false)}
+            />
+
+            {/* Edit Modal */}
+            <EditEnumeratorModal
+                isOpen={isEditOpen}
+                enumerator={editEnumerator}
+                onClose={() => {
+                    setIsEditOpen(false);
+                    setEditEnumerator(null);
+                }}
+            />
+        </CompanyLayout>
+    );
+}
+
+// ─── Inline Card Component ─────────────────────────────────
+
+function EnumeratorCardItem({
+    enumerator,
+    onEdit,
+    onDelete,
+}: {
+    enumerator: EnumeratorData;
+    onEdit: () => void;
+    onDelete: () => void;
+}) {
+    const initials = enumerator.name
+        .split(' ')
+        .map((w) => w[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase();
+
+    return (
+        <div className="group relative rounded-2xl border border-slate-100 bg-white p-6 transition-all hover:shadow-xl hover:shadow-slate-200/50">
+            {/* Action Buttons */}
+            <div className="absolute right-4 top-4 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <button
+                    onClick={onEdit}
+                    className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-primary"
+                >
+                    <Icon name="edit" className="text-lg" />
+                </button>
+                <button
+                    onClick={onDelete}
+                    className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                >
+                    <Icon name="delete" className="text-lg" />
+                </button>
+            </div>
+
+            <div className="flex flex-col items-center text-center">
+                {/* Avatar */}
+                <div className="relative mb-4">
+                    <div className="flex size-20 items-center justify-center rounded-full border-4 border-slate-50 bg-primary/10 text-xl font-bold text-primary">
+                        {initials}
+                    </div>
+                    <div
+                        className={`absolute bottom-1 right-1 size-4 rounded-full border-2 border-white ${enumerator.isActive
+                                ? 'bg-green-500'
+                                : 'bg-slate-300'
+                            }`}
+                    />
                 </div>
 
-                {/* Load More */}
-                <div className="mt-12 flex justify-center">
-                    <button className="flex items-center gap-2 rounded-full border border-slate-200 px-6 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-50">
-                        <span>Muat Lebih Banyak Enumerator</span>
-                        <Icon name="expand_more" className="text-sm" />
-                    </button>
+                {/* Info */}
+                <h3 className="text-lg font-bold text-slate-900">
+                    {enumerator.name}
+                </h3>
+                <p className="text-sm text-slate-500">{enumerator.email}</p>
+                {enumerator.phone && (
+                    <p className="mt-0.5 text-xs text-slate-400">
+                        {enumerator.phone}
+                    </p>
+                )}
+
+                {/* Status Badge */}
+                <span
+                    className={`mt-2 inline-flex rounded-full px-3 py-0.5 text-[10px] font-bold uppercase ${enumerator.isActive
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-slate-100 text-slate-500'
+                        }`}
+                >
+                    {enumerator.isActive ? 'Aktif' : 'Tidak Aktif'}
+                </span>
+
+                {/* Stats */}
+                <div className="mt-4 grid w-full grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                    <div className="flex flex-col">
+                        <span className="text-2xl font-black text-primary">
+                            {enumerator.submissions}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                            Pengiriman
+                        </span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-2xl font-black text-slate-800">
+                            {enumerator.activeProjects}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                            Proyek Aktif
+                        </span>
+                    </div>
                 </div>
             </div>
-        </CompanyLayout>
+        </div>
     );
 }

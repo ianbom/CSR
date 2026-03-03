@@ -6,7 +6,7 @@ import ProjectOverview from '@/Components/Company/ProjectOverview';
 import ProjectSLOI from '@/Components/Company/ProjectSLOI';
 import ProjectSLOIRespondent from '@/Components/Company/ProjectSLOIRespondent';
 import ProjectSROI from '@/Components/Company/ProjectSROI';
-import CompanyLayout from '@/Layouts/CompanyLayout';
+import CompanyLayout from '@/Layouts/AppLayout';
 import { Head, router } from '@inertiajs/react';
 
 // ─── Types ─────────────────────────────────────────────────
@@ -207,7 +207,7 @@ export default function DetailProject({
     // Berpindah tab → update URL params via Inertia
     const handleTabChange = (tab: string) => {
         router.get(
-            route('company.projects.show', { id: project.id }),
+            route('projects.show', { id: project.id }),
             { detailType: tab },
             { preserveState: true, preserveScroll: true },
         );

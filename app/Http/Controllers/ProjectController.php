@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Company;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Company\CreateProjectRequest;
@@ -90,7 +90,7 @@ class ProjectController extends Controller
         );
 
         return redirect()
-            ->route('company.projects.show', $project->id)
+            ->route('projects.show', $project->id)
             ->with('success', 'Proyek berhasil dibuat.');
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', 'Terjadi kesalahan saat membuat proyek: ' . $th->getMessage());

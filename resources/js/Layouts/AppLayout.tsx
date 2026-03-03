@@ -4,17 +4,17 @@ import Sidebar from '@/Components/Company/Sidebar';
 import { usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode } from 'react';
 
-interface CompanyLayoutProps extends PropsWithChildren {
+interface AppLayoutProps extends PropsWithChildren {
     breadcrumb: {
         parent: string;
         current: string;
     };
 }
 
-export default function CompanyLayout({
+export default function AppLayout({
     children,
     breadcrumb,
-}: CompanyLayoutProps): ReactNode {
+}: AppLayoutProps): ReactNode {
     const { auth } = usePage().props as {
         auth: { user: { name: string; email: string } };
     };

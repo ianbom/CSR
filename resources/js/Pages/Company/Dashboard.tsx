@@ -5,7 +5,7 @@ import {
     ScoreDistribution,
     StatCard,
 } from '@/Components/Company';
-import CompanyLayout from '@/Layouts/CompanyLayout';
+import CompanyLayout from '@/Layouts/AppLayout';
 import { Head } from '@inertiajs/react';
 
 // Types
@@ -196,7 +196,7 @@ export default function Dashboard() {
                     <ActivityFeed
                         title="Aktivitas Terbaru"
                         activities={mockActivities}
-                        viewAllLink="/company/activities"
+                        viewAllLink="/activities"
                     />
                 </section>
             </div>

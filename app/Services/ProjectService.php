@@ -664,29 +664,47 @@ class ProjectService
 
     protected function formatProjectForList(Project $project): array
     {
-        $locations = $project->locations->map(function ($loc) {
+        $locationsString = $project->locations->map(function ($loc) {
             $district = $loc->district;
             $city = $district?->city;
             return $city ? $city->name : ($district?->name ?? '-');
         })->unique()->take(2)->implode(', ');
+
+        $fullLocations = $project->locations->map(function ($loc) {
+            return [
+                'id'       => $loc->id,
+                'province' => $loc->district?->city?->province,
+                'city'     => $loc->district?->city,
+                'district' => $loc->district,
+            ];
+        })->toArray();
 
         $type = $this->determineProjectType($project);
         $currentResponses = $project->submissions->count();
         $targetResponses = $project->target_ikm_count + $project->target_sloi_count;
 
         return [
-            'id' => $project->id,
-            'code' => $project->project_code,
-            'institution' => $project->company->name ?? '-',
-            'name' => $project->name,
-            'type' => $type,
-            'typeLabel' => $this->getTypeLabel($project),
-            'location' => $locations ?: '-',
-            'status' => $project->status,
+            'id'               => $project->id,
+            'code'             => $project->project_code,
+            'institution'      => $project->company->name ?? '-',
+            'name'             => $project->name,
+            'type'             => $type,
+            'typeLabel'        => $this->getTypeLabel($project),
+            'location'         => $locationsString ?: '-',
+            'status'           => $project->status,
+            'description'      => $project->description,
+            'target_ikm_count' => $project->target_ikm_count,
+            'target_sloi_count'=> $project->target_sloi_count,
+            'enable_ikm'       => $project->enable_ikm,
+            'enable_sloi'      => $project->enable_sloi,
+            'enable_sroi'      => $project->enable_sroi,
+            'ikm_template_id'  => $project->ikm_template_id,
+            'sloi_template_id' => $project->sloi_template_id,
+            'locations'        => $fullLocations,
             'currentResponses' => $currentResponses,
-            'targetResponses' => $targetResponses ?: 0,
-            'startDate' => $project->start_date?->format('Y-m-d'),
-            'endDate' => $project->end_date?->format('Y-m-d'),
+            'targetResponses'  => $targetResponses ?: 0,
+            'startDate'        => $project->start_date?->format('Y-m-d'),
+            'endDate'          => $project->end_date?->format('Y-m-d'),
         ];
     }
 

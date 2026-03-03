@@ -128,7 +128,7 @@ export default function ProjectTable({
                         {/* Project Details */}
                         <div className="col-span-3">
                             <Link
-                                href={`/company/projects/${project.id}`}
+                                href={`/projects/${project.id}`}
                                 className="font-semibold text-slate-900 hover:text-primary"
                             >
                                 {project.name}
@@ -220,7 +220,7 @@ function ActionDropdown({
                 <div className="absolute right-0 top-full z-50 mt-1 w-48 overflow-hidden rounded-xl border border-slate-100 bg-white py-1.5 shadow-lg shadow-slate-200/50 ring-1 ring-black/5">
                     {/* Detail */}
                     <Link
-                        href={`/company/projects/${project.id}`}
+                        href={`/projects/${project.id}`}
                         className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-primary"
                     >
                         <Icon name="visibility" className="text-base" />

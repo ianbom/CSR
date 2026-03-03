@@ -38,7 +38,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         if ($request->user()->role == 'company') {
-            return redirect()->intended(route('company.projects', absolute: false));
+            return redirect()->intended(route('projects', absolute: false));
         }
 
         return redirect()->intended(route('dashboard', absolute: false));

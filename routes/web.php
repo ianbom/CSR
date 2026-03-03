@@ -43,6 +43,7 @@ Route::prefix('api/area')->name('api.area.')->group(function () {
 });
 Route::prefix('api/projects')->name('api.projects.')->group(function () {
     Route::get('/{id}/enumerators', [ProjectController::class, 'getProjectEnumerators'])->name('enumerators');
+    Route::get('/{id}', [ProjectController::class, 'getProjectForEdit'])->name('edit');
 });
 
 // Company Routes
@@ -51,14 +52,12 @@ Route::prefix('company')->name('company.')->group(function () {
         return Inertia::render('Company/Dashboard');
     })->name('dashboard');
 
-
-
     // Projects
     Route::get('/projects', [ProjectController::class, 'listProjectPage'])->name('projects');
     Route::get('/projects/create', [ProjectController::class, 'createProjectPage'])->name('projects.create');
     Route::post('/projects', [ProjectController::class, 'storeProject'])->name('projects.store');
     Route::post('/projects/{id}/assign-enumerators', [ProjectController::class, 'assignEnumerators'])->name('projects.assign-enumerators');
-
+    Route::put('/projects/{id}', [ProjectController::class, 'updateProject'])->name('projects.update');
 
     Route::get('/projects/{id}', [ProjectController::class, 'detailProject'])->name('projects.show');
 

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamp('published_at')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
-
+            $table->softDeletes();
             $table->unique(['type', 'version']);
         });
     }

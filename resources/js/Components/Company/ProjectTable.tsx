@@ -29,6 +29,7 @@ interface ProjectTableProps {
     sortConfig?: SortConfig;
     onSort?: (key: string) => void;
     onEdit?: (project: Project) => void;
+    onEditProject?: (project: Project) => void;
     onDelete?: (project: Project) => void;
 }
 
@@ -61,6 +62,7 @@ export default function ProjectTable({
     sortConfig,
     onSort,
     onEdit,
+    onEditProject,
     onDelete,
 }: ProjectTableProps): ReactNode {
     const handleSort = (key: string) => {
@@ -70,7 +72,7 @@ export default function ProjectTable({
     };
 
     return (
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div className="rounded-xl border border-slate-200 bg-white">
             {/* Table Header */}
             <div className="grid grid-cols-12 gap-4 border-b border-slate-100 bg-slate-50 px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
                 <div className="col-span-1 text-center">No</div>
@@ -154,36 +156,125 @@ export default function ProjectTable({
                         </div>
 
                         {/* Actions */}
-                        <div className="col-span-1 flex items-center justify-center gap-2">
-                            <Link
-                                href={`/company/projects/${project.id}`}
-                                className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-primary"
-                                title="View"
-                            >
-                                <Icon name="visibility" className="text-lg" />
-                            </Link>
-                            {onEdit && (
-                                <button
-                                    onClick={() => onEdit(project)}
-                                    className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-primary"
-                                    title="Edit"
-                                >
-                                    <Icon name="edit" className="text-lg" />
-                                </button>
-                            )}
-                            {onDelete && (
-                                <button
-                                    onClick={() => onDelete(project)}
-                                    className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-red-500"
-                                    title="Delete"
-                                >
-                                    <Icon name="delete" className="text-lg" />
-                                </button>
-                            )}
+                        <div className="col-span-1 flex items-center justify-center">
+                            <ActionDropdown
+                                project={project}
+                                onEdit={onEdit}
+                                onEditProject={onEditProject}
+                                onDelete={onDelete}
+                            />
                         </div>
                     </div>
                 ))}
             </div>
+        </div>
+    );
+}
+
+// ─── Inline Action Dropdown Component ───────────────────
+
+import { useEffect, useRef, useState } from 'react';
+
+function ActionDropdown({
+    project,
+    onEdit,
+    onEditProject,
+    onDelete,
+}: {
+    project: Project;
+    onEdit?: (project: Project) => void;
+    onEditProject?: (project: Project) => void;
+    onDelete?: (project: Project) => void;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target as Node)
+            ) {
+                setIsOpen(false);
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () =>
+            document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setIsOpen(!isOpen);
+                }}
+                className="flex size-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
+                title="Aksi"
+            >
+                <Icon name="more_vert" className="text-xl" />
+            </button>
+
+            {isOpen && (
+                <div className="absolute right-0 top-full z-50 mt-1 w-48 overflow-hidden rounded-xl border border-slate-100 bg-white py-1.5 shadow-lg shadow-slate-200/50 ring-1 ring-black/5">
+                    {/* Detail */}
+                    <Link
+                        href={`/company/projects/${project.id}`}
+                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-primary"
+                    >
+                        <Icon name="visibility" className="text-base" />
+                        <span className="font-medium">Detail Proyek</span>
+                    </Link>
+
+                    {/* Assign Enumerator */}
+                    {onEdit && (
+                        <button
+                            onClick={() => {
+                                setIsOpen(false);
+                                onEdit(project);
+                            }}
+                            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-primary"
+                        >
+                            <Icon name="group_add" className="text-base" />
+                            <span className="font-medium">
+                                Assign Enumerator
+                            </span>
+                        </button>
+                    )}
+
+                    {/* Edit */}
+                    {onEditProject && (
+                        <button
+                            onClick={() => {
+                                setIsOpen(false);
+                                onEditProject(project);
+                            }}
+                            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-primary"
+                        >
+                            <Icon name="edit" className="text-base" />
+                            <span className="font-medium">Edit Proyek</span>
+                        </button>
+                    )}
+
+                    {/* Delete */}
+                    {onDelete && (
+                        <div className="my-1 border-t border-slate-100"></div>
+                    )}
+                    {onDelete && (
+                        <button
+                            onClick={() => {
+                                setIsOpen(false);
+                                onDelete(project);
+                            }}
+                            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
+                        >
+                            <Icon name="delete" className="text-base" />
+                            <span className="font-medium">Hapus Proyek</span>
+                        </button>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

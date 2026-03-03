@@ -35,7 +35,8 @@ return new class extends Migration
             $table->timestamp('closed_at')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
-
+            $table->softDeletes();
+            
             $table->unique(['company_id', 'project_code']);
             $table->index(['company_id', 'status']);
         });

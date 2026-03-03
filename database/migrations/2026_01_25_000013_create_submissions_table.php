@@ -38,7 +38,8 @@ return new class extends Migration
             $table->text('review_note')->nullable();
 
             $table->timestamp('created_at')->useCurrent();
-
+            $table->softDeletes();
+            
             $table->index(['company_id', 'project_id', 'assessment_type', 'submitted_at'], 'submissions_company_project_type_submitted_idx');
             $table->index(['project_id', 'enumerator_id', 'submitted_at']);
             $table->index(['project_id', 'respondent_id']);

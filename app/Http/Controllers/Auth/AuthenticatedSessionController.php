@@ -33,6 +33,14 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        if ($request->user()->role == 'enumerator') {
+            return redirect()->intended(route('enumerator.list-survey', absolute: false));
+        }
+
+        if ($request->user()->role == 'company') {
+            return redirect()->intended(route('company.projects', absolute: false));
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

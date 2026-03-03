@@ -105,6 +105,74 @@ class ProjectService
         });
     }
 
+    public function updateProject(int $projectId, array $data, int $companyId): Project
+    {
+        return DB::transaction(function () use ($projectId, $data, $companyId) {
+            $project = Project::where('id', $projectId)
+                ->where('company_id', $companyId)
+                ->firstOrFail();
+
+            $templateIds = $this->resolveTemplateIds($data);
+
+            $project->update([
+                'name'             => $data['name'],
+                'description'      => $data['description'] ?? null,
+                'status'           => $data['status'] ?? $project->status,
+                'target_ikm_count' => $data['target_ikm_count'] ?? 0,
+                'target_sloi_count'=> $data['target_sloi_count'] ?? 0,
+                'enable_ikm'       => $data['enable_ikm'] ?? false,
+                'enable_sloi'      => $data['enable_sloi'] ?? false,
+                'enable_sroi'      => $data['enable_sroi'] ?? false,
+                'ikm_template_id'  => $templateIds['ikm'],
+                'sloi_template_id' => $templateIds['sloi'],
+                'start_date'       => $data['start_date'] ?? null,
+                'end_date'         => $data['end_date'] ?? null,
+            ]);
+
+            // Sync locations if provided
+            if (isset($data['district_ids'])) {
+                ProjectLocation::where('project_id', $projectId)->delete();
+                $this->storeProjectLocations($data['district_ids'], $projectId, $companyId);
+            }
+
+            return $project->load('locations.district.city.province');
+        });
+    }
+
+    public function getProjectForEdit(int $projectId, int $companyId): array
+    {
+        $project = Project::where('id', $projectId)
+            ->where('company_id', $companyId)
+            ->with('locations.district.city.province')
+            ->firstOrFail();
+
+        $locations = $project->locations->map(function ($loc) {
+            return [
+                'id'       => $loc->id,
+                'province' => $loc->district->city->province,
+                'city'     => $loc->district->city,
+                'district' => $loc->district,
+            ];
+        })->toArray();
+
+        return [
+            'id'               => $project->id,
+            'name'             => $project->name,
+            'description'      => $project->description ?? '',
+            'status'           => $project->status ?? 'draft',
+            'target_ikm_count' => $project->target_ikm_count,
+            'target_sloi_count'=> $project->target_sloi_count,
+            'start_date'       => $project->start_date?->format('Y-m-d') ?? '',
+            'end_date'         => $project->end_date?->format('Y-m-d') ?? '',
+            'enable_ikm'       => $project->enable_ikm,
+            'enable_sloi'      => $project->enable_sloi,
+            'enable_sroi'      => $project->enable_sroi,
+            'ikm_template_id'  => $project->ikm_template_id,
+            'sloi_template_id' => $project->sloi_template_id,
+            'locations'        => $locations,
+        ];
+    }
+
     // ─── PROJECT DETAIL ───────────────────────────────────────────
 
     public function getProjectDetail(int $projectId, string $detailType = 'overview'): array

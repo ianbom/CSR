@@ -4,6 +4,7 @@ export { default as AssessmentTypeCard } from './AssessmentTypeCard';
 export { default as AssignEnumeratorModal } from './AssignEnumeratorModal';
 export type { Enumerator as EnumeratorType } from './AssignEnumeratorModal';
 export { default as BarChart } from './BarChart';
+export { default as EditProjectModal } from './EditProjectModal';
 export { default as EnumeratorCard } from './EnumeratorCard';
 export type { Enumerator } from './EnumeratorCard';
 export { default as FilterTabs } from './FilterTabs';

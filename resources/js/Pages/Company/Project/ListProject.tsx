@@ -9,6 +9,8 @@ import {
     SearchInput,
     SummaryCard,
 } from '@/Components/Company';
+import EditProjectModal from '@/Components/Company/EditProjectModal';
+import type { Province } from '@/Components/Company/ProjectForm';
 import CompanyLayout from '@/Layouts/CompanyLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import debounce from 'lodash/debounce';
@@ -45,6 +47,7 @@ interface Props {
     summary: Summary;
     enumerators: EnumeratorType[];
     filters: Filters;
+    provinces: Province[];
 }
 
 const filterTabs = [
@@ -61,10 +64,11 @@ export default function ListProject({
     summary,
     enumerators,
     filters,
+    provinces,
 }: Props) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
-    // Modal state
+    // Assign Enumerator Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState<Project | null>(
         null,
@@ -73,6 +77,12 @@ export default function ListProject({
         number[]
     >([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Edit Project Modal state
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editProjectId, setEditProjectId] = useState<number | string | null>(
+        null,
+    );
 
     // Debounced search
     const debouncedSearch = useCallback(
@@ -277,6 +287,10 @@ export default function ListProject({
                             }}
                             onSort={handleSort}
                             onEdit={handleEdit}
+                            onEditProject={(project) => {
+                                setEditProjectId(project.id);
+                                setIsEditModalOpen(true);
+                            }}
                             onDelete={handleDelete}
                         />
                     ) : (
@@ -330,6 +344,17 @@ export default function ListProject({
                 assignedEnumeratorIds={assignedEnumeratorIds}
                 onSubmit={handleAssignEnumerators}
                 isLoading={isSubmitting}
+            />
+
+            {/* Edit Project Modal */}
+            <EditProjectModal
+                isOpen={isEditModalOpen}
+                projectId={editProjectId}
+                provinces={provinces || []}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setEditProjectId(null);
+                }}
             />
         </CompanyLayout>
     );

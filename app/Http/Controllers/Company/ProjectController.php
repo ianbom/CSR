@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Company\CreateProjectRequest;
+use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
 use App\Services\AreaService;
 use App\Services\ProjectService;
@@ -38,12 +39,14 @@ class ProjectController extends Controller
         $projects = $this->projectService->getAllProjectsByCompany($companyId, $params);
         $summary = $this->projectService->getProjectSummary($companyId);
         $enumerators = $this->projectService->getEnumeratorsByCompany($companyId);
+        $provinces = $this->areaService->getAllProvinces();
 
         return Inertia::render('Company/Project/ListProject', [
             'projects' => $projects,
             'summary' => $summary,
             'enumerators' => $enumerators,
             'filters' => $params,
+            'provinces' => $provinces,
         ]);
     }
 
@@ -93,6 +96,32 @@ class ProjectController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat membuat proyek: ' . $th->getMessage());
         }
 
+    }
+
+    public function updateProject(UpdateProjectRequest $request, int $id)
+    {
+        try {
+            $user = Auth::user();
+            $companyId = $user->company_id;
+
+            $this->projectService->updateProject(
+                $id,
+                $request->validated(),
+                $companyId
+            );
+
+            return redirect()->back()->with('success', 'Proyek berhasil diperbarui.');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $th->getMessage());
+        }
+    }
+
+    public function getProjectForEdit(int $id)
+    {
+        $user = Auth::user();
+        $data = $this->projectService->getProjectForEdit($id, $user->company_id);
+
+        return response()->json($data);
     }
 
     public function getProjectEnumerators(int $projectId)

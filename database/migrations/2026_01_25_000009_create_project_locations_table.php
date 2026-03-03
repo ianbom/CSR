@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained('projects')->cascadeOnDelete();
             $table->foreignId('district_id')->constrained('districts')->cascadeOnDelete();
             $table->timestamps();
-
+            $table->softDeletes();
+            
             $table->index('project_id');
             $table->unique(['project_id', 'district_id']);
         });

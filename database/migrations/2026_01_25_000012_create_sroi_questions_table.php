@@ -22,7 +22,8 @@ return new class extends Migration
             $table->decimal('weight', 6, 3)->default(1.0);
             $table->integer('order_no')->default(1);
             $table->timestamps();
-
+            $table->softDeletes();
+            
             $table->index(['project_id', 'order_no']);
             $table->index(['project_id', 'code']);
         });

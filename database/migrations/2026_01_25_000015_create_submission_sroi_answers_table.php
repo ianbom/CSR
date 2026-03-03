@@ -18,7 +18,8 @@ return new class extends Migration
             $table->integer('value_number')->nullable();
             $table->text('value_text')->nullable();
             $table->timestamp('created_at')->useCurrent();
-
+            $table->softDeletes();
+            
             $table->unique(['submission_id', 'sroi_question_id']);
         });
     }

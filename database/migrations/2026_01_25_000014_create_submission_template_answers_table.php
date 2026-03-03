@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreignId('question_id')->constrained('template_questions')->cascadeOnDelete();
             $table->integer('value')->nullable()->comment('likert 1-5');
             $table->timestamp('created_at')->useCurrent();
-
+            $table->softDeletes();
+            
             $table->unique(['submission_id', 'question_id']);
         });
     }

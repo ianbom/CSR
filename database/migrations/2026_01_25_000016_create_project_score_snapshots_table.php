@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('total_score', 12, 4)->default(0);
             $table->json('details_json')->nullable();
             $table->integer('version')->default(1);
+            $table->softDeletes();
         });
     }
 

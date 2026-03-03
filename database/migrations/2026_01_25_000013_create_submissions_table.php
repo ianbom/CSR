@@ -28,7 +28,8 @@ return new class extends Migration
             $table->bigInteger('photo_size_bytes')->nullable();
 
             // lokasi cukup link maps
-            $table->text('maps_url')->comment('contoh: https://www.google.com/maps?q=-7.25,112.75');
+            $table->decimal('latitude', 15,10);
+            $table->decimal('longitude', 15,10);
 
             $table->timestamp('submitted_at')->useCurrent();
 

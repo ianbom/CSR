@@ -1,334 +1,264 @@
-import {
-    Button,
-    ChipGroup,
-    FormSection,
-    MaterialIcon,
-    RadioGroup,
-    SelectField,
-    TextInputField,
-} from '@/Components/Enumerator';
+import { MaterialIcon } from '@/Components/Enumerator';
 import EnumeratorLayout from '@/Layouts/EnumeratorLayout';
 import { Head, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import QuestionForm, { QuestionAnswers } from './components/QuestionForm';
+import RespondentForm, { RespondentData } from './components/RespondentForm';
+import ReviewForm, { GpsLocation } from './components/ReviewForm';
 
-interface Province {
-    id: string;
+interface Question {
+    id: number;
+    category: string | null;
+    code: string;
+    question_text: string;
+    order_no: number;
+}
+
+interface Project {
+    id: number;
+    company_id: number;
     name: string;
 }
 
-interface City {
-    id: string;
-    name: string;
+interface Props {
+    project: Project;
+    surveyType: string;
+    questions: Question[];
 }
 
-interface District {
-    id: string;
-    name: string;
-}
-
-interface SelectOption {
-    value: string;
-    label: string;
-}
-
-// Education options
-const educationOptions: SelectOption[] = [
-    { value: 'sd', label: 'SD/Sederajat' },
-    { value: 'smp', label: 'SMP/Sederajat' },
-    { value: 'sma', label: 'SMA/Sederajat' },
-    { value: 'd3', label: 'Diploma (D1/D2/D3)' },
-    { value: 's1', label: 'Sarjana (S1)' },
-    { value: 's2', label: 'Magister (S2)' },
-    { value: 's3', label: 'Doktor (S3)' },
+const steps = [
+    { id: 1, label: 'Data Responden', icon: 'person' },
+    { id: 2, label: 'Kuesioner', icon: 'quiz' },
+    { id: 3, label: 'Review', icon: 'rate_review' },
 ];
 
-// Gender options
-const genderOptions = [
-    { value: 'male', label: 'Pria', icon: 'male' },
-    { value: 'female', label: 'Wanita', icon: 'female' },
-];
+export default function RespondentSurvey({
+    project,
+    surveyType,
+    questions,
+}: Props) {
+    const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-// Service type options
-const serviceTypeOptions = [
-    {
-        value: 'walk-in',
-        label: 'Layanan Langsung (Walk-in)',
-        icon: 'storefront',
-    },
-    { value: 'online', label: 'Layanan Online / Digital', icon: 'computer' },
-    { value: 'call', label: 'Layanan Panggilan', icon: 'call' },
-];
-
-export default function RespondentSurvey() {
-    // Form state
-    const [formData, setFormData] = useState({
-        fullName: '',
+    // Respondent state — 1:1 dengan kolom tabel `respondents`
+    const [respondentData, setRespondentData] = useState<RespondentData>({
+        name: '',
+        address: '',
+        phone: '',
         age: '',
         gender: '',
-        education: '',
-        occupation: '',
-        serviceType: 'walk-in',
-        provinceId: '',
-        cityId: '',
-        districtId: '',
+        respondent_status: '',
+        education_level: '',
+        main_occupation: '',
+        monthly_income: '',
     });
 
-    // Location data state
-    const [provinces, setProvinces] = useState<Province[]>([]);
-    const [cities, setCities] = useState<City[]>([]);
-    const [districts, setDistricts] = useState<District[]>([]);
-    const [loading, setLoading] = useState({
-        provinces: false,
-        cities: false,
-        districts: false,
+    const [answers, setAnswers] = useState<QuestionAnswers>({});
+
+    // GPS state
+    const [gpsLocation, setGpsLocation] = useState<GpsLocation>({
+        latitude: null,
+        longitude: null,
+        error: null,
     });
 
-    // Fetch provinces on mount
+    // Auto-fetch GPS saat halaman load
     useEffect(() => {
-        fetchProvinces();
+        if (!navigator.geolocation) {
+            setGpsLocation({
+                latitude: null,
+                longitude: null,
+                error: 'Browser tidak mendukung GPS.',
+            });
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                setGpsLocation({
+                    latitude: pos.coords.latitude,
+                    longitude: pos.coords.longitude,
+                    error: null,
+                });
+            },
+            (err) => {
+                setGpsLocation({
+                    latitude: null,
+                    longitude: null,
+                    error: `Gagal mendapatkan lokasi: ${err.message}`,
+                });
+            },
+            { enableHighAccuracy: true, timeout: 10000 },
+        );
     }, []);
 
-    // Fetch cities when province changes
-    useEffect(() => {
-        if (formData.provinceId) {
-            fetchCities(formData.provinceId);
-            setFormData((prev) => ({ ...prev, cityId: '', districtId: '' }));
-            setCities([]);
-            setDistricts([]);
-        }
-    }, [formData.provinceId]);
+    const goToStep = (step: 1 | 2 | 3) => setCurrentStep(step);
 
-    // Fetch districts when city changes
-    useEffect(() => {
-        if (formData.cityId) {
-            fetchDistricts(formData.cityId);
-            setFormData((prev) => ({ ...prev, districtId: '' }));
-            setDistricts([]);
-        }
-    }, [formData.cityId]);
-
-    const fetchProvinces = async () => {
-        setLoading((prev) => ({ ...prev, provinces: true }));
-        try {
-            const response = await fetch(route('api.area.provinces'));
-            const data = await response.json();
-            setProvinces(data);
-        } catch (error) {
-            console.error('Failed to fetch provinces:', error);
-        } finally {
-            setLoading((prev) => ({ ...prev, provinces: false }));
-        }
-    };
-
-    const fetchCities = async (provinceId: string) => {
-        setLoading((prev) => ({ ...prev, cities: true }));
-        try {
-            const response = await fetch(
-                route('api.area.cities', { province_id: provinceId }),
-            );
-            const data = await response.json();
-            setCities(data);
-        } catch (error) {
-            console.error('Failed to fetch cities:', error);
-        } finally {
-            setLoading((prev) => ({ ...prev, cities: false }));
-        }
-    };
-
-    const fetchDistricts = async (cityId: string) => {
-        setLoading((prev) => ({ ...prev, districts: true }));
-        try {
-            const response = await fetch(
-                route('api.area.districts', { city_id: cityId }),
-            );
-            const data = await response.json();
-            setDistricts(data);
-        } catch (error) {
-            console.error('Failed to fetch districts:', error);
-        } finally {
-            setLoading((prev) => ({ ...prev, districts: false }));
-        }
-    };
-
-    const updateFormData = (field: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-    };
-
-    const handleBack = () => {
+    const handleBackFromRespondent = () => {
         router.visit(route('enumerator.list-survey'));
     };
 
-    const handleSubmit = () => {
-        console.log('Form submitted:', formData);
-        // Navigate to next step (questionnaire)
+    const handleCloseQuestionnaire = () => {
+        if (
+            confirm(
+                'Apakah Anda yakin ingin menutup survei? Data yang belum disimpan akan hilang.',
+            )
+        ) {
+            router.visit(route('enumerator.list-survey'));
+        }
     };
 
-    // Convert location data to select options
-    const provinceOptions: SelectOption[] = provinces.map((p) => ({
-        value: p.id,
-        label: p.name,
-    }));
+    const handleFinalSubmit = (photo: File) => {
+        setIsSubmitting(true);
 
-    const cityOptions: SelectOption[] = cities.map((c) => ({
-        value: c.id,
-        label: c.name,
-    }));
+        const formData = new FormData();
 
-    const districtOptions: SelectOption[] = districts.map((d) => ({
-        value: d.id,
-        label: d.name,
-    }));
+        // Respondent fields — sesuai kolom tabel `respondents`
+        formData.append('respondent[name]', respondentData.name);
+        formData.append('respondent[address]', respondentData.address);
+        formData.append('respondent[phone]', respondentData.phone);
+        formData.append('respondent[age]', respondentData.age);
+        formData.append('respondent[gender]', respondentData.gender);
+        formData.append(
+            'respondent[respondent_status]',
+            respondentData.respondent_status,
+        );
+        formData.append(
+            'respondent[education_level]',
+            respondentData.education_level,
+        );
+        formData.append(
+            'respondent[main_occupation]',
+            respondentData.main_occupation,
+        );
+        formData.append(
+            'respondent[monthly_income]',
+            respondentData.monthly_income,
+        );
+
+        // Submission fields
+        formData.append('submission[photo]', photo);
+        formData.append(
+            'submission[latitude]',
+            String(gpsLocation.latitude ?? ''),
+        );
+        formData.append(
+            'submission[longitude]',
+            String(gpsLocation.longitude ?? ''),
+        );
+
+        // Assessment type
+        formData.append('assessment_type', surveyType);
+
+        // Answers: [{question_id, value}, ...]
+        Object.entries(answers).forEach(([questionId, value], index) => {
+            formData.append(`answers[${index}][question_id]`, questionId);
+            formData.append(`answers[${index}][value]`, String(value));
+        });
+
+        router.post(
+            route('enumerator.survey.store', { projectId: project.id }),
+            formData as unknown as Record<string, string>,
+            {
+                onError: () => setIsSubmitting(false),
+                onFinish: () => setIsSubmitting(false),
+            },
+        );
+    };
 
     return (
         <EnumeratorLayout activeNav="tugasku">
-            <Head title="Data Responden" />
+            <Head title={`Survei — ${project.name}`} />
 
-            {/* Header with Progress */}
-            <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-                        Data Responden
-                    </h1>
-                    <p className="text-sm text-gray-500">
-                        Silakan isi data demografi responden dengan lengkap.
-                    </p>
-                </div>
+            {/* Step Indicator */}
+            <div className="mb-6 flex items-center justify-center gap-0">
+                {steps.map((step, index) => (
+                    <div key={step.id} className="flex items-center">
+                        <div className="flex flex-col items-center gap-1">
+                            <button
+                                onClick={() => {
+                                    if (step.id < currentStep) {
+                                        goToStep(step.id as 1 | 2 | 3);
+                                    }
+                                }}
+                                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-200 ${
+                                    currentStep === step.id
+                                        ? 'border-primary bg-primary text-white shadow-md'
+                                        : currentStep > step.id
+                                          ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20'
+                                          : 'border-gray-300 bg-white text-gray-400'
+                                } ${step.id < currentStep ? 'cursor-pointer' : 'cursor-default'}`}
+                            >
+                                {currentStep > step.id ? (
+                                    <MaterialIcon
+                                        name="check"
+                                        className="text-sm font-bold"
+                                    />
+                                ) : (
+                                    <MaterialIcon
+                                        name={step.icon}
+                                        className="text-sm"
+                                    />
+                                )}
+                            </button>
+                            <span
+                                className={`text-xs font-medium ${
+                                    currentStep === step.id
+                                        ? 'text-primary'
+                                        : currentStep > step.id
+                                          ? 'text-primary/70'
+                                          : 'text-gray-400'
+                                }`}
+                            >
+                                {step.label}
+                            </span>
+                        </div>
+
+                        {index < steps.length - 1 && (
+                            <div
+                                className={`mx-2 mb-4 h-0.5 w-16 sm:w-24 ${
+                                    currentStep > step.id
+                                        ? 'bg-primary'
+                                        : 'bg-gray-200'
+                                }`}
+                            />
+                        )}
+                    </div>
+                ))}
             </div>
 
-            {/* Form Card */}
-            <div className="flex flex-col gap-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
-                {/* Section 1: Identitas Pribadi */}
-                <FormSection icon="person" title="Identitas Pribadi">
-                    <TextInputField
-                        label="Nama Lengkap"
-                        placeholder="Contoh: Budi Santoso"
-                        icon="badge"
-                        value={formData.fullName}
-                        onChange={(value) => updateFormData('fullName', value)}
-                    />
+            {/* Step Content */}
+            {currentStep === 1 && (
+                <RespondentForm
+                    data={respondentData}
+                    onChange={setRespondentData}
+                    onBack={handleBackFromRespondent}
+                    onNext={() => goToStep(2)}
+                />
+            )}
 
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <TextInputField
-                            label="Usia"
-                            placeholder="Tahun"
-                            icon="cake"
-                            type="number"
-                            value={formData.age}
-                            onChange={(value) => updateFormData('age', value)}
-                        />
+            {currentStep === 2 && (
+                <QuestionForm
+                    questions={questions}
+                    answers={answers}
+                    onChange={setAnswers}
+                    onBack={() => goToStep(1)}
+                    onNext={() => goToStep(3)}
+                    onClose={handleCloseQuestionnaire}
+                />
+            )}
 
-                        <RadioGroup
-                            label="Jenis Kelamin"
-                            name="gender"
-                            options={genderOptions}
-                            value={formData.gender}
-                            onChange={(value) =>
-                                updateFormData('gender', value)
-                            }
-                        />
-                    </div>
-                </FormSection>
-
-                {/* Section 2: Sosial & Ekonomi */}
-                <FormSection
-                    icon="payments"
-                    title="Sosial & Ekonomi"
-                    iconColor="text-primary"
-                >
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <SelectField
-                            label="Pendidikan Terakhir"
-                            placeholder="Pilih pendidikan"
-                            options={educationOptions}
-                            value={formData.education}
-                            onChange={(value) =>
-                                updateFormData('education', value)
-                            }
-                        />
-
-                        <TextInputField
-                            label="Pekerjaan Utama"
-                            placeholder="Contoh: Pegawai Swasta, Guru"
-                            icon="work"
-                            value={formData.occupation}
-                            onChange={(value) =>
-                                updateFormData('occupation', value)
-                            }
-                        />
-                    </div>
-                </FormSection>
-
-                {/* Section 3: Lokasi & Layanan */}
-                <FormSection
-                    icon="location_on"
-                    title="Lokasi & Layanan"
-                    iconColor="text-primary"
-                >
-                    <ChipGroup
-                        label="Jenis Layanan yang Diterima"
-                        options={serviceTypeOptions}
-                        value={formData.serviceType}
-                        onChange={(value) =>
-                            updateFormData('serviceType', value)
-                        }
-                    />
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <SelectField
-                            label="Provinsi"
-                            placeholder="Pilih Provinsi"
-                            options={provinceOptions}
-                            value={formData.provinceId}
-                            onChange={(value) =>
-                                updateFormData('provinceId', value)
-                            }
-                            disabled={loading.provinces}
-                        />
-
-                        <SelectField
-                            label="Kabupaten/Kota"
-                            placeholder="Pilih Kabupaten/Kota"
-                            options={cityOptions}
-                            value={formData.cityId}
-                            onChange={(value) =>
-                                updateFormData('cityId', value)
-                            }
-                            disabled={!formData.provinceId || loading.cities}
-                        />
-                    </div>
-
-                    <SelectField
-                        label="Kecamatan"
-                        placeholder="Pilih Kecamatan"
-                        options={districtOptions}
-                        value={formData.districtId}
-                        onChange={(value) =>
-                            updateFormData('districtId', value)
-                        }
-                        disabled={!formData.cityId || loading.districts}
-                    />
-                </FormSection>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col-reverse items-center justify-between gap-4 pb-8 sm:flex-row">
-                <button
-                    onClick={handleBack}
-                    className="flex items-center gap-2 font-medium text-gray-600 transition-colors hover:text-gray-900"
-                >
-                    <MaterialIcon name="arrow_back" className="text-lg" />
-                    <span>Kembali</span>
-                </button>
-
-                <Button
-                    variant="primary"
-                    icon="arrow_forward"
-                    onClick={handleSubmit}
-                    className="w-full px-8 sm:w-auto"
-                >
-                    Lanjut ke Kuesioner
-                </Button>
-            </div>
+            {currentStep === 3 && (
+                <ReviewForm
+                    respondentData={respondentData}
+                    answers={answers}
+                    gpsLocation={gpsLocation}
+                    onBack={() => goToStep(2)}
+                    onEditRespondent={() => goToStep(1)}
+                    onEditQuestions={() => goToStep(2)}
+                    onSubmit={handleFinalSubmit}
+                    isSubmitting={isSubmitting}
+                />
+            )}
         </EnumeratorLayout>
     );
 }

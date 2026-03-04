@@ -115,6 +115,7 @@ class SurveyService
             $answerRecords = array_map(fn($ans) => [
                 'submission_id' => $submission->id,
                 'question_id'   => $ans['question_id'],
+                'type'          => $ans['type'],
                 'value'         => $ans['value'],
                 'created_at'    => now(),
             ], $answers);

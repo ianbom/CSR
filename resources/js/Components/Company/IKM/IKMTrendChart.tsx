@@ -60,14 +60,14 @@ function IPAScatterChart({
         questionScores.reduce((s, q) => s + q.performance, 0) /
         questionScores.length;
 
-    // Calculate axis ranges with padding
-    const allX = questionScores.map((q) => q.importance);
-    const allY = questionScores.map((q) => q.performance);
+    // Calculate axis ranges: X = kinerja (performance), Y = kepentingan (importance)
+    const allX = questionScores.map((q) => q.performance);
+    const allY = questionScores.map((q) => q.importance);
     const pad = 0.15;
-    const xMin = Math.floor((Math.min(...allX) - pad) * 20) / 20;
-    const xMax = Math.ceil((Math.max(...allX) + pad) * 20) / 20;
-    const yMin = Math.floor((Math.min(...allY) - pad) * 20) / 20;
-    const yMax = Math.ceil((Math.max(...allY) + pad) * 20) / 20;
+    const xMin = Math.max(1, Math.floor((Math.min(...allX) - pad) * 20) / 20);
+    const xMax = Math.min(4, Math.ceil((Math.max(...allX) + pad) * 20) / 20);
+    const yMin = Math.max(1, Math.floor((Math.min(...allY) - pad) * 20) / 20);
+    const yMax = Math.min(4, Math.ceil((Math.max(...allY) + pad) * 20) / 20);
     const xRange = xMax - xMin || 1;
     const yRange = yMax - yMin || 1;
 
@@ -159,22 +159,22 @@ function IPAScatterChart({
                 ))}
 
                 {/* Average lines — quadrant dividers */}
-                {/* Horizontal red line (avg performance) */}
+                {/* Horizontal blue line (avg kepentingan / importance) */}
                 <line
                     x1={marginLeft}
-                    y1={toSvgY(avgPerformance)}
+                    y1={toSvgY(avgImportance)}
                     x2={marginLeft + plotW}
-                    y2={toSvgY(avgPerformance)}
-                    stroke="#dc2626"
+                    y2={toSvgY(avgImportance)}
+                    stroke="#3b82f6"
                     strokeWidth={1.5}
                 />
-                {/* Vertical blue line (avg importance) */}
+                {/* Vertical red line (avg kinerja / performance) */}
                 <line
-                    x1={toSvgX(avgImportance)}
+                    x1={toSvgX(avgPerformance)}
                     y1={marginTop}
-                    x2={toSvgX(avgImportance)}
+                    x2={toSvgX(avgPerformance)}
                     y2={marginTop + plotH}
-                    stroke="#3b82f6"
+                    stroke="#dc2626"
                     strokeWidth={1.5}
                 />
 
@@ -219,7 +219,7 @@ function IPAScatterChart({
                         fontWeight: 600,
                     }}
                 >
-                    Aspek Kepentingan
+                    Aspek Kinerja (ikm-kinerja)
                 </text>
 
                 {/* Y-axis label */}
@@ -234,16 +234,17 @@ function IPAScatterChart({
                     }}
                     transform={`rotate(-90, ${compact ? 12 : 16}, ${marginTop + plotH / 2})`}
                 >
-                    Aspek Kinerja
+                    Aspek Kepentingan (ikm-kepentingan)
                 </text>
 
                 {/* Data points + labels */}
                 {questionScores.map((q, i) => {
-                    const cx = toSvgX(q.importance);
-                    const cy = toSvgY(q.performance);
+                    // X = kinerja (performance), Y = kepentingan (importance)
+                    const cx = toSvgX(q.performance);
+                    const cy = toSvgY(q.importance);
                     const color = DOT_COLORS[i % DOT_COLORS.length];
                     const shortId = q.id.replace(/^(IKM-|SLOI-)/, '');
-                    const label = `${shortId}; ${q.importance.toFixed(2).replace('.', ',')}; ${q.performance.toFixed(2).replace('.', ',')}`;
+                    const label = `${shortId}; ${q.performance.toFixed(2).replace('.', ',')}; ${q.importance.toFixed(2).replace('.', ',')}`;
 
                     return (
                         <g key={q.id}>

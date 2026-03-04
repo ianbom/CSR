@@ -65,13 +65,12 @@ class ProjectService
 
     public function getProjectEnumerators(int $projectId, int $companyId): array
     {
-        return ProjectEnumeratorAssignment::where('project_id', $projectId)
-            ->where('company_id', $companyId)
-            ->with('enumerator:id,name,email,phone')
+        return User::where('company_id', $companyId)
+            ->where('role', 'enumerator')
+            ->where('is_active', true)
+            ->select('id', 'name', 'email', 'phone')
+            ->orderBy('name')
             ->get()
-            ->pluck('enumerator')
-            ->filter()
-            ->values()
             ->toArray();
     }
 
@@ -415,21 +414,38 @@ class ProjectService
             ->orderBy('order_no')
             ->get();
 
-        // Get avg score per question
-        $avgScores = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
-            ->whereIn('question_id', $questions->pluck('id'))
+        $questionIds = $questions->pluck('id');
+
+        // Average score per question — overall
+        $avgAll = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+            ->whereIn('question_id', $questionIds)
             ->groupBy('question_id')
             ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
             ->pluck('avg_score', 'question_id');
 
-        return $questions->map(function ($q) use ($avgScores) {
-            $score = (float) ($avgScores[$q->id] ?? 0);
+        // Average score per question — type ikm-kepentingan
+        $avgKepentingan = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+            ->whereIn('question_id', $questionIds)
+            ->where('type', 'ikm-kepentingan')
+            ->groupBy('question_id')
+            ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
+            ->pluck('avg_score', 'question_id');
+
+        // Average score per question — type ikm-kinerja
+        $avgKinerja = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+            ->whereIn('question_id', $questionIds)
+            ->where('type', 'ikm-kinerja')
+            ->groupBy('question_id')
+            ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
+            ->pluck('avg_score', 'question_id');
+
+        return $questions->map(function ($q) use ($avgAll, $avgKepentingan, $avgKinerja) {
             return [
                 'id'          => $q->code,
                 'question'    => $q->question_text,
-                'score'       => $score,
-                'importance'  => $score,  // X-axis: Aspek Kepentingan
-                'performance' => $score,  // Y-axis: Aspek Kinerja
+                'score'       => (float) ($avgAll[$q->id] ?? 0),
+                'importance'  => (float) ($avgKepentingan[$q->id] ?? 0),
+                'performance' => (float) ($avgKinerja[$q->id] ?? 0),
             ];
         })->toArray();
     }
@@ -523,27 +539,48 @@ class ProjectService
         $rows = $submissions->map(function ($sub) {
             $respondent = $sub->respondent;
 
-            // Build answer map: question_code => value
+            // Build answer map: question_code => { kepentingan, kinerja }
             $answers = [];
             $totalScore = 0;
             $answerCount = 0;
+            $kepScore = 0; $kepCount = 0;
+            $kinScore = 0; $kinCount = 0;
+
             foreach ($sub->templateAnswers as $answer) {
                 $code = $answer->question?->code ?? 'Q' . $answer->question_id;
-                $answers[$code] = $answer->value;
+                $type = $answer->type ?? 'sloi';
+
+                if (!isset($answers[$code])) {
+                    $answers[$code] = ['kepentingan' => null, 'kinerja' => null];
+                }
+
+                if ($type === 'ikm-kepentingan') {
+                    $answers[$code]['kepentingan'] = $answer->value;
+                    $kepScore += $answer->value ?? 0; $kepCount++;
+                } elseif ($type === 'ikm-kinerja') {
+                    $answers[$code]['kinerja'] = $answer->value;
+                    $kinScore += $answer->value ?? 0; $kinCount++;
+                } else {
+                    $answers[$code]['kepentingan'] = $answer->value;
+                    $answers[$code]['kinerja'] = $answer->value;
+                }
+
                 $totalScore += $answer->value ?? 0;
                 $answerCount++;
             }
 
             return [
-                'submissionId'     => $sub->id,
-                'submittedAt'      => $sub->submitted_at?->format('Y-m-d H:i'),
-                'status'           => $sub->status,
-                'enumerator'       => $sub->enumerator?->name ?? '-',
-                'latitude'         => $sub->latitude,
-                'longitude'        => $sub->longitude,
-                'photoPath'        => $sub->photo_path,
-                'avgScore'         => $answerCount > 0 ? round($totalScore / $answerCount, 2) : 0,
-                'respondent'       => $respondent ? [
+                'submissionId'      => $sub->id,
+                'submittedAt'       => $sub->submitted_at?->format('Y-m-d H:i'),
+                'status'            => $sub->status,
+                'enumerator'        => $sub->enumerator?->name ?? '-',
+                'latitude'          => $sub->latitude,
+                'longitude'         => $sub->longitude,
+                'photoPath'         => $sub->photo_path,
+                'avgScore'          => $answerCount > 0 ? round($totalScore / $answerCount, 2) : 0,
+                'avgKepentingan'    => $kepCount > 0 ? round($kepScore / $kepCount, 2) : null,
+                'avgKinerja'        => $kinCount > 0 ? round($kinScore / $kinCount, 2) : null,
+                'respondent'        => $respondent ? [
                     'id'             => $respondent->id,
                     'name'           => $respondent->name,
                     'address'        => $respondent->address,

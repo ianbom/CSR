@@ -1,4 +1,5 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
+import SubmissionDetailModal from './SubmissionDetailModal';
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -29,8 +30,13 @@ interface RespondentRow {
     longitude: number | null;
     photoPath: string | null;
     avgScore: number;
+    avgKepentingan: number | null;
+    avgKinerja: number | null;
     respondent: RespondentData | null;
-    answers: Record<string, number | null>;
+    answers: Record<
+        string,
+        { kepentingan: number | null; kinerja: number | null }
+    >;
 }
 
 interface RespondentsData {
@@ -46,6 +52,7 @@ export default function ProjectIKMRespondent({
     respondents,
 }: Props): ReactNode {
     const { questions, rows } = respondents;
+    const [selected, setSelected] = useState<RespondentRow | null>(null);
 
     return (
         <div className="space-y-6">
@@ -58,6 +65,17 @@ export default function ProjectIKMRespondent({
                     <p className="text-sm text-slate-500">
                         Total {rows.length} responden
                     </p>
+                    <div className="mt-1 flex items-center gap-3 text-xs text-slate-400">
+                        <span className="flex items-center gap-1">
+                            <span className="size-2.5 rounded-full bg-blue-500" />
+                            Kepentingan
+                        </span>
+                        <span>/</span>
+                        <span className="flex items-center gap-1">
+                            <span className="size-2.5 rounded-full bg-emerald-500" />
+                            Kinerja
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -94,8 +112,14 @@ export default function ProjectIKMRespondent({
                                 <th className="min-w-[130px] px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                     Tgl Kirim
                                 </th>
-                                <th className="min-w-[70px] px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                <th className="min-w-[70px] px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                     Rerata
+                                </th>
+                                <th className="min-w-[70px] px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-blue-400">
+                                    Rerata Kep.
+                                </th>
+                                <th className="min-w-[70px] px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-emerald-500">
+                                    Rerata Kin.
                                 </th>
                                 {questions.map((q) => (
                                     <th
@@ -106,6 +130,9 @@ export default function ProjectIKMRespondent({
                                         {q.code}
                                     </th>
                                 ))}
+                                <th className="min-w-[80px] px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                    Lihat
+                                </th>
                                 <th className="min-w-[80px] px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                     Status
                                 </th>
@@ -161,12 +188,13 @@ export default function ProjectIKMRespondent({
                                     <td className="px-4 py-3 text-slate-500">
                                         {row.submittedAt ?? '-'}
                                     </td>
-                                    <td className="px-4 py-3 text-center">
+                                    {/* Rerata Total */}
+                                    <td className="px-3 py-3 text-center">
                                         <span
                                             className={`font-bold ${
-                                                row.avgScore >= 4
+                                                row.avgScore >= 3
                                                     ? 'text-green-600'
-                                                    : row.avgScore >= 3
+                                                    : row.avgScore >= 2
                                                       ? 'text-amber-600'
                                                       : 'text-red-500'
                                             }`}
@@ -174,14 +202,59 @@ export default function ProjectIKMRespondent({
                                             {row.avgScore}
                                         </span>
                                     </td>
-                                    {questions.map((q) => (
-                                        <td
-                                            key={q.code}
-                                            className="px-3 py-3 text-center text-slate-600"
+                                    {/* Rerata Kepentingan */}
+                                    <td className="px-3 py-3 text-center">
+                                        <span className="font-bold text-blue-600">
+                                            {row.avgKepentingan ?? '-'}
+                                        </span>
+                                    </td>
+                                    {/* Rerata Kinerja */}
+                                    <td className="px-3 py-3 text-center">
+                                        <span className="font-bold text-emerald-600">
+                                            {row.avgKinerja ?? '-'}
+                                        </span>
+                                    </td>
+                                    {questions.map((q) => {
+                                        const ans = row.answers[q.code];
+                                        const kep = ans?.kepentingan;
+                                        const kin = ans?.kinerja;
+                                        return (
+                                            <td
+                                                key={q.code}
+                                                className="px-3 py-3 text-center"
+                                            >
+                                                {kep != null || kin != null ? (
+                                                    <span className="inline-flex items-center gap-0.5 font-semibold">
+                                                        <span className="text-blue-600">
+                                                            {kep ?? '-'}
+                                                        </span>
+                                                        <span className="text-slate-300">
+                                                            /
+                                                        </span>
+                                                        <span className="text-emerald-600">
+                                                            {kin ?? '-'}
+                                                        </span>
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-slate-400">
+                                                        -
+                                                    </span>
+                                                )}
+                                            </td>
+                                        );
+                                    })}
+                                    {/* Lihat */}
+                                    <td className="px-4 py-3 text-center">
+                                        <button
+                                            onClick={() => setSelected(row)}
+                                            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary"
                                         >
-                                            {row.answers[q.code] ?? '-'}
-                                        </td>
-                                    ))}
+                                            <span className="material-symbols-outlined text-sm leading-none">
+                                                visibility
+                                            </span>
+                                            Lihat
+                                        </button>
+                                    </td>
                                     <td className="px-4 py-3 text-center">
                                         <span
                                             className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
@@ -201,6 +274,30 @@ export default function ProjectIKMRespondent({
                     </table>
                 </div>
             </div>
+
+            {/* ── Detail Modal (shared component) ── */}
+            {selected && (
+                <SubmissionDetailModal
+                    data={{
+                        submissionId: selected.submissionId,
+                        submittedAt: selected.submittedAt,
+                        photoPath: selected.photoPath,
+                        latitude: selected.latitude,
+                        longitude: selected.longitude,
+                        respondent: selected.respondent
+                            ? {
+                                  name: selected.respondent.name,
+                                  gender: selected.respondent.gender,
+                                  age: selected.respondent.age,
+                                  educationLevel:
+                                      selected.respondent.educationLevel,
+                                  address: selected.respondent.address,
+                              }
+                            : null,
+                    }}
+                    onClose={() => setSelected(null)}
+                />
+            )}
         </div>
     );
 }

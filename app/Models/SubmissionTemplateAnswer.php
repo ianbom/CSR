@@ -12,6 +12,7 @@ class SubmissionTemplateAnswer extends Model
     protected $fillable = [
         'submission_id',
         'question_id',
+        'type',
         'value',
     ];
 

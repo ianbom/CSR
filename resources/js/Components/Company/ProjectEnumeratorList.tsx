@@ -1,4 +1,6 @@
-import { ReactNode, useState } from 'react';
+import { router } from '@inertiajs/react';
+import { ReactNode, useEffect, useState } from 'react';
+import AssignEnumeratorModal from './AssignEnumeratorModal';
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -22,14 +24,66 @@ interface EnumeratorItem {
     submissions: SubmissionItem[];
 }
 
+interface AllEnumeratorItem {
+    id: number;
+    name: string;
+    email: string;
+    phone?: string;
+}
+
+interface ProjectInfo {
+    id: number;
+    name: string;
+    code: string;
+}
+
 interface Props {
     enumeratorList: EnumeratorItem[];
+    project: ProjectInfo;
 }
 
 export default function ProjectEnumeratorList({
     enumeratorList,
+    project,
 }: Props): ReactNode {
     const [expandedId, setExpandedId] = useState<number | null>(null);
+    const [showAssign, setShowAssign] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [allEnumerators, setAllEnumerators] = useState<AllEnumeratorItem[]>(
+        [],
+    );
+    const [isFetching, setIsFetching] = useState(false);
+
+    // Fetch all company enumerators from API when modal opens
+    useEffect(() => {
+        if (!showAssign) return;
+        setIsFetching(true);
+        fetch(route('api.projects.enumerators', { id: project.id }))
+            .then((res) => res.json())
+            .then((data: AllEnumeratorItem[]) => setAllEnumerators(data))
+            .catch(() => setAllEnumerators([]))
+            .finally(() => setIsFetching(false));
+    }, [showAssign, project.id]);
+
+    const assignedIds = enumeratorList.map((e) => e.id);
+
+    const handleAssign = (
+        projectId: number | string,
+        enumeratorIds: number[],
+    ) => {
+        setIsLoading(true);
+        router.post(
+            route('projects.assign-enumerators', { id: projectId }),
+            { enumerator_ids: enumeratorIds },
+            {
+                preserveScroll: true,
+                onFinish: () => {
+                    setIsLoading(false);
+                    setShowAssign(false);
+                },
+            },
+        );
+    };
 
     return (
         <div className="space-y-6">
@@ -43,6 +97,15 @@ export default function ProjectEnumeratorList({
                         Total {enumeratorList.length} enumerator ditugaskan
                     </p>
                 </div>
+                <button
+                    onClick={() => setShowAssign(true)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+                >
+                    <span className="material-symbols-outlined text-base leading-none">
+                        person_add
+                    </span>
+                    Assign Enumerator
+                </button>
             </div>
 
             {/* Table */}
@@ -174,6 +237,17 @@ export default function ProjectEnumeratorList({
                     onClose={() => setExpandedId(null)}
                 />
             )}
+
+            {/* Assign Enumerator Modal */}
+            <AssignEnumeratorModal
+                isOpen={showAssign}
+                onClose={() => setShowAssign(false)}
+                project={project}
+                enumerators={allEnumerators}
+                assignedEnumeratorIds={assignedIds}
+                onSubmit={handleAssign}
+                isLoading={isFetching || isLoading}
+            />
         </div>
     );
 }

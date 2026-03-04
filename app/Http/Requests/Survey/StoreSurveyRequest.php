@@ -6,19 +6,11 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreSurveyRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
@@ -38,24 +30,30 @@ class StoreSurveyRequest extends FormRequest
             'submission.latitude'          => ['required', 'numeric', 'between:-90,90'],
             'submission.longitude'         => ['required', 'numeric', 'between:-180,180'],
 
-            // Survey answers: array of { question_id: value }
+            // Assessment type
+            'assessment_type'              => ['required', 'string', 'in:IKM,SLOI,SROI'],
+
+            // Survey answers: array of { question_id, type, value }
             'answers'                      => ['required', 'array', 'min:1'],
             'answers.*.question_id'        => ['required', 'integer', 'exists:template_questions,id'],
-            'answers.*.value'              => ['required', 'integer', 'between:1,5'],
+            'answers.*.type'               => ['required', 'string', 'in:ikm-kepentingan,ikm-kinerja,sloi'],
+            'answers.*.value'              => ['required', 'integer', 'min:1', 'max:5'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'respondent.name.required'       => 'Nama responden wajib diisi.',
-            'submission.photo.required'      => 'Foto bukti wajib diunggah.',
-            'submission.photo.image'         => 'File foto harus berupa gambar.',
-            'submission.photo.max'           => 'Ukuran foto maksimal 5MB.',
-            'submission.latitude.required'   => 'Koordinat GPS (latitude) diperlukan.',
-            'submission.longitude.required'  => 'Koordinat GPS (longitude) diperlukan.',
-            'answers.required'               => 'Jawaban kuesioner wajib diisi.',
-            'answers.*.value.between'        => 'Nilai jawaban harus antara 1 hingga 5.',
+            'respondent.name.required'      => 'Nama responden wajib diisi.',
+            'submission.photo.required'     => 'Foto bukti wajib diunggah.',
+            'submission.photo.image'        => 'File foto harus berupa gambar.',
+            'submission.photo.max'          => 'Ukuran foto maksimal 5MB.',
+            'submission.latitude.required'  => 'Koordinat GPS (latitude) diperlukan.',
+            'submission.longitude.required' => 'Koordinat GPS (longitude) diperlukan.',
+            'answers.required'              => 'Jawaban kuesioner wajib diisi.',
+            'answers.*.type.in'             => 'Tipe jawaban tidak valid.',
+            'answers.*.value.min'           => 'Nilai jawaban minimal 1.',
+            'answers.*.value.max'           => 'Nilai jawaban maksimal 5.',
         ];
     }
 }

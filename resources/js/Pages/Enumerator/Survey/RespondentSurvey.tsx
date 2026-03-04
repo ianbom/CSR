@@ -149,9 +149,15 @@ export default function RespondentSurvey({
         // Assessment type
         formData.append('assessment_type', surveyType);
 
-        // Answers: [{question_id, value}, ...]
-        Object.entries(answers).forEach(([questionId, value], index) => {
+        // Answers: [{question_id, type, value}, ...]
+        // Key format: `${questionId}-${type}` e.g. "3-ikm-kepentingan", "3-ikm-kinerja", "5-sloi"
+        Object.entries(answers).forEach(([key, value], index) => {
+            // Parse key: first segment is questionId, rest is type
+            const dashIdx = key.indexOf('-');
+            const questionId = key.substring(0, dashIdx);
+            const type = key.substring(dashIdx + 1); // e.g. "ikm-kepentingan"
             formData.append(`answers[${index}][question_id]`, questionId);
+            formData.append(`answers[${index}][type]`, type);
             formData.append(`answers[${index}][value]`, String(value));
         });
 
@@ -240,6 +246,7 @@ export default function RespondentSurvey({
                 <QuestionForm
                     questions={questions}
                     answers={answers}
+                    surveyType={surveyType}
                     onChange={setAnswers}
                     onBack={() => goToStep(1)}
                     onNext={() => goToStep(3)}

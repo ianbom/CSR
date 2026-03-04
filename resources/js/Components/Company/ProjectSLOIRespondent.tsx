@@ -1,4 +1,5 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
+import SubmissionDetailModal from './SubmissionDetailModal';
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -30,7 +31,10 @@ interface RespondentRow {
     photoPath: string | null;
     avgScore: number;
     respondent: RespondentData | null;
-    answers: Record<string, number | null>;
+    answers: Record<
+        string,
+        { kepentingan: number | null; kinerja: number | null }
+    >;
 }
 
 interface RespondentsData {
@@ -46,6 +50,7 @@ export default function ProjectSLOIRespondent({
     respondents,
 }: Props): ReactNode {
     const { questions, rows } = respondents;
+    const [selected, setSelected] = useState<RespondentRow | null>(null);
 
     return (
         <div className="space-y-6">
@@ -106,6 +111,9 @@ export default function ProjectSLOIRespondent({
                                         {q.code}
                                     </th>
                                 ))}
+                                <th className="min-w-[80px] px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                    Lihat
+                                </th>
                                 <th className="min-w-[80px] px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                     Status
                                 </th>
@@ -174,14 +182,31 @@ export default function ProjectSLOIRespondent({
                                             {row.avgScore}
                                         </span>
                                     </td>
-                                    {questions.map((q) => (
-                                        <td
-                                            key={q.code}
-                                            className="px-3 py-3 text-center text-slate-600"
+                                    {questions.map((q) => {
+                                        const ans = row.answers[q.code];
+                                        const val =
+                                            ans?.kepentingan ?? ans?.kinerja;
+                                        return (
+                                            <td
+                                                key={q.code}
+                                                className="px-3 py-3 text-center text-slate-600"
+                                            >
+                                                {val ?? '-'}
+                                            </td>
+                                        );
+                                    })}
+                                    {/* Lihat */}
+                                    <td className="px-4 py-3 text-center">
+                                        <button
+                                            onClick={() => setSelected(row)}
+                                            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary"
                                         >
-                                            {row.answers[q.code] ?? '-'}
-                                        </td>
-                                    ))}
+                                            <span className="material-symbols-outlined text-sm leading-none">
+                                                visibility
+                                            </span>
+                                            Lihat
+                                        </button>
+                                    </td>
                                     <td className="px-4 py-3 text-center">
                                         <span
                                             className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
@@ -201,6 +226,30 @@ export default function ProjectSLOIRespondent({
                     </table>
                 </div>
             </div>
+
+            {/* ── Detail Modal (shared component) ── */}
+            {selected && (
+                <SubmissionDetailModal
+                    data={{
+                        submissionId: selected.submissionId,
+                        submittedAt: selected.submittedAt,
+                        photoPath: selected.photoPath,
+                        latitude: selected.latitude,
+                        longitude: selected.longitude,
+                        respondent: selected.respondent
+                            ? {
+                                  name: selected.respondent.name,
+                                  gender: selected.respondent.gender,
+                                  age: selected.respondent.age,
+                                  educationLevel:
+                                      selected.respondent.educationLevel,
+                                  address: selected.respondent.address,
+                              }
+                            : null,
+                    }}
+                    onClose={() => setSelected(null)}
+                />
+            )}
         </div>
     );
 }

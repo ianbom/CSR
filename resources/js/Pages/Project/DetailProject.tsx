@@ -108,6 +108,8 @@ interface RespondentsData {
         longitude: number | null;
         photoPath: string | null;
         avgScore: number;
+        avgKepentingan: number | null;
+        avgKinerja: number | null;
         respondent: {
             id: number;
             name: string;
@@ -120,7 +122,10 @@ interface RespondentsData {
             occupation: string | null;
             monthlyIncome: number | null;
         } | null;
-        answers: Record<string, number | null>;
+        answers: Record<
+            string,
+            { kepentingan: number | null; kinerja: number | null }
+        >;
     }[];
 }
 
@@ -252,7 +257,14 @@ export default function DetailProject({
                 return <ProjectSROI />;
             case 'enumerator':
                 return (
-                    <ProjectEnumeratorList enumeratorList={enumeratorList} />
+                    <ProjectEnumeratorList
+                        enumeratorList={enumeratorList}
+                        project={{
+                            id: project.id,
+                            name: project.name,
+                            code: project.projectCode,
+                        }}
+                    />
                 );
             default:
                 return (

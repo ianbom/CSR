@@ -14,11 +14,8 @@ interface LikertScaleQuestionProps {
 export default function LikertScaleQuestion({
     questionNumber,
     question,
-    name,
     value,
     onChange,
-    isActive = false,
-    isAnswered = false,
     minLabel = 'Sangat Tidak Setuju',
     maxLabel = 'Sangat Setuju',
     scaleSize = 5,
@@ -35,13 +32,15 @@ export default function LikertScaleQuestion({
 
     return (
         <div className={cardClasses}>
-            {/* Question header */}
-            <div className="flex gap-3">
-                <span className={numberBadgeClasses}>{questionNumber}</span>
-                <h3 className="pt-0.5 text-base font-bold leading-snug text-gray-900">
-                    {question}
-                </h3>
-            </div>
+            {/* Question header — hidden when questionNumber is 0 (sub-row mode) */}
+            {questionNumber > 0 && (
+                <div className="flex gap-3">
+                    <span className={numberBadgeClasses}>{questionNumber}</span>
+                    <h3 className="pt-0.5 text-base font-bold leading-snug text-gray-900">
+                        {question}
+                    </h3>
+                </div>
+            )}
 
             {/* Scale options */}
             <div className="pl-10">

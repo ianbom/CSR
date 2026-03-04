@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 
 import {
     IKMAgeRangeChart,
-    IKMAuditLog,
     IKMEducationChart,
     IKMGenderPieChart,
     IKMHeader,
@@ -81,7 +80,6 @@ export default function ProjectIKM({
     stats,
     demographics,
     questionScores,
-    auditLog,
 }: ProjectIKMProps): ReactNode {
     // Transform gender data for GenderPieChart
     const genderData = (() => {
@@ -139,17 +137,21 @@ export default function ProjectIKM({
 
             {/* Question Scores */}
             <IKMQuestionScores
-                scores={questionScores.map((q) => ({
+                kepentinganScores={questionScores.map((q) => ({
                     id: q.id,
-                    score: q.score,
+                    score: q.importance,
+                }))}
+                kinerjaScores={questionScores.map((q) => ({
+                    id: q.id,
+                    score: q.performance,
                 }))}
             />
 
             {/* Audit Log */}
-            <IKMAuditLog
+            {/* <IKMAuditLog
                 auditLog={auditLog}
                 totalResponses={stats.totalResponses}
-            />
+            /> */}
         </div>
     );
 }

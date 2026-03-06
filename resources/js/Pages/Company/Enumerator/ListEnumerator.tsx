@@ -212,10 +212,11 @@ function EnumeratorCardItem({
                         {initials}
                     </div>
                     <div
-                        className={`absolute bottom-1 right-1 size-4 rounded-full border-2 border-white ${enumerator.isActive
+                        className={`absolute bottom-1 right-1 size-4 rounded-full border-2 border-white ${
+                            enumerator.isActive
                                 ? 'bg-green-500'
                                 : 'bg-slate-300'
-                            }`}
+                        }`}
                     />
                 </div>
 
@@ -232,10 +233,11 @@ function EnumeratorCardItem({
 
                 {/* Status Badge */}
                 <span
-                    className={`mt-2 inline-flex rounded-full px-3 py-0.5 text-[10px] font-bold uppercase ${enumerator.isActive
+                    className={`mt-2 inline-flex rounded-full px-3 py-0.5 text-[10px] font-bold uppercase ${
+                        enumerator.isActive
                             ? 'bg-green-100 text-green-700'
                             : 'bg-slate-100 text-slate-500'
-                        }`}
+                    }`}
                 >
                     {enumerator.isActive ? 'Aktif' : 'Tidak Aktif'}
                 </span>

@@ -30,11 +30,9 @@ export default function SLOIGenderPieChart({
                             const r = 40;
                             const circumference = 2 * Math.PI * r;
                             const maleDash =
-                                (data.male.percentage / 100) *
-                                circumference;
+                                (data.male.percentage / 100) * circumference;
                             const femaleDash =
-                                (data.female.percentage / 100) *
-                                circumference;
+                                (data.female.percentage / 100) * circumference;
                             return (
                                 <>
                                     {/* Male */}

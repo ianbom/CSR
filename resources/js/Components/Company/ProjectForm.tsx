@@ -471,8 +471,8 @@ export default function ProjectForm({
                                 type.id === 'ikm'
                                     ? data.enable_ikm
                                     : type.id === 'sloi'
-                                        ? data.enable_sloi
-                                        : data.enable_sroi
+                                      ? data.enable_sloi
+                                      : data.enable_sroi
                             }
                             onChange={(checked) =>
                                 handleAssessmentTypeChange(type.id, checked)

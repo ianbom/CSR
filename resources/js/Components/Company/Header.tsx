@@ -12,7 +12,7 @@ export default function Header({ breadcrumb }: HeaderProps): ReactNode {
     return (
         <header className="sticky top-0 z-10 flex h-20 items-center justify-between border-b border-slate-200 bg-card-light px-8">
             {/* Breadcrumb */}
-            <div className="flex items-center gap-4  text-slate-500">
+            <div className="flex items-center gap-4 text-slate-500">
                 <span className="text-sm font-medium">{breadcrumb.parent}</span>
                 <Icon name="chevron_right" className="text-base" />
                 <span className="text-sm font-bold text-slate-900">

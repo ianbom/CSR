@@ -60,9 +60,9 @@ class UserSeeder extends Seeder
         // Create Company Admin for Company A
         User::create([
             'company_id' => $companyA->id,
-            'name' => 'Admin Maju Bersama',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('admin123'),
+            'name' => 'Admin Company Maju Bersama',
+            'email' => 'company@gmail.com',
+            'password' => Hash::make('company123'),
             'role' => 'company',
             'phone' => '081345678901',
             'email_verified_at' => now(),
@@ -85,7 +85,7 @@ class UserSeeder extends Seeder
         User::create([
             'company_id' => $companyA->id,
             'name' => 'Enumerator 1 Maju',
-            'email' => 'enum1@majubersama.co.id',
+            'email' => 'enum1@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'enumerator',
             'phone' => '081567890123',

@@ -1,14 +1,15 @@
 <?php
 
 use App\Http\Controllers\AreaController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\EnumeratorController;
 use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\InstrumentTemplateController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Enumerator\ProjectController as EnumeratorProjectController;
 use App\Http\Controllers\Enumerator\SurveyController as EnumeratorSurveyController;
+use App\Http\Controllers\EnumeratorController;
+use App\Http\Controllers\InstrumentTemplateController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\SubmissionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -21,7 +22,6 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
-
 
 Route::prefix('enumerator')->name('enumerator.')->group(function () {
     Route::get('/list', [EnumeratorProjectController::class, 'listProjectPage'])->name('list-survey');
@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects/{id}/assign-enumerators', [ProjectController::class, 'assignEnumerators'])->name('projects.assign-enumerators');
     Route::put('/projects/{id}', [ProjectController::class, 'updateProject'])->name('projects.update');
     Route::patch('/projects/{id}/status', [ProjectController::class, 'updateStatus'])->name('projects.update-status');
+    Route::patch('/submissions/bulk-status', [SubmissionController::class, 'bulkUpdateStatus'])->name('submissions.bulk-status');
     Route::get('/projects/{id}', [ProjectController::class, 'detailProject'])->name('projects.show');
     // Enumerators
     Route::get('/enumerators', [EnumeratorController::class, 'index'])->name('enumerators.index');
@@ -79,4 +80,3 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
-

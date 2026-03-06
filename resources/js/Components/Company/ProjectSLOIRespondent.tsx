@@ -1,5 +1,7 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useMemo } from 'react';
 import SubmissionDetailModal from './SubmissionDetailModal';
+import BulkStatusModal from './BulkStatusModal';
+import { CheckSquare, Square, MinusSquare } from 'lucide-react';
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -21,6 +23,14 @@ interface RespondentData {
     monthlyIncome: number | null;
 }
 
+interface TimelineEntry {
+    id: number;
+    action: string;
+    decidedAt: string | null;
+    decidedBy: string;
+    notes: string | null;
+}
+
 interface RespondentRow {
     submissionId: number;
     submittedAt: string | null;
@@ -35,6 +45,7 @@ interface RespondentRow {
         string,
         { kepentingan: number | null; kinerja: number | null }
     >;
+    timelines: TimelineEntry[];
 }
 
 interface RespondentsData {
@@ -51,6 +62,22 @@ export default function ProjectSLOIRespondent({
 }: Props): ReactNode {
     const { questions, rows } = respondents;
     const [selected, setSelected] = useState<RespondentRow | null>(null);
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [showBulkModal, setShowBulkModal] = useState(false);
+
+    const allIds = useMemo(() => rows.map((r) => r.submissionId), [rows]);
+    const isAllSelected = rows.length > 0 && selectedIds.length === rows.length;
+    const isPartialSelected = selectedIds.length > 0 && selectedIds.length < rows.length;
+
+    const toggleSelect = (id: number) => {
+        setSelectedIds((prev) =>
+            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+        );
+    };
+
+    const toggleSelectAll = () => {
+        setSelectedIds(isAllSelected ? [] : allIds);
+    };
 
     return (
         <div className="space-y-6">
@@ -66,13 +93,53 @@ export default function ProjectSLOIRespondent({
                 </div>
             </div>
 
+            {/* Bulk Action Bar */}
+            {selectedIds.length > 0 && (
+                <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 px-5 py-3">
+                    <div className="flex items-center gap-3">
+                        <CheckSquare className="size-5 text-primary" />
+                        <span className="text-sm font-semibold text-primary">
+                            {selectedIds.length} submission dipilih
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setSelectedIds([])}
+                            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                        >
+                            Batal Pilih
+                        </button>
+                        <button
+                            onClick={() => setShowBulkModal(true)}
+                            className="rounded-lg bg-primary px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-primary/90"
+                        >
+                            Ubah Status
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Table */}
             <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="border-b border-slate-100 bg-slate-50/80">
-                                <th className="sticky left-0 z-10 bg-slate-50/80 px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                <th className="sticky left-0 z-10 bg-slate-50/80 px-3 py-3 text-center">
+                                    <button
+                                        onClick={toggleSelectAll}
+                                        className="text-slate-400 transition-colors hover:text-primary"
+                                    >
+                                        {isAllSelected ? (
+                                            <CheckSquare className="size-4 text-primary" />
+                                        ) : isPartialSelected ? (
+                                            <MinusSquare className="size-4 text-primary" />
+                                        ) : (
+                                            <Square className="size-4" />
+                                        )}
+                                    </button>
+                                </th>
+                                <th className="bg-slate-50/80 px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                     No
                                 </th>
                                 <th className="sticky left-10 z-10 min-w-[160px] bg-slate-50/80 px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
@@ -108,7 +175,7 @@ export default function ProjectSLOIRespondent({
                             {rows.length === 0 && (
                                 <tr>
                                     <td
-                                        colSpan={10 + questions.length + 1}
+                                        colSpan={11 + questions.length + 1}
                                         className="px-4 py-12 text-center text-sm text-slate-400"
                                     >
                                         Belum ada data responden
@@ -118,9 +185,21 @@ export default function ProjectSLOIRespondent({
                             {rows.map((row, idx) => (
                                 <tr
                                     key={row.submissionId}
-                                    className="transition-colors hover:bg-slate-50/50"
+                                    className={`transition-colors hover:bg-slate-50/50 ${selectedIds.includes(row.submissionId) ? 'bg-primary/5' : ''}`}
                                 >
-                                    <td className="sticky left-0 z-10 bg-white px-4 py-3 font-medium text-slate-500">
+                                    <td className="sticky left-0 z-10 bg-white px-3 py-3 text-center">
+                                        <button
+                                            onClick={() => toggleSelect(row.submissionId)}
+                                            className="text-slate-400 transition-colors hover:text-primary"
+                                        >
+                                            {selectedIds.includes(row.submissionId) ? (
+                                                <CheckSquare className="size-4 text-primary" />
+                                            ) : (
+                                                <Square className="size-4" />
+                                            )}
+                                        </button>
+                                    </td>
+                                    <td className="bg-white px-4 py-3 font-medium text-slate-500">
                                         {idx + 1}
                                     </td>
                                     <td className="sticky left-10 z-10 bg-white px-4 py-3">
@@ -222,8 +301,18 @@ export default function ProjectSLOIRespondent({
                                       selected.respondent.monthlyIncome,
                               }
                             : null,
+                        timelines: selected.timelines,
                     }}
                     onClose={() => setSelected(null)}
+                />
+            )}
+
+            {/* ── Bulk Status Modal ── */}
+            {showBulkModal && (
+                <BulkStatusModal
+                    selectedIds={selectedIds}
+                    onClose={() => setShowBulkModal(false)}
+                    onSuccess={() => setSelectedIds([])}
                 />
             )}
         </div>

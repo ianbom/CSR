@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { CheckCircle2, XCircle, Send, RotateCcw, Clock } from 'lucide-react';
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -15,6 +16,14 @@ interface RespondentInfo {
     monthlyIncome: number | null;
 }
 
+interface TimelineEntry {
+    id: number;
+    action: string;
+    decidedAt: string | null;
+    decidedBy: string;
+    notes: string | null;
+}
+
 export interface SubmissionDetailData {
     submissionId: number;
     submittedAt: string | null;
@@ -23,6 +32,7 @@ export interface SubmissionDetailData {
     longitude: number | string | null;
     enumerator: string | null;
     respondent: RespondentInfo | null;
+    timelines?: TimelineEntry[];
 }
 
 interface Props {
@@ -44,6 +54,40 @@ function InfoRow({ label, value }: { label: string; value: ReactNode }) {
         </div>
     );
 }
+
+const ACTION_CONFIG: Record<
+    string,
+    { label: string; icon: ReactNode; color: string; bg: string; border: string }
+> = {
+    approved: {
+        label: 'Disetujui',
+        icon: <CheckCircle2 className="size-4" />,
+        color: 'text-emerald-600',
+        bg: 'bg-emerald-50',
+        border: 'border-emerald-200',
+    },
+    rejected: {
+        label: 'Ditolak',
+        icon: <XCircle className="size-4" />,
+        color: 'text-red-600',
+        bg: 'bg-red-50',
+        border: 'border-red-200',
+    },
+    submitted: {
+        label: 'Submitted',
+        icon: <Send className="size-4" />,
+        color: 'text-amber-600',
+        bg: 'bg-amber-50',
+        border: 'border-amber-200',
+    },
+    revised: {
+        label: 'Direvisi',
+        icon: <RotateCcw className="size-4" />,
+        color: 'text-blue-600',
+        bg: 'bg-blue-50',
+        border: 'border-blue-200',
+    },
+};
 
 // ─── Component ─────────────────────────────────────────────
 
@@ -267,6 +311,81 @@ export default function SubmissionDetailModal({
                                         person_off
                                     </span>
                                     Data responden tidak tersedia
+                                </div>
+                            )}
+
+                            {/* ── Timeline Section ── */}
+                            {data.timelines && data.timelines.length > 0 && (
+                                <div className="mt-2 flex flex-col gap-3">
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                        Riwayat Review
+                                    </p>
+                                    <div className="relative flex flex-col gap-0">
+                                        {data.timelines.map((t, idx) => {
+                                            const cfg =
+                                                ACTION_CONFIG[t.action] ?? {
+                                                    label: t.action,
+                                                    icon: (
+                                                        <Clock className="size-4" />
+                                                    ),
+                                                    color: 'text-slate-600',
+                                                    bg: 'bg-slate-50',
+                                                    border: 'border-slate-200',
+                                                };
+                                            const isLast =
+                                                idx ===
+                                                data.timelines!.length - 1;
+
+                                            return (
+                                                <div
+                                                    key={t.id}
+                                                    className="relative flex gap-3 pb-4"
+                                                >
+                                                    {/* Vertical line */}
+                                                    {!isLast && (
+                                                        <div className="absolute left-[15px] top-8 h-[calc(100%-20px)] w-px bg-slate-200" />
+                                                    )}
+                                                    {/* Icon dot */}
+                                                    <div
+                                                        className={`z-10 flex size-8 shrink-0 items-center justify-center rounded-full border ${cfg.border} ${cfg.bg}`}
+                                                    >
+                                                        <span
+                                                            className={
+                                                                cfg.color
+                                                            }
+                                                        >
+                                                            {cfg.icon}
+                                                        </span>
+                                                    </div>
+                                                    {/* Content */}
+                                                    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                                                        <div className="flex items-center gap-2">
+                                                            <span
+                                                                className={`text-xs font-bold ${cfg.color}`}
+                                                            >
+                                                                {cfg.label}
+                                                            </span>
+                                                            <span className="text-[10px] text-slate-400">
+                                                                {t.decidedAt ??
+                                                                    '-'}
+                                                            </span>
+                                                        </div>
+                                                        <span className="text-xs text-slate-500">
+                                                            oleh{' '}
+                                                            <span className="font-semibold text-slate-700">
+                                                                {t.decidedBy}
+                                                            </span>
+                                                        </span>
+                                                        {t.notes && (
+                                                            <p className="mt-1 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-600">
+                                                                {t.notes}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             )}
                         </div>

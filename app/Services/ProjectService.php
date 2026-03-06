@@ -23,7 +23,7 @@ class ProjectService
     public function getAllProjectsByCompany(int $companyId, array $params = []): LengthAwarePaginator
     {
         $query = Project::query()->where('company_id', $companyId);
-        
+
         return $this->buildProjectListQuery($query, $params);
     }
 
@@ -35,7 +35,7 @@ class ProjectService
         $query = Project::query()
             ->whereIn('id', $assignedProjectIds)
             ->where('status', '!=', 'draft');
-        
+
         return $this->buildProjectListQuery($query, $params);
     }
 
@@ -48,7 +48,7 @@ class ProjectService
             'activeProjects' => $projects->where('status', 'active')->count(),
             'draftProjects' => $projects->where('status', 'draft')->count(),
             'closedProjects' => $projects->where('status', 'closed')->count(),
-            'totalRespondents' => $projects->sum(fn($p) => $p->submissions()->count()),
+            'totalRespondents' => $projects->sum(fn ($p) => $p->submissions()->count()),
         ];
     }
 
@@ -81,8 +81,8 @@ class ProjectService
                 ->where('company_id', $companyId)
                 ->delete();
 
-            if (!empty($enumeratorIds)) {
-                $assignments = collect($enumeratorIds)->map(fn($enumeratorId) => [
+            if (! empty($enumeratorIds)) {
+                $assignments = collect($enumeratorIds)->map(fn ($enumeratorId) => [
                     'company_id' => $companyId,
                     'project_id' => $projectId,
                     'enumerator_id' => $enumeratorId,
@@ -114,18 +114,18 @@ class ProjectService
             $templateIds = $this->resolveTemplateIds($data);
 
             $project->update([
-                'name'             => $data['name'],
-                'description'      => $data['description'] ?? null,
-                'status'           => $data['status'] ?? $project->status,
+                'name' => $data['name'],
+                'description' => $data['description'] ?? null,
+                'status' => $data['status'] ?? $project->status,
                 'target_ikm_count' => $data['target_ikm_count'] ?? 0,
-                'target_sloi_count'=> $data['target_sloi_count'] ?? 0,
-                'enable_ikm'       => $data['enable_ikm'] ?? false,
-                'enable_sloi'      => $data['enable_sloi'] ?? false,
-                'enable_sroi'      => $data['enable_sroi'] ?? false,
-                'ikm_template_id'  => $templateIds['ikm'],
+                'target_sloi_count' => $data['target_sloi_count'] ?? 0,
+                'enable_ikm' => $data['enable_ikm'] ?? false,
+                'enable_sloi' => $data['enable_sloi'] ?? false,
+                'enable_sroi' => $data['enable_sroi'] ?? false,
+                'ikm_template_id' => $templateIds['ikm'],
                 'sloi_template_id' => $templateIds['sloi'],
-                'start_date'       => $data['start_date'] ?? null,
-                'end_date'         => $data['end_date'] ?? null,
+                'start_date' => $data['start_date'] ?? null,
+                'end_date' => $data['end_date'] ?? null,
             ]);
 
             // Sync locations if provided
@@ -147,28 +147,28 @@ class ProjectService
 
         $locations = $project->locations->map(function ($loc) {
             return [
-                'id'       => $loc->id,
+                'id' => $loc->id,
                 'province' => $loc->district->city->province,
-                'city'     => $loc->district->city,
+                'city' => $loc->district->city,
                 'district' => $loc->district,
             ];
         })->toArray();
 
         return [
-            'id'               => $project->id,
-            'name'             => $project->name,
-            'description'      => $project->description ?? '',
-            'status'           => $project->status ?? 'draft',
+            'id' => $project->id,
+            'name' => $project->name,
+            'description' => $project->description ?? '',
+            'status' => $project->status ?? 'draft',
             'target_ikm_count' => $project->target_ikm_count,
-            'target_sloi_count'=> $project->target_sloi_count,
-            'start_date'       => $project->start_date?->format('Y-m-d') ?? '',
-            'end_date'         => $project->end_date?->format('Y-m-d') ?? '',
-            'enable_ikm'       => $project->enable_ikm,
-            'enable_sloi'      => $project->enable_sloi,
-            'enable_sroi'      => $project->enable_sroi,
-            'ikm_template_id'  => $project->ikm_template_id,
+            'target_sloi_count' => $project->target_sloi_count,
+            'start_date' => $project->start_date?->format('Y-m-d') ?? '',
+            'end_date' => $project->end_date?->format('Y-m-d') ?? '',
+            'enable_ikm' => $project->enable_ikm,
+            'enable_sloi' => $project->enable_sloi,
+            'enable_sroi' => $project->enable_sroi,
+            'ikm_template_id' => $project->ikm_template_id,
             'sloi_template_id' => $project->sloi_template_id,
-            'locations'        => $locations,
+            'locations' => $locations,
         ];
     }
 
@@ -205,13 +205,13 @@ class ProjectService
         }
 
         return [
-            'project'        => $this->formatProjectDetail($project),
-            'stats'          => $this->computeStats($project, $submissions, $assessmentType),
-            'demographics'   => $this->computeDemographics($respondentIds),
+            'project' => $this->formatProjectDetail($project),
+            'stats' => $this->computeStats($project, $submissions, $assessmentType),
+            'demographics' => $this->computeDemographics($respondentIds),
             'questionScores' => $this->computeQuestionScores($submissionIds, $templateId),
-            'auditLog'       => $this->computeAuditLog($projectId, $assessmentType),
-            'trendData'      => $this->computeTrendData($projectId, $assessmentType),
-            'respondents'    => $this->computeRespondents($projectId, $assessmentType, $templateId),
+            'auditLog' => $this->computeAuditLog($projectId, $assessmentType),
+            'trendData' => $this->computeTrendData($projectId, $assessmentType),
+            'respondents' => $this->computeRespondents($projectId, $assessmentType, $templateId),
             'enumeratorList' => $this->computeEnumeratorList($project),
         ];
     }
@@ -219,7 +219,7 @@ class ProjectService
     protected function resolveAssessmentType(string $detailType): ?string
     {
         return match (strtolower($detailType)) {
-            'ikm', 'ikm_respondent'   => 'IKM',
+            'ikm', 'ikm_respondent' => 'IKM',
             'sloi', 'sloi_respondent' => 'SLOI',
             'sroi' => 'SROI',
             default => null, // overview, enumerator = all types
@@ -232,37 +232,38 @@ class ProjectService
             $district = $loc->district;
             $city = $district?->city;
             $province = $city?->province;
+
             return [
                 'district' => $district?->name,
-                'city'     => $city?->name,
+                'city' => $city?->name,
                 'province' => $province?->name,
             ];
         });
 
         $enumerators = $project->enumeratorAssignments->map(function ($a) {
             return [
-                'id'    => $a->enumerator?->id,
-                'name'  => $a->enumerator?->name,
+                'id' => $a->enumerator?->id,
+                'name' => $a->enumerator?->name,
                 'email' => $a->enumerator?->email,
             ];
-        })->filter(fn($e) => $e['id'] !== null)->values();
+        })->filter(fn ($e) => $e['id'] !== null)->values();
 
         return [
-            'id'               => $project->id,
-            'name'             => $project->name,
-            'description'      => $project->description,
-            'projectCode'      => $project->project_code,
-            'status'           => $project->status,
-            'companyName'      => $project->company?->name,
-            'enableIkm'        => $project->enable_ikm,
-            'enableSloi'       => $project->enable_sloi,
-            'enableSroi'       => $project->enable_sroi,
-            'targetIkmCount'   => $project->target_ikm_count,
-            'targetSloiCount'  => $project->target_sloi_count,
-            'startDate'        => $project->start_date?->format('Y-m-d'),
-            'endDate'          => $project->end_date?->format('Y-m-d'),
-            'locations'        => $locations,
-            'enumerators'      => $enumerators,
+            'id' => $project->id,
+            'name' => $project->name,
+            'description' => $project->description,
+            'projectCode' => $project->project_code,
+            'status' => $project->status,
+            'companyName' => $project->company?->name,
+            'enableIkm' => $project->enable_ikm,
+            'enableSloi' => $project->enable_sloi,
+            'enableSroi' => $project->enable_sroi,
+            'targetIkmCount' => $project->target_ikm_count,
+            'targetSloiCount' => $project->target_sloi_count,
+            'startDate' => $project->start_date?->format('Y-m-d'),
+            'endDate' => $project->end_date?->format('Y-m-d'),
+            'locations' => $locations,
+            'enumerators' => $enumerators,
         ];
     }
 
@@ -272,8 +273,8 @@ class ProjectService
 
         // Target depends on type
         $targetResponses = match ($assessmentType) {
-            'IKM'   => $project->target_ikm_count,
-            'SLOI'  => $project->target_sloi_count,
+            'IKM' => $project->target_ikm_count,
+            'SLOI' => $project->target_sloi_count,
             default => $project->target_ikm_count + $project->target_sloi_count,
         };
 
@@ -296,20 +297,29 @@ class ProjectService
         $scoreLabel = $this->getScoreLabel($avgScore);
 
         return [
-            'totalResponses'  => $totalResponses,
+            'totalResponses' => $totalResponses,
             'targetResponses' => $targetResponses ?: 0,
-            'progress'        => $progress,
-            'score'           => $avgScore,
-            'scoreLabel'      => $scoreLabel,
+            'progress' => $progress,
+            'score' => $avgScore,
+            'scoreLabel' => $scoreLabel,
         ];
     }
 
     protected function getScoreLabel(float $score): string
     {
-        if ($score >= 4.0) return 'Sangat Baik';
-        if ($score >= 3.0) return 'Baik';
-        if ($score >= 2.0) return 'Cukup';
-        if ($score >= 1.0) return 'Kurang';
+        if ($score >= 4.0) {
+            return 'Sangat Baik';
+        }
+        if ($score >= 3.0) {
+            return 'Baik';
+        }
+        if ($score >= 2.0) {
+            return 'Cukup';
+        }
+        if ($score >= 1.0) {
+            return 'Kurang';
+        }
+
         return 'Belum Ada Data';
     }
 
@@ -318,8 +328,8 @@ class ProjectService
         if ($respondentIds->isEmpty()) {
             return [
                 'genderDistribution' => [],
-                'ageRange'           => [],
-                'educationLevel'     => [],
+                'ageRange' => [],
+                'educationLevel' => [],
             ];
         }
 
@@ -328,22 +338,23 @@ class ProjectService
 
         // Gender distribution — normalize raw DB values
         $genderMap = [
-            'male'      => 'Laki-laki',
-            'female'    => 'Perempuan',
+            'male' => 'Laki-laki',
+            'female' => 'Perempuan',
             'laki-laki' => 'Laki-laki',
             'perempuan' => 'Perempuan',
         ];
 
         $normalizedGenders = $respondents->map(function ($r) use ($genderMap) {
             $raw = strtolower(trim($r->gender ?? ''));
+
             return $genderMap[$raw] ?? ($r->gender ?: 'Tidak Diketahui');
         });
 
         $genderCounts = $normalizedGenders->countBy();
         $genderDistribution = $genderCounts->map(function ($count, $gender) use ($total) {
             return [
-                'gender'     => $gender,
-                'count'      => $count,
+                'gender' => $gender,
+                'count' => $count,
                 'percentage' => $total > 0 ? round(($count / $total) * 100, 1) : 0,
             ];
         })->values()->toArray();
@@ -353,59 +364,67 @@ class ProjectService
             '18-25' => 0, '26-40' => 0, '41-60' => 0, '60+' => 0,
         ];
         foreach ($respondents as $r) {
-            if ($r->age === null) continue;
-            if ($r->age <= 25) $ageBuckets['18-25']++;
-            elseif ($r->age <= 40) $ageBuckets['26-40']++;
-            elseif ($r->age <= 60) $ageBuckets['41-60']++;
-            else $ageBuckets['60+']++;
+            if ($r->age === null) {
+                continue;
+            }
+            if ($r->age <= 25) {
+                $ageBuckets['18-25']++;
+            } elseif ($r->age <= 40) {
+                $ageBuckets['26-40']++;
+            } elseif ($r->age <= 60) {
+                $ageBuckets['41-60']++;
+            } else {
+                $ageBuckets['60+']++;
+            }
         }
         $maxAge = max($ageBuckets) ?: 1;
         $ageRange = collect($ageBuckets)->map(function ($count, $range) use ($maxAge) {
             return [
-                'range'  => $range,
-                'count'  => $count,
+                'range' => $range,
+                'count' => $count,
                 'height' => round(($count / $maxAge) * 100),
             ];
         })->values()->toArray();
 
         $eduMap = [
-            'sd'    => 'SD',
-            'smp'   => 'SMP',
-            'sma'   => 'SMA',
-            'smk'   => 'SMA',
-            'd1'    => 'D1-D3',
-            'd2'    => 'D1-D3',
-            'd3'    => 'D1-D3',
-            'd4'    => 'D4/S1',
-            's1'    => 'D4/S1',
-            's2'    => 'S2',
-            's3'    => 'S3',
+            'sd' => 'SD',
+            'smp' => 'SMP',
+            'sma' => 'SMA',
+            'smk' => 'SMA',
+            'd1' => 'D1-D3',
+            'd2' => 'D1-D3',
+            'd3' => 'D1-D3',
+            'd4' => 'D4/S1',
+            's1' => 'D4/S1',
+            's2' => 'S2',
+            's3' => 'S3',
         ];
 
         $normalized = $respondents->map(function ($r) use ($eduMap) {
             $raw = strtolower(trim($r->education_level ?? ''));
+
             return $eduMap[$raw] ?? ($r->education_level ?: 'Tidak Diketahui');
         });
 
         $eduGroups = $normalized->countBy();
         $educationLevel = $eduGroups->map(function ($count, $label) use ($total) {
             return [
-                'label'      => $label,
-                'value'      => $count,
+                'label' => $label,
+                'value' => $count,
                 'percentage' => $total > 0 ? round(($count / $total) * 100, 1) : 0,
             ];
         })->values()->toArray();
 
         return [
             'genderDistribution' => $genderDistribution,
-            'ageRange'           => $ageRange,
-            'educationLevel'     => $educationLevel,
+            'ageRange' => $ageRange,
+            'educationLevel' => $educationLevel,
         ];
     }
 
     protected function computeQuestionScores($submissionIds, ?int $templateId): array
     {
-        if ($submissionIds->isEmpty() || !$templateId) {
+        if ($submissionIds->isEmpty() || ! $templateId) {
             return [];
         }
 
@@ -441,10 +460,10 @@ class ProjectService
 
         return $questions->map(function ($q) use ($avgAll, $avgKepentingan, $avgKinerja) {
             return [
-                'id'          => $q->code,
-                'question'    => $q->question_text,
-                'score'       => (float) ($avgAll[$q->id] ?? 0),
-                'importance'  => (float) ($avgKepentingan[$q->id] ?? 0),
+                'id' => $q->code,
+                'question' => $q->question_text,
+                'score' => (float) ($avgAll[$q->id] ?? 0),
+                'importance' => (float) ($avgKepentingan[$q->id] ?? 0),
                 'performance' => (float) ($avgKinerja[$q->id] ?? 0),
             ];
         })->toArray();
@@ -466,13 +485,13 @@ class ProjectService
             $avgScore = $sub->templateAnswers()->avg('value');
 
             return [
-                'id'             => '#' . strtoupper($sub->assessment_type) . '-' . $sub->id,
+                'id' => '#'.strtoupper($sub->assessment_type).'-'.$sub->id,
                 'respondentName' => $sub->respondent?->name ?? '-',
-                'enumerator'     => $sub->enumerator?->name ?? '-',
-                'date'           => $sub->submitted_at?->format('M d, Y • H:i'),
-                'score'          => round($avgScore ?? 0, 1),
-                'status'         => $sub->status,
-                'group'          => $sub->respondent?->respondent_status === 'Penerima CSR' ? 'csr' : 'general',
+                'enumerator' => $sub->enumerator?->name ?? '-',
+                'date' => $sub->submitted_at?->format('M d, Y • H:i'),
+                'score' => round($avgScore ?? 0, 1),
+                'status' => $sub->status,
+                'group' => $sub->respondent?->respondent_status === 'Penerima CSR' ? 'csr' : 'general',
             ];
         })->toArray();
     }
@@ -505,8 +524,8 @@ class ProjectService
 
         return $monthly->map(function ($row) use ($maxScore) {
             return [
-                'month'  => strtoupper($row->month),
-                'score'  => (float) $row->score,
+                'month' => strtoupper($row->month),
+                'score' => (float) $row->score,
                 'height' => round(($row->score / $maxScore) * 100),
             ];
         })->toArray();
@@ -515,7 +534,7 @@ class ProjectService
     protected function computeRespondents(int $projectId, ?string $assessmentType, ?int $templateId): array
     {
         $query = Submission::where('project_id', $projectId)
-            ->with(['respondent', 'enumerator', 'templateAnswers.question']);
+            ->with(['respondent', 'enumerator', 'templateAnswers.question', 'timelines.decidedBy']);
 
         if ($assessmentType) {
             $query->where('assessment_type', $assessmentType);
@@ -529,8 +548,8 @@ class ProjectService
             $questions = \App\Models\TemplateQuestion::where('template_id', $templateId)
                 ->orderBy('order_no')
                 ->get()
-                ->map(fn($q) => [
-                    'code'     => $q->code,
+                ->map(fn ($q) => [
+                    'code' => $q->code,
                     'question' => $q->question_text,
                 ])
                 ->toArray();
@@ -543,23 +562,27 @@ class ProjectService
             $answers = [];
             $totalScore = 0;
             $answerCount = 0;
-            $kepScore = 0; $kepCount = 0;
-            $kinScore = 0; $kinCount = 0;
+            $kepScore = 0;
+            $kepCount = 0;
+            $kinScore = 0;
+            $kinCount = 0;
 
             foreach ($sub->templateAnswers as $answer) {
-                $code = $answer->question?->code ?? 'Q' . $answer->question_id;
+                $code = $answer->question?->code ?? 'Q'.$answer->question_id;
                 $type = $answer->type ?? 'sloi';
 
-                if (!isset($answers[$code])) {
+                if (! isset($answers[$code])) {
                     $answers[$code] = ['kepentingan' => null, 'kinerja' => null];
                 }
 
                 if ($type === 'ikm-kepentingan') {
                     $answers[$code]['kepentingan'] = $answer->value;
-                    $kepScore += $answer->value ?? 0; $kepCount++;
+                    $kepScore += $answer->value ?? 0;
+                    $kepCount++;
                 } elseif ($type === 'ikm-kinerja') {
                     $answers[$code]['kinerja'] = $answer->value;
-                    $kinScore += $answer->value ?? 0; $kinCount++;
+                    $kinScore += $answer->value ?? 0;
+                    $kinCount++;
                 } else {
                     $answers[$code]['kepentingan'] = $answer->value;
                     $answers[$code]['kinerja'] = $answer->value;
@@ -570,35 +593,42 @@ class ProjectService
             }
 
             return [
-                'submissionId'      => $sub->id,
-                'submittedAt'       => $sub->submitted_at?->format('Y-m-d H:i'),
-                'status'            => $sub->status,
-                'enumerator'        => $sub->enumerator?->name ?? '-',
-                'latitude'          => $sub->latitude,
-                'longitude'         => $sub->longitude,
-                'photoPath'         => $sub->photo_path,
-                'avgScore'          => $answerCount > 0 ? round($totalScore / $answerCount, 2) : 0,
-                'avgKepentingan'    => $kepCount > 0 ? round($kepScore / $kepCount, 2) : null,
-                'avgKinerja'        => $kinCount > 0 ? round($kinScore / $kinCount, 2) : null,
-                'respondent'        => $respondent ? [
-                    'id'             => $respondent->id,
-                    'name'           => $respondent->name,
-                    'address'        => $respondent->address,
-                    'phone'          => $respondent->phone,
-                    'age'            => $respondent->age,
-                    'gender'         => $respondent->gender,
-                    'status'         => $respondent->respondent_status,
+                'submissionId' => $sub->id,
+                'submittedAt' => $sub->submitted_at?->format('Y-m-d H:i'),
+                'status' => $sub->status,
+                'enumerator' => $sub->enumerator?->name ?? '-',
+                'latitude' => $sub->latitude,
+                'longitude' => $sub->longitude,
+                'photoPath' => $sub->photo_path,
+                'avgScore' => $answerCount > 0 ? round($totalScore / $answerCount, 2) : 0,
+                'avgKepentingan' => $kepCount > 0 ? round($kepScore / $kepCount, 2) : null,
+                'avgKinerja' => $kinCount > 0 ? round($kinScore / $kinCount, 2) : null,
+                'respondent' => $respondent ? [
+                    'id' => $respondent->id,
+                    'name' => $respondent->name,
+                    'address' => $respondent->address,
+                    'phone' => $respondent->phone,
+                    'age' => $respondent->age,
+                    'gender' => $respondent->gender,
+                    'status' => $respondent->respondent_status,
                     'educationLevel' => $respondent->education_level,
-                    'occupation'     => $respondent->main_occupation,
-                    'monthlyIncome'  => $respondent->monthly_income,
+                    'occupation' => $respondent->main_occupation,
+                    'monthlyIncome' => $respondent->monthly_income,
                 ] : null,
-                'answers'          => $answers,
+                'answers' => $answers,
+                'timelines' => $sub->timelines->sortByDesc('decided_at')->values()->map(fn ($t) => [
+                    'id' => $t->id,
+                    'action' => $t->action,
+                    'decidedAt' => $t->decided_at?->format('Y-m-d H:i'),
+                    'decidedBy' => $t->decidedBy?->name ?? '-',
+                    'notes' => $t->notes,
+                ])->toArray(),
             ];
         })->toArray();
 
         return [
             'questions' => $questions,
-            'rows'      => $rows,
+            'rows' => $rows,
         ];
     }
 
@@ -628,21 +658,21 @@ class ProjectService
             }
 
             return [
-                'id'               => $enumerator->id,
-                'name'             => $enumerator->name,
-                'email'            => $enumerator->email,
-                'phone'            => $enumerator->phone,
-                'isActive'         => $enumerator->is_active,
+                'id' => $enumerator->id,
+                'name' => $enumerator->name,
+                'email' => $enumerator->email,
+                'phone' => $enumerator->phone,
+                'isActive' => $enumerator->is_active,
                 'totalSubmissions' => $totalSubmissions,
-                'avgScore'         => $avgScore,
-                'lastSubmittedAt'  => $latestSubmission?->submitted_at?->format('Y-m-d H:i'),
-                'submissions'      => $submissions->map(function ($sub) {
+                'avgScore' => $avgScore,
+                'lastSubmittedAt' => $latestSubmission?->submitted_at?->format('Y-m-d H:i'),
+                'submissions' => $submissions->map(function ($sub) {
                     return [
-                        'id'             => $sub->id,
+                        'id' => $sub->id,
                         'respondentName' => $sub->respondent?->name ?? '-',
                         'assessmentType' => $sub->assessment_type,
-                        'status'         => $sub->status,
-                        'submittedAt'    => $sub->submitted_at?->format('Y-m-d H:i'),
+                        'status' => $sub->status,
+                        'submittedAt' => $sub->submitted_at?->format('Y-m-d H:i'),
                     ];
                 })->values()->toArray(),
             ];
@@ -664,25 +694,24 @@ class ProjectService
         $perPage = $params['per_page'] ?? 10;
         $paginated = $query->paginate($perPage)->withQueryString();
 
-        $paginated->getCollection()->transform(fn($project) => $this->formatProjectForList($project));
+        $paginated->getCollection()->transform(fn ($project) => $this->formatProjectForList($project));
 
         return $paginated;
     }
 
     protected function applySearchFilter(Builder $query, ?string $search): void
     {
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('project_code', 'like', "%{$search}%");
+                    ->orWhere('project_code', 'like', "%{$search}%");
             });
         }
     }
 
-
     protected function applyStatusFilter(Builder $query, ?string $status): void
     {
-        if (!empty($status) && $status !== 'all') {
+        if (! empty($status) && $status !== 'all') {
             $query->where('status', $status);
         }
     }
@@ -704,14 +733,15 @@ class ProjectService
         $locationsString = $project->locations->map(function ($loc) {
             $district = $loc->district;
             $city = $district?->city;
+
             return $city ? $city->name : ($district?->name ?? '-');
         })->unique()->take(2)->implode(', ');
 
         $fullLocations = $project->locations->map(function ($loc) {
             return [
-                'id'       => $loc->id,
+                'id' => $loc->id,
                 'province' => $loc->district?->city?->province,
-                'city'     => $loc->district?->city,
+                'city' => $loc->district?->city,
                 'district' => $loc->district,
             ];
         })->toArray();
@@ -721,44 +751,58 @@ class ProjectService
         $targetResponses = $project->target_ikm_count + $project->target_sloi_count;
 
         return [
-            'id'               => $project->id,
-            'code'             => $project->project_code,
-            'institution'      => $project->company->name ?? '-',
-            'name'             => $project->name,
-            'type'             => $type,
-            'typeLabel'        => $this->getTypeLabel($project),
-            'location'         => $locationsString ?: '-',
-            'status'           => $project->status,
-            'description'      => $project->description,
+            'id' => $project->id,
+            'code' => $project->project_code,
+            'institution' => $project->company->name ?? '-',
+            'name' => $project->name,
+            'type' => $type,
+            'typeLabel' => $this->getTypeLabel($project),
+            'location' => $locationsString ?: '-',
+            'status' => $project->status,
+            'description' => $project->description,
             'target_ikm_count' => $project->target_ikm_count,
-            'target_sloi_count'=> $project->target_sloi_count,
-            'enable_ikm'       => $project->enable_ikm,
-            'enable_sloi'      => $project->enable_sloi,
-            'enable_sroi'      => $project->enable_sroi,
-            'ikm_template_id'  => $project->ikm_template_id,
+            'target_sloi_count' => $project->target_sloi_count,
+            'enable_ikm' => $project->enable_ikm,
+            'enable_sloi' => $project->enable_sloi,
+            'enable_sroi' => $project->enable_sroi,
+            'ikm_template_id' => $project->ikm_template_id,
             'sloi_template_id' => $project->sloi_template_id,
-            'locations'        => $fullLocations,
+            'locations' => $fullLocations,
             'currentResponses' => $currentResponses,
-            'targetResponses'  => $targetResponses ?: 0,
-            'startDate'        => $project->start_date?->format('Y-m-d'),
-            'endDate'          => $project->end_date?->format('Y-m-d'),
+            'targetResponses' => $targetResponses ?: 0,
+            'startDate' => $project->start_date?->format('Y-m-d'),
+            'endDate' => $project->end_date?->format('Y-m-d'),
         ];
     }
 
     protected function determineProjectType(Project $project): string
     {
-        if ($project->enable_ikm) return 'IKM';
-        if ($project->enable_sloi) return 'SLOI';
-        if ($project->enable_sroi) return 'SROI';
+        if ($project->enable_ikm) {
+            return 'IKM';
+        }
+        if ($project->enable_sloi) {
+            return 'SLOI';
+        }
+        if ($project->enable_sroi) {
+            return 'SROI';
+        }
+
         return 'IKM';
     }
 
     protected function getTypeLabel(Project $project): string
     {
         $types = [];
-        if ($project->enable_ikm) $types[] = 'IKM';
-        if ($project->enable_sloi) $types[] = 'SLOI';
-        if ($project->enable_sroi) $types[] = 'SROI';
+        if ($project->enable_ikm) {
+            $types[] = 'IKM';
+        }
+        if ($project->enable_sloi) {
+            $types[] = 'SLOI';
+        }
+        if ($project->enable_sroi) {
+            $types[] = 'SROI';
+        }
+
         return implode(' + ', $types) ?: 'IKM';
     }
 
@@ -790,13 +834,13 @@ class ProjectService
         $ikmTemplateId = null;
         $sloiTemplateId = null;
 
-        if (!empty($data['enable_ikm'])) {
+        if (! empty($data['enable_ikm'])) {
             $ikmTemplateId = InstrumentTemplate::where('type', 'IKM')
                 ->where('is_active', true)
                 ->value('id');
         }
 
-        if (!empty($data['enable_sloi'])) {
+        if (! empty($data['enable_sloi'])) {
             $sloiTemplateId = InstrumentTemplate::where('type', 'SLOI')
                 ->where('is_active', true)
                 ->value('id');
@@ -814,7 +858,7 @@ class ProjectService
             return;
         }
 
-        $locations = collect($districtIds)->map(fn($districtId) => [
+        $locations = collect($districtIds)->map(fn ($districtId) => [
             'company_id' => $companyId,
             'project_id' => $projectId,
             'district_id' => $districtId,

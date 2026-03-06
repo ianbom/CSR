@@ -91,21 +91,6 @@ export default function ProjectIKMRespondent({
                                 <th className="sticky left-10 z-10 min-w-[160px] bg-slate-50/80 px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                     Nama
                                 </th>
-                                <th className="min-w-[100px] px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                                    Gender
-                                </th>
-                                <th className="min-w-[60px] px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                                    Usia
-                                </th>
-                                <th className="min-w-[120px] px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                                    Pendidikan
-                                </th>
-                                <th className="min-w-[120px] px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                                    Pekerjaan
-                                </th>
-                                <th className="min-w-[100px] px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                                    Status
-                                </th>
                                 <th className="min-w-[130px] px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                     Enumerator
                                 </th>
@@ -166,21 +151,6 @@ export default function ProjectIKMRespondent({
                                                 {row.respondent.phone}
                                             </div>
                                         )}
-                                    </td>
-                                    <td className="px-4 py-3 text-slate-600">
-                                        {row.respondent?.gender ?? '-'}
-                                    </td>
-                                    <td className="px-4 py-3 text-slate-600">
-                                        {row.respondent?.age ?? '-'}
-                                    </td>
-                                    <td className="px-4 py-3 text-slate-600">
-                                        {row.respondent?.educationLevel ?? '-'}
-                                    </td>
-                                    <td className="px-4 py-3 text-slate-600">
-                                        {row.respondent?.occupation ?? '-'}
-                                    </td>
-                                    <td className="px-4 py-3 text-slate-600">
-                                        {row.respondent?.status ?? '-'}
                                     </td>
                                     <td className="px-4 py-3 text-slate-600">
                                         {row.enumerator}
@@ -284,6 +254,7 @@ export default function ProjectIKMRespondent({
                         photoPath: selected.photoPath,
                         latitude: selected.latitude,
                         longitude: selected.longitude,
+                        enumerator: selected.enumerator,
                         respondent: selected.respondent
                             ? {
                                   name: selected.respondent.name,
@@ -292,6 +263,11 @@ export default function ProjectIKMRespondent({
                                   educationLevel:
                                       selected.respondent.educationLevel,
                                   address: selected.respondent.address,
+                                  phone: selected.respondent.phone,
+                                  status: selected.respondent.status,
+                                  occupation: selected.respondent.occupation,
+                                  monthlyIncome:
+                                      selected.respondent.monthlyIncome,
                               }
                             : null,
                     }}

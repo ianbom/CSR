@@ -9,6 +9,10 @@ interface RespondentInfo {
     age: number | null;
     educationLevel: string | null;
     address: string | null;
+    phone: string | null;
+    status: string | null;
+    occupation: string | null;
+    monthlyIncome: number | null;
 }
 
 export interface SubmissionDetailData {
@@ -17,12 +21,28 @@ export interface SubmissionDetailData {
     photoPath: string | null;
     latitude: number | string | null;
     longitude: number | string | null;
+    enumerator: string | null;
     respondent: RespondentInfo | null;
 }
 
 interface Props {
     data: SubmissionDetailData;
     onClose: () => void;
+}
+
+// ─── Helpers ───────────────────────────────────────────────
+
+function InfoRow({ label, value }: { label: string; value: ReactNode }) {
+    return (
+        <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                {label}
+            </span>
+            <span className="truncate text-sm font-semibold text-slate-800">
+                {value ?? '-'}
+            </span>
+        </div>
+    );
 }
 
 // ─── Component ─────────────────────────────────────────────
@@ -37,148 +57,220 @@ export default function SubmissionDetailModal({
 
     return createPortal(
         <div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+            className="fixed inset-0 z-[9999] overflow-y-auto bg-black/50 p-4 backdrop-blur-sm"
             onClick={onClose}
         >
-            <div
-                className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl"
-                onClick={(e) => e.stopPropagation()}
-            >
-                {/* Header */}
-                <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-                    <div>
-                        <h3 className="text-base font-bold text-slate-900">
-                            Detail Submission
-                        </h3>
-                        <p className="text-xs text-slate-400">
-                            #{data.submissionId} · {data.submittedAt ?? '-'}
-                        </p>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="flex size-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
-                    >
-                        <span className="material-symbols-outlined text-xl">
-                            close
-                        </span>
-                    </button>
-                </div>
-
-                <div className="space-y-5 p-6">
-                    {/* Photo */}
-                    <div>
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                            Foto
-                        </p>
-                        {data.photoPath ? (
-                            <a
-                                href={`/storage/${data.photoPath}`}
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                <img
-                                    src={`/storage/${data.photoPath}`}
-                                    alt="Foto responden"
-                                    className="max-h-64 w-full rounded-xl object-cover shadow-sm ring-1 ring-slate-200"
-                                />
-                            </a>
-                        ) : (
-                            <div className="flex h-32 items-center justify-center rounded-xl bg-slate-100 text-sm text-slate-400">
-                                <span className="material-symbols-outlined mr-2 text-2xl">
-                                    no_photography
+            {/* Centering wrapper */}
+            <div className="flex min-h-full items-center justify-center">
+                <div
+                    className="w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {/* ── Header ── */}
+                    <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4">
+                        <div className="flex items-center gap-3">
+                            <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10">
+                                <span className="material-symbols-outlined text-lg text-primary">
+                                    assignment
                                 </span>
-                                Tidak ada foto
                             </div>
-                        )}
+                            <div>
+                                <h3 className="text-base font-bold text-slate-900">
+                                    Detail Submission
+                                </h3>
+                                <p className="text-xs text-slate-400">
+                                    #{data.submissionId} &middot;{' '}
+                                    {data.submittedAt ?? '-'}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={onClose}
+                            className="flex size-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                        >
+                            <span className="material-symbols-outlined text-xl">
+                                close
+                            </span>
+                        </button>
                     </div>
 
-                    {/* GPS */}
-                    <div>
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                            Lokasi GPS
-                        </p>
-                        {hasGps ? (
-                            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <div className="mb-2 flex items-center gap-2 text-sm">
-                                    <span className="material-symbols-outlined text-base text-primary">
-                                        location_on
-                                    </span>
-                                    <span className="font-mono text-slate-700">
-                                        {lat!.toFixed(6)}, {lng!.toFixed(6)}
-                                    </span>
-                                </div>
-                                <a
-                                    href={`https://www.google.com/maps?q=${lat},${lng}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-opacity hover:opacity-90"
-                                >
-                                    <span className="material-symbols-outlined text-sm leading-none">
-                                        open_in_new
-                                    </span>
-                                    Buka di Google Maps
-                                </a>
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-400">
-                                <span className="material-symbols-outlined text-base">
-                                    location_off
-                                </span>
-                                Koordinat tidak tersedia
-                            </div>
-                        )}
-                    </div>
+                    {/* ── Body: two columns ── */}
+                    <div className="grid grid-cols-1 divide-y divide-slate-100 md:grid-cols-2 md:divide-x md:divide-y-0">
 
-                    {/* Respondent info */}
-                    {data.respondent && (
-                        <div>
-                            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                Responden
+                        {/* ── LEFT: Foto + GPS ── */}
+                        <div className="flex flex-col gap-6 overflow-y-auto p-6">
+                            {/* Section label */}
+                            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                Dokumentasi
                             </p>
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
-                                <div>
-                                    <span className="text-slate-400">
-                                        Nama:{' '}
-                                    </span>
-                                    <span className="font-medium text-slate-700">
-                                        {data.respondent.name}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="text-slate-400">
-                                        Gender:{' '}
-                                    </span>
-                                    <span className="font-medium text-slate-700">
-                                        {data.respondent.gender ?? '-'}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="text-slate-400">
-                                        Usia:{' '}
-                                    </span>
-                                    <span className="font-medium text-slate-700">
-                                        {data.respondent.age ?? '-'}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="text-slate-400">
-                                        Pendidikan:{' '}
-                                    </span>
-                                    <span className="font-medium text-slate-700">
-                                        {data.respondent.educationLevel ?? '-'}
-                                    </span>
-                                </div>
-                                <div className="col-span-2">
-                                    <span className="text-slate-400">
-                                        Alamat:{' '}
-                                    </span>
-                                    <span className="font-medium text-slate-700">
-                                        {data.respondent.address ?? '-'}
+
+                            {/* Photo */}
+                            <div className="flex flex-col gap-2">
+                                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                    Foto
+                                </span>
+                                {data.photoPath ? (
+                                    <a
+                                        href={`/storage/${data.photoPath}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="block overflow-hidden rounded-xl ring-1 ring-slate-200 transition hover:ring-primary"
+                                    >
+                                        <img
+                                            src={`/storage/${data.photoPath}`}
+                                            alt="Foto responden"
+                                            className="max-h-56 w-full object-cover"
+                                        />
+                                    </a>
+                                ) : (
+                                    <div className="flex h-36 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 text-sm text-slate-400">
+                                        <span className="material-symbols-outlined text-3xl">
+                                            no_photography
+                                        </span>
+                                        Tidak ada foto
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* GPS */}
+                            <div className="flex flex-col gap-2">
+                                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                    Lokasi GPS
+                                </span>
+                                {hasGps ? (
+                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                        <div className="mb-3 flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-base text-primary">
+                                                location_on
+                                            </span>
+                                            <span className="font-mono text-sm text-slate-700">
+                                                {lat!.toFixed(6)},{' '}
+                                                {lng!.toFixed(6)}
+                                            </span>
+                                        </div>
+                                        <a
+                                            href={`https://www.google.com/maps?q=${lat},${lng}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+                                        >
+                                            <span className="material-symbols-outlined text-sm leading-none">
+                                                open_in_new
+                                            </span>
+                                            Buka di Google Maps
+                                        </a>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-400">
+                                        <span className="material-symbols-outlined text-base">
+                                            location_off
+                                        </span>
+                                        Koordinat tidak tersedia
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Enumerator */}
+                            <div className="flex flex-col gap-2">
+                                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                    Enumerator
+                                </span>
+                                <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                                        <span className="material-symbols-outlined text-base text-primary">
+                                            badge
+                                        </span>
+                                    </div>
+                                    <span className="text-sm font-semibold text-slate-700">
+                                        {data.enumerator ?? '-'}
                                     </span>
                                 </div>
                             </div>
                         </div>
-                    )}
+
+                        {/* ── RIGHT: Respondent info ── */}
+                        <div className="flex flex-col gap-4 overflow-y-auto p-6">
+                            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                Data Responden
+                            </p>
+
+                            {data.respondent ? (
+                                <>
+                                    {/* Name — full width */}
+                                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                            Nama
+                                        </span>
+                                        <p className="mt-0.5 text-sm font-bold text-slate-900">
+                                            {data.respondent.name}
+                                        </p>
+                                    </div>
+
+                                    {/* 2-column grid */}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <InfoRow
+                                            label="Gender"
+                                            value={data.respondent.gender}
+                                        />
+                                        <InfoRow
+                                            label="Usia"
+                                            value={
+                                                data.respondent.age != null
+                                                    ? `${data.respondent.age} tahun`
+                                                    : null
+                                            }
+                                        />
+                                        <InfoRow
+                                            label="No. HP"
+                                            value={data.respondent.phone}
+                                        />
+                                        <InfoRow
+                                            label="Status"
+                                            value={data.respondent.status}
+                                        />
+                                        <InfoRow
+                                            label="Pendidikan"
+                                            value={
+                                                data.respondent.educationLevel
+                                            }
+                                        />
+                                        <InfoRow
+                                            label="Pekerjaan"
+                                            value={data.respondent.occupation}
+                                        />
+                                        <div className="col-span-2">
+                                            <InfoRow
+                                                label="Penghasilan / Bulan"
+                                                value={
+                                                    data.respondent
+                                                        .monthlyIncome != null
+                                                        ? `Rp ${data.respondent.monthlyIncome.toLocaleString('id-ID')}`
+                                                        : null
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Address — full width */}
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                            Alamat
+                                        </span>
+                                        <p className="text-sm font-semibold leading-relaxed text-slate-800">
+                                            {data.respondent.address ?? '-'}
+                                        </p>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-12 text-sm text-slate-400">
+                                    <span className="material-symbols-outlined text-3xl">
+                                        person_off
+                                    </span>
+                                    Data responden tidak tersedia
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>,

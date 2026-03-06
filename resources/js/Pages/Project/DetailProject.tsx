@@ -8,6 +8,8 @@ import ProjectSLOIRespondent from '@/Components/Company/ProjectSLOIRespondent';
 import ProjectSROI from '@/Components/Company/ProjectSROI';
 import CompanyLayout from '@/Layouts/AppLayout';
 import { Head, router } from '@inertiajs/react';
+import { AlertTriangle, CheckCircle, PauseCircle, X } from 'lucide-react';
+import { useState } from 'react';
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -204,6 +206,8 @@ export default function DetailProject({
 }: Props) {
     const activeTab = detailType || 'overview';
     const tabs = buildTabs(project);
+    const [showStatusModal, setShowStatusModal] = useState(false);
+    const pendingStatus = project.status === 'active' ? 'draft' : 'active';
     const progress =
         stats.targetResponses > 0
             ? Math.round((stats.totalResponses / stats.targetResponses) * 100)
@@ -326,7 +330,120 @@ export default function DetailProject({
                     tabs={tabs}
                     activeTab={activeTab}
                     onTabChange={handleTabChange}
+                    actions={
+                        <button
+                            onClick={() => setShowStatusModal(true)}
+                            className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
+                                project.status === 'active'
+                                    ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                                    : 'bg-green-100 text-green-700 hover:bg-green-200'
+                            }`}
+                        >
+                            {project.status === 'active' ? (
+                                <>
+                                    <PauseCircle className="size-3.5" />
+                                    Jadikan Draft
+                                </>
+                            ) : (
+                                <>
+                                    <CheckCircle className="size-3.5" />
+                                    Aktifkan Proyek
+                                </>
+                            )}
+                        </button>
+                    }
                 />
+
+                {/* Konfirmasi Status Modal */}
+                {showStatusModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center">
+                        {/* Backdrop */}
+                        <div
+                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                            onClick={() => setShowStatusModal(false)}
+                        />
+                        {/* Dialog */}
+                        <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-900">
+                            {/* Close */}
+                            <button
+                                onClick={() => setShowStatusModal(false)}
+                                className="absolute right-4 top-4 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
+                            >
+                                <X className="size-4" />
+                            </button>
+
+                            {/* Icon */}
+                            <div
+                                className={`mb-4 flex size-12 items-center justify-center rounded-full ${
+                                    pendingStatus === 'draft'
+                                        ? 'bg-amber-100'
+                                        : 'bg-green-100'
+                                }`}
+                            >
+                                {pendingStatus === 'draft' ? (
+                                    <AlertTriangle className="size-6 text-amber-500" />
+                                ) : (
+                                    <CheckCircle className="size-6 text-green-500" />
+                                )}
+                            </div>
+
+                            {/* Content */}
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                                {pendingStatus === 'active'
+                                    ? 'Aktifkan Proyek?'
+                                    : 'Jadikan Draft?'}
+                            </h3>
+                            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                                Apakah kamu yakin ingin mengubah status proyek{' '}
+                                <span className="font-semibold text-slate-700 dark:text-slate-200">
+                                    &ldquo;{project.name}&rdquo;
+                                </span>{' '}
+                                {pendingStatus === 'active'
+                                    ? 'dari Draft menjadi Aktif? Proyek akan dapat diakses oleh enumerator.'
+                                    : 'dari Aktif menjadi Draft? Enumerator tidak dapat mengakses proyek ini sementara.'}
+                            </p>
+
+                            {/* Actions */}
+                            <div className="mt-6 flex justify-end gap-3">
+                                <button
+                                    onClick={() => setShowStatusModal(false)}
+                                    className="rounded-full px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowStatusModal(false);
+                                        router.patch(
+                                            route('projects.update-status', {
+                                                id: project.id,
+                                            }),
+                                            { status: pendingStatus },
+                                            { preserveScroll: true },
+                                        );
+                                    }}
+                                    className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-bold text-white transition ${
+                                        pendingStatus === 'active'
+                                            ? 'bg-green-600 hover:bg-green-700'
+                                            : 'bg-amber-500 hover:bg-amber-600'
+                                    }`}
+                                >
+                                    {pendingStatus === 'active' ? (
+                                        <>
+                                            <CheckCircle className="size-4" />
+                                            Ya, Aktifkan
+                                        </>
+                                    ) : (
+                                        <>
+                                            <PauseCircle className="size-4" />
+                                            Ya, Jadikan Draft
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Tab Content */}
                 {renderTabContent()}

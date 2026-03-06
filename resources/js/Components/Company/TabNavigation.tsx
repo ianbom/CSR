@@ -11,31 +11,38 @@ interface TabNavigationProps {
     tabs: TabItem[];
     activeTab: string;
     onTabChange: (key: string) => void;
+    actions?: ReactNode;
 }
 
 export default function TabNavigation({
     tabs,
     activeTab,
     onTabChange,
+    actions,
 }: TabNavigationProps): ReactNode {
     return (
         <div className="mb-8">
-            <nav className="flex gap-8 border-b border-slate-200">
-                {tabs.map((tab) => (
-                    <button
-                        key={tab.key}
-                        onClick={() => onTabChange(tab.key)}
-                        className={`relative flex items-center gap-2 border-b-[3px] pb-4 text-sm font-bold transition-colors ${
-                            activeTab === tab.key
-                                ? 'border-primary text-slate-900'
-                                : 'border-transparent text-slate-400 hover:text-slate-600'
-                        }`}
-                    >
-                        <Icon name={tab.icon} className="text-lg" />
-                        {tab.label}
-                    </button>
-                ))}
-            </nav>
+            <div className="flex items-end justify-between border-b border-slate-200">
+                <nav className="flex gap-8">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.key}
+                            onClick={() => onTabChange(tab.key)}
+                            className={`relative flex items-center gap-2 border-b-[3px] pb-4 text-sm font-bold transition-colors ${
+                                activeTab === tab.key
+                                    ? 'border-primary text-slate-900'
+                                    : 'border-transparent text-slate-400 hover:text-slate-600'
+                            }`}
+                        >
+                            <Icon name={tab.icon} className="text-lg" />
+                            {tab.label}
+                        </button>
+                    ))}
+                </nav>
+                {actions && (
+                    <div className="pb-3">{actions}</div>
+                )}
+            </div>
         </div>
     );
 }

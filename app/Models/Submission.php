@@ -23,16 +23,12 @@ class Submission extends Model
         'latitude',
         'longitude',
         'submitted_at',
-        'reviewed_by',
-        'reviewed_at',
-        'review_note',
     ];
 
     protected function casts(): array
     {
         return [
             'submitted_at' => 'datetime',
-            'reviewed_at' => 'datetime',
             'created_at' => 'datetime',
         ];
     }
@@ -70,11 +66,11 @@ class Submission extends Model
     }
 
     /**
-     * Get the reviewer (user) who reviewed the submission.
+     * Get the timeline entries for this submission.
      */
-    public function reviewer(): BelongsTo
+    public function timelines(): HasMany
     {
-        return $this->belongsTo(User::class, 'reviewed_by');
+        return $this->hasMany(SubmissionTimeline::class);
     }
 
     /**

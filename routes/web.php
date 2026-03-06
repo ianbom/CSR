@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects', [ProjectController::class, 'storeProject'])->name('projects.store');
     Route::post('/projects/{id}/assign-enumerators', [ProjectController::class, 'assignEnumerators'])->name('projects.assign-enumerators');
     Route::put('/projects/{id}', [ProjectController::class, 'updateProject'])->name('projects.update');
+    Route::patch('/projects/{id}/status', [ProjectController::class, 'updateStatus'])->name('projects.update-status');
     Route::get('/projects/{id}', [ProjectController::class, 'detailProject'])->name('projects.show');
     // Enumerators
     Route::get('/enumerators', [EnumeratorController::class, 'index'])->name('enumerators.index');

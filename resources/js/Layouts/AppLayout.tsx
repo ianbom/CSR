@@ -1,6 +1,7 @@
 import Footer from '@/Components/Company/Footer';
 import Header from '@/Components/Company/Header';
 import Sidebar from '@/Components/Company/Sidebar';
+import { Toaster } from '@/Components/ui/toaster';
 import { usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode } from 'react';
 
@@ -37,6 +38,9 @@ export default function AppLayout({
                 <div className="flex-1">{children}</div>
                 <Footer />
             </main>
+
+            {/* Toast Notifications */}
+            <Toaster />
         </div>
     );
 }

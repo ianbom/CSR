@@ -132,6 +132,23 @@ class ProjectController extends Controller
         return response()->json($enumerators);
     }
 
+    public function updateStatus(Request $request, int $id)
+    {
+        $request->validate([
+            'status' => ['required', 'string', 'in:active,draft'],
+        ]);
+
+        $user = Auth::user();
+
+        $project = Project::where('id', $id)
+            ->where('company_id', $user->company_id)
+            ->firstOrFail();
+
+        $project->update(['status' => $request->input('status')]);
+
+        return redirect()->back()->with('success', 'Status proyek berhasil diperbarui.');
+    }
+
     public function assignEnumerators(Request $request, int $projectId)
     {
         $request->validate([

@@ -144,9 +144,9 @@ export default function Welcome({
                                 <Link href={route('dashboard')}>
                                     <Button
                                         variant="default"
-                                        className="rounded-full"
+                                        className="rounded-full text-white"
                                     >
-                                        Pergi ke Dashboard
+                                        Dashboard
                                     </Button>
                                 </Link>
                             ) : (
@@ -164,8 +164,10 @@ export default function Welcome({
                                             variant="default"
                                             className="gap-2 rounded-full"
                                         >
-                                            <span>Mulai Sekarang</span>
-                                            <LogIn className="size-4" />
+                                            <span className="text-white">
+                                                Mulai Sekarang
+                                            </span>
+                                            <LogIn className="size-4 text-white" />
                                         </Button>
                                     </Link>
                                 </>

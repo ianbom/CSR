@@ -95,7 +95,7 @@ export default function EditProjectModal({
 
         router.put(
             `/projects/${project.id}`,
-            data as unknown as Record<string, unknown>,
+            data as any,
             {
                 preserveScroll: true,
                 onSuccess: () => {

@@ -1,4 +1,4 @@
-import { DotPattern } from '@/components/ui/dot-pattern';
+import { DotPattern } from '@/Components/ui/dot-pattern';
 import { cn } from '@/lib/utils';
 import { Leaf } from 'lucide-react';
 import { PropsWithChildren } from 'react';

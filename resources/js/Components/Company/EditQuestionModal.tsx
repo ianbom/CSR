@@ -62,7 +62,7 @@ export default function EditQuestionModal({
 
         router.put(
             `/templates/${templateId}/questions/${question.id}`,
-            data as unknown as Record<string, unknown>,
+            data as any,
             {
                 preserveScroll: true,
                 onSuccess: () => {

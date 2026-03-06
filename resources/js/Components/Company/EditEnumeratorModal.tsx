@@ -62,7 +62,7 @@ export default function EditEnumeratorModal({
 
         router.put(
             `/enumerators/${enumerator.id}`,
-            data as unknown as Record<string, unknown>,
+            data as any,
             {
                 preserveScroll: true,
                 onSuccess: () => {

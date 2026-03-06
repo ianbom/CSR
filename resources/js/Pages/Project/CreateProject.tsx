@@ -4,6 +4,8 @@ import { createProjectData } from '@/data';
 import CompanyLayout from '@/Layouts/AppLayout';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 
+import { PageProps } from '@/types';
+
 // Types
 interface Province {
     id: number;
@@ -11,14 +13,10 @@ interface Province {
     name: string;
 }
 
-interface PageProps {
-    provinces: Province[];
-}
-
 const formSteps = createProjectData.formSteps;
 
 export default function CreateProject() {
-    const { provinces } = usePage<PageProps>().props;
+    const { provinces } = usePage<PageProps<{ provinces: Province[] }>>().props;
 
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',

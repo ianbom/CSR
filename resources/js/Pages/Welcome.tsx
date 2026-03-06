@@ -1,7 +1,7 @@
-import { BentoCard, BentoGrid } from '@/components/ui/bento-grid';
-import { Button } from '@/components/ui/button';
-import { Marquee } from '@/components/ui/marquee';
-import { ShimmerButton } from '@/components/ui/shimmer-button';
+import { BentoCard, BentoGrid } from '@/Components/ui/bento-grid';
+import { Button } from '@/Components/ui/button';
+import { Marquee } from '@/Components/ui/marquee';
+import { ShimmerButton } from '@/Components/ui/shimmer-button';
 import { PageProps } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { Database, Leaf, LogIn, TrendingUp, Users } from 'lucide-react';

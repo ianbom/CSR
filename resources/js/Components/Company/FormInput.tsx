@@ -5,10 +5,11 @@ interface FormInputProps {
     label: string;
     required?: boolean;
     placeholder?: string;
-    type?: 'text' | 'number' | 'date' | 'email';
+    type?: 'text' | 'number' | 'date' | 'email' | 'password';
     value: string | number;
     onChange: (value: string) => void;
     helpText?: string;
+    error?: string;
 }
 
 export default function FormInput({
@@ -19,6 +20,7 @@ export default function FormInput({
     value,
     onChange,
     helpText,
+    error,
 }: FormInputProps): ReactNode {
     return (
         <div className="space-y-2">
@@ -38,8 +40,14 @@ export default function FormInput({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-base transition-all placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className={`w-full rounded-xl border px-4 py-3.5 text-base transition-all placeholder:text-slate-400 focus:ring-2 ${error
+                        ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/20'
+                        : 'border-slate-200 bg-slate-50 focus:border-primary focus:ring-primary/20'
+                    }`}
             />
+            {error && (
+                <p className="mt-1 text-sm text-red-500">{error}</p>
+            )}
         </div>
     );
 }

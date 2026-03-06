@@ -48,7 +48,7 @@ export default function CreateQuestionModal({
 
         router.post(
             `/templates/${templateId}/questions`,
-            data as unknown as Record<string, unknown>,
+            data as any,
             {
                 preserveScroll: true,
                 onSuccess: () => {

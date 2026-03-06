@@ -35,7 +35,7 @@ export default function CreateEnumeratorModal({
         setSubmitting(true);
         setErrors({});
 
-        router.post('/enumerators', data as Record<string, unknown>, {
+        router.post('/enumerators', data as any, {
             preserveScroll: true,
             onSuccess: () => {
                 setSubmitting(false);

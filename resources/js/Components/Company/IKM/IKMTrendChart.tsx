@@ -60,16 +60,13 @@ function IPAScatterChart({
         questionScores.reduce((s, q) => s + q.performance, 0) /
         questionScores.length;
 
-    // Calculate axis ranges: X = kinerja (performance), Y = kepentingan (importance)
-    const allX = questionScores.map((q) => q.performance);
-    const allY = questionScores.map((q) => q.importance);
-    const pad = 0.15;
-    const xMin = Math.max(1, Math.floor((Math.min(...allX) - pad) * 20) / 20);
-    const xMax = Math.min(4, Math.ceil((Math.max(...allX) + pad) * 20) / 20);
-    const yMin = Math.max(1, Math.floor((Math.min(...allY) - pad) * 20) / 20);
-    const yMax = Math.min(4, Math.ceil((Math.max(...allY) + pad) * 20) / 20);
-    const xRange = xMax - xMin || 1;
-    const yRange = yMax - yMin || 1;
+    // Fixed axis range: 1.00 to 4.00 with 0.25 step
+    const xMin = 1;
+    const xMax = 4;
+    const yMin = 1;
+    const yMax = 4;
+    const xRange = xMax - xMin;
+    const yRange = yMax - yMin;
 
     // SVG dimensions
     const width = compact ? 520 : 900;
@@ -86,14 +83,13 @@ function IPAScatterChart({
         marginLeft + ((val - xMin) / xRange) * plotW;
     const toSvgY = (val: number) => marginTop + ((yMax - val) / yRange) * plotH;
 
-    // Generate ticks
-    const xStep = 0.05;
-    const yStep = 0.1;
+    // Generate ticks with fixed 0.25 step
+    const step = 0.25;
     const xTicks: number[] = [];
     const yTicks: number[] = [];
-    for (let v = xMin; v <= xMax + 0.001; v += xStep)
+    for (let v = xMin; v <= xMax + 0.001; v += step)
         xTicks.push(Math.round(v * 100) / 100);
-    for (let v = yMin; v <= yMax + 0.001; v += yStep)
+    for (let v = yMin; v <= yMax + 0.001; v += step)
         yTicks.push(Math.round(v * 100) / 100);
 
     const fontSize = compact ? 8 : 11;
@@ -179,9 +175,7 @@ function IPAScatterChart({
                 />
 
                 {/* X-axis tick labels */}
-                {xTicks
-                    .filter((_, i) => (compact ? i % 2 === 0 : true))
-                    .map((tick) => (
+                {xTicks.map((tick) => (
                         <text
                             key={`xl-${tick}`}
                             x={toSvgX(tick)}
@@ -240,11 +234,24 @@ function IPAScatterChart({
                 {/* Data points + labels */}
                 {questionScores.map((q, i) => {
                     // X = kinerja (performance), Y = kepentingan (importance)
-                    const cx = toSvgX(q.performance);
-                    const cy = toSvgY(q.importance);
+                    const baseCx = toSvgX(q.performance);
+                    const baseCy = toSvgY(q.importance);
                     const color = DOT_COLORS[i % DOT_COLORS.length];
                     const shortId = q.id.replace(/^(IKM-|SLOI-)/, '');
                     const label = `${shortId}; ${q.performance.toFixed(2).replace('.', ',')}; ${q.importance.toFixed(2).replace('.', ',')}`;
+
+                    // Offset overlapping points: count how many previous points share the same coords
+                    const overlapIndex = questionScores
+                        .slice(0, i)
+                        .filter(
+                            (prev) =>
+                                prev.performance === q.performance &&
+                                prev.importance === q.importance,
+                        ).length;
+                    const angle = (overlapIndex * (2 * Math.PI)) / 3 - Math.PI / 2;
+                    const offsetDist = overlapIndex > 0 ? dotR * 2.5 : 0;
+                    const cx = baseCx + Math.cos(angle) * offsetDist;
+                    const cy = baseCy + Math.sin(angle) * offsetDist;
 
                     return (
                         <g key={q.id}>

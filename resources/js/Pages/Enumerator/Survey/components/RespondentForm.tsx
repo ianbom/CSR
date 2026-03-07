@@ -70,6 +70,15 @@ export default function RespondentForm({
         onChange({ ...data, [field]: value });
     };
 
+    const updateDigitsOnly = (field: keyof RespondentData, value: string) => {
+        onChange({ ...data, [field]: value.replace(/\D/g, '') });
+    };
+
+    const formatThousand = (value: string): string => {
+        const digits = value.replace(/\D/g, '');
+        return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    };
+
     return (
         <>
             {/* Header */}
@@ -105,7 +114,7 @@ export default function RespondentForm({
                             icon="phone"
                             type="tel"
                             value={data.phone}
-                            onChange={(value) => updateField('phone', value)}
+                            onChange={(value) => updateDigitsOnly('phone', value)}
                         />
 
                         {/* Usia */}
@@ -113,9 +122,8 @@ export default function RespondentForm({
                             label="Usia"
                             placeholder="Tahun"
                             icon="cake"
-                            type="number"
                             value={data.age}
-                            onChange={(value) => updateField('age', value)}
+                            onChange={(value) => updateDigitsOnly('age', value)}
                         />
                     </div>
 
@@ -175,12 +183,11 @@ export default function RespondentForm({
                     {/* Pendapatan per Bulan */}
                     <TextInputField
                         label="Pendapatan per Bulan (Rp)"
-                        placeholder="Contoh: 3000000"
+                        placeholder="Contoh: 1.500.000"
                         icon="payments"
-                        type="number"
-                        value={data.monthly_income}
+                        value={formatThousand(data.monthly_income)}
                         onChange={(value) =>
-                            updateField('monthly_income', value)
+                            updateDigitsOnly('monthly_income', value)
                         }
                     />
                 </FormSection>

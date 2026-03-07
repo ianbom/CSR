@@ -3,6 +3,18 @@ export interface User {
     name: string;
     email: string;
     email_verified_at?: string;
+    role?: string;
+    company_id?: number;
+}
+
+export interface Company {
+    id: number;
+    name: string;
+    legal_name: string | null;
+    email: string | null;
+    phone: string | null;
+    address: string | null;
+    status: string;
 }
 
 export type PageProps<

@@ -1,4 +1,5 @@
 import { MobileHeader, Sidebar, TopBar } from '@/Components/Enumerator';
+import { Toaster } from '@/Components/ui/toaster';
 import { router } from '@inertiajs/react';
 import { PropsWithChildren, useState } from 'react';
 
@@ -83,6 +84,7 @@ export default function EnumeratorLayout({
                     </div>
                 </div>
             </main>
+            <Toaster />
         </div>
     );
 }

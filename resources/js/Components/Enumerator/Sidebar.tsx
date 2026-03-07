@@ -72,7 +72,7 @@ export default function Sidebar({
                     <nav className="flex flex-col gap-2">
                         {navItems.map((item) => (
                             <Link
-                                key={item.href}
+                                key={item.label}
                                 href={item.href}
                                 className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
                                     item.active

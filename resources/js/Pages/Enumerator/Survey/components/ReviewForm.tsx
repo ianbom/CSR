@@ -10,7 +10,7 @@ import {
     VerifiedBadge,
     WarningBox,
 } from '@/Components/Enumerator';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { QuestionAnswers } from './QuestionForm';
 import { RespondentData } from './RespondentForm';
 
@@ -20,25 +20,37 @@ export interface GpsLocation {
     error: string | null;
 }
 
+interface Question {
+    id: number;
+    category: string | null;
+    code: string;
+    question_text: string;
+    order_no: number;
+}
+
 interface ReviewFormProps {
     respondentData: RespondentData;
     answers: QuestionAnswers;
+    questions: Question[];
     gpsLocation: GpsLocation;
     onBack: () => void;
     onEditRespondent: () => void;
     onEditQuestions: () => void;
     onSubmit: (photo: File) => void;
+    onSubmitAndContinue: (photo: File) => void;
     isSubmitting: boolean;
 }
 
 export default function ReviewForm({
     respondentData,
     answers,
+    questions,
     gpsLocation,
     onBack,
     onEditRespondent,
     onEditQuestions,
     onSubmit,
+    onSubmitAndContinue,
     isSubmitting,
 }: ReviewFormProps) {
     const [photo, setPhoto] = useState<File | null>(null);
@@ -63,18 +75,43 @@ export default function ReviewForm({
         setPhotoPreview(URL.createObjectURL(file));
     };
 
-    const handleSubmitClick = () => {
+    const validateBeforeSubmit = (): boolean => {
         if (!photo) {
             setPhotoError('Foto bukti wajib diunggah.');
-            return;
+            return false;
         }
         if (!gpsLocation.latitude || !gpsLocation.longitude) {
             alert(
                 'Koordinat GPS belum tersedia. Pastikan izin lokasi diaktifkan.',
             );
-            return;
+            return false;
         }
-        onSubmit(photo);
+        return true;
+    };
+
+    const handleSubmitClick = () => {
+        if (!validateBeforeSubmit()) return;
+        onSubmit(photo!);
+    };
+
+    const handleSubmitAndContinueClick = () => {
+        if (!validateBeforeSubmit()) return;
+        onSubmitAndContinue(photo!);
+    };
+
+    const questionMap = useMemo(() => {
+        const map = new Map<number, Question>();
+        questions.forEach((q) => map.set(q.id, q));
+        return map;
+    }, [questions]);
+
+    const typeLabel = (type: string): string => {
+        switch (type) {
+            case 'ikm-kepentingan': return 'IKM Kepentingan';
+            case 'ikm-kinerja': return 'IKM Kinerja';
+            case 'sloi': return 'SLOI';
+            default: return type;
+        }
     };
 
     const genderLabel =
@@ -181,14 +218,35 @@ export default function ReviewForm({
                 {/* Jawaban Kuesioner */}
                 <ReviewSection title="Jawaban Kuesioner" icon="quiz">
                     {Object.entries(answers).length > 0 ? (
-                        Object.entries(answers).map(([questionId, value]) => (
-                            <ReviewItem
-                                key={questionId}
-                                label={`Pertanyaan ${questionId}`}
-                                value={`Nilai: ${value}`}
-                                onEdit={onEditQuestions}
-                            />
-                        ))
+                        Object.entries(answers)
+                            .sort(([keyA], [keyB]) => {
+                                const qIdA = Number(keyA.substring(0, keyA.indexOf('-')));
+                                const qIdB = Number(keyB.substring(0, keyB.indexOf('-')));
+                                const orderA = questionMap.get(qIdA)?.order_no ?? qIdA;
+                                const orderB = questionMap.get(qIdB)?.order_no ?? qIdB;
+                                if (orderA !== orderB) return orderA - orderB;
+                                return keyA.localeCompare(keyB);
+                            })
+                            .map(([key, value]) => {
+                            const dashIdx = key.indexOf('-');
+                            const qId = Number(key.substring(0, dashIdx));
+                            const type = key.substring(dashIdx + 1);
+                            const question = questionMap.get(qId);
+
+                            return (
+                                <ReviewItem
+                                    key={key}
+                                    label={`${question?.code ?? `Q${qId}`} — ${typeLabel(type)}`}
+                                    value={question?.question_text ?? '-'}
+                                    badge={
+                                        <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-sm font-semibold text-primary">
+                                            Nilai: {value}
+                                        </span>
+                                    }
+                                    onEdit={onEditQuestions}
+                                />
+                            );
+                        })
                     ) : (
                         <ReviewItem
                             label="Status"
@@ -295,6 +353,7 @@ export default function ReviewForm({
             <ReviewFooter
                 onBack={onBack}
                 onSubmit={handleSubmitClick}
+                onSubmitAndContinue={handleSubmitAndContinueClick}
                 isSubmitting={isSubmitting}
             />
         </>

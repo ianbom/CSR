@@ -31,9 +31,9 @@ class SurveyController extends Controller
             $questions = $this->surveyService->getQuestionsBySurveyType($project, $surveyType);
 
             return Inertia::render('Enumerator/Survey/RespondentSurvey', [
-                'project'    => $project,
+                'project' => $project,
                 'surveyType' => $surveyType,
-                'questions'  => $questions,
+                'questions' => $questions,
             ]);
         } else {
             return redirect()->back()->with('error', 'Kode yang dimasukkan salah');
@@ -42,7 +42,7 @@ class SurveyController extends Controller
 
     public function storeDataSurvey(StoreSurveyRequest $request, $projectId)
     {
-        $project      = Project::findOrFail($projectId);
+        $project = Project::findOrFail($projectId);
         $enumeratorId = Auth::id();
 
         $result = $this->surveyService->storeSurvey(
@@ -52,8 +52,18 @@ class SurveyController extends Controller
         );
 
         // Jika data sudah pernah disubmit sebelumnya
-        if (!$result['is_new']) {
-            return back()->with('error', 'Data survei untuk responden ini sudah pernah dikirim sebelumnya.');
+        // if (!$result['is_new']) {
+        //     return back()->with('error', 'Data survei untuk responden ini sudah pernah dikirim sebelumnya.');
+        // }
+
+        if ($request->input('redirect_to') === 'continue') {
+            return redirect()
+                ->route('enumerator.survey.respondent', [
+                    'projectId' => $projectId,
+                    'projectCode' => $project->project_code,
+                    'surveyType' => $request->input('assessment_type'),
+                ])
+                ->with('success', 'Survei berhasil disimpan. Silakan isi data responden berikutnya.');
         }
 
         return redirect()

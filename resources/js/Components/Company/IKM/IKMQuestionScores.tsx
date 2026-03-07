@@ -1,4 +1,12 @@
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+    type ChartConfig,
+} from '@/Components/ui/chart';
 
 interface QuestionScore {
     id: string;
@@ -9,67 +17,6 @@ interface IKMQuestionScoresProps {
     kepentinganScores?: QuestionScore[];
     kinerjaScores?: QuestionScore[];
 }
-
-// ─── Single Chart ───────────────────────────────────────────
-
-function ScoreChart({
-    scores,
-    maxScale,
-    barColor,
-}: {
-    scores: QuestionScore[];
-    maxScale: number;
-    barColor: string;
-}) {
-    if (scores.length === 0) {
-        return (
-            <p className="py-8 text-center text-sm text-slate-400">
-                Belum ada data.
-            </p>
-        );
-    }
-
-    return (
-        <>
-            <div className="flex h-48 items-end justify-between gap-1.5 border-b border-l border-slate-200 pb-2 pl-2">
-                {scores.map((item) => {
-                    const heightPercent = (item.score / maxScale) * 100;
-                    return (
-                        <div
-                            key={item.id}
-                            className="group flex flex-1 flex-col items-center"
-                        >
-                            <div className="relative flex w-full flex-col items-center">
-                                <span className="mb-1 text-[9px] font-bold text-slate-600">
-                                    {item.score.toFixed(2)}
-                                </span>
-                                <div
-                                    className={`w-full max-w-8 rounded-t ${barColor} transition-all group-hover:opacity-75`}
-                                    style={{
-                                        height: `${heightPercent * 1.6}px`,
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-            {/* X-axis labels */}
-            <div className="mt-1.5 flex justify-between gap-1.5 pl-2">
-                {scores.map((item) => (
-                    <div
-                        key={item.id}
-                        className="flex-1 text-center text-[9px] font-bold text-slate-400"
-                    >
-                        {item.id}
-                    </div>
-                ))}
-            </div>
-        </>
-    );
-}
-
-// ─── Main Component ─────────────────────────────────────────
 
 const DEFAULT_KEP: QuestionScore[] = [
     { id: 'U1', score: 3.8 },
@@ -95,11 +42,41 @@ const DEFAULT_KIN: QuestionScore[] = [
     { id: 'U9', score: 3.6 },
 ];
 
+const chartConfig = {
+    kepentingan: {
+        label: 'Kepentingan',
+        color: '#3b82f6',
+    },
+    kinerja: {
+        label: 'Kinerja',
+        color: '#10b981',
+    },
+} satisfies ChartConfig;
+
 export default function IKMQuestionScores({
     kepentinganScores = DEFAULT_KEP,
     kinerjaScores = DEFAULT_KIN,
 }: IKMQuestionScoresProps): ReactNode {
-    const maxScale = 4; // IKM uses 1–4 scale
+    const chartData = useMemo(() => {
+        const ids = kepentinganScores.map((s) => s.id);
+        const kinerjaMap = new Map(kinerjaScores.map((s) => [s.id, s.score]));
+
+        return ids.map((id) => ({
+            question: id,
+            kepentingan: kepentinganScores.find((s) => s.id === id)?.score ?? 0,
+            kinerja: kinerjaMap.get(id) ?? 0,
+        }));
+    }, [kepentinganScores, kinerjaScores]);
+
+    if (chartData.length === 0) {
+        return (
+            <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
+                <p className="py-8 text-center text-sm text-slate-400">
+                    Belum ada data.
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
@@ -121,38 +98,33 @@ export default function IKMQuestionScores({
                 </div>
             </div>
 
-            {/* Two charts stacked (top/bottom) */}
-            <div className="flex flex-col gap-6">
-                {/* Kepentingan */}
-                <div>
-                    <div className="mb-3 flex items-center gap-2">
-                        <span className="size-2.5 rounded-full bg-blue-500" />
-                        <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
-                            Kepentingan
-                        </p>
-                    </div>
-                    <ScoreChart
-                        scores={kepentinganScores}
-                        maxScale={maxScale}
-                        barColor="bg-blue-500"
+            {/* Combined bar chart */}
+            <ChartContainer config={chartConfig} className="h-64 w-full">
+                <BarChart accessibilityLayer data={chartData}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                        dataKey="question"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
                     />
-                </div>
-
-                {/* Kinerja */}
-                <div>
-                    <div className="mb-3 flex items-center gap-2">
-                        <span className="size-2.5 rounded-full bg-emerald-500" />
-                        <p className="text-xs font-bold uppercase tracking-wider text-emerald-600">
-                            Kinerja
-                        </p>
-                    </div>
-                    <ScoreChart
-                        scores={kinerjaScores}
-                        maxScale={maxScale}
-                        barColor="bg-emerald-500"
+                    <YAxis domain={[0, 4]} tickCount={5} hide />
+                    <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent indicator="dashed" />}
                     />
-                </div>
-            </div>
+                    <Bar
+                        dataKey="kepentingan"
+                        fill="var(--color-kepentingan)"
+                        radius={4}
+                    />
+                    <Bar
+                        dataKey="kinerja"
+                        fill="var(--color-kinerja)"
+                        radius={4}
+                    />
+                </BarChart>
+            </ChartContainer>
 
             {/* Scale reference */}
             <div className="mt-4 flex items-center justify-end gap-6 border-t border-slate-100 pt-3 text-[10px] text-slate-400">

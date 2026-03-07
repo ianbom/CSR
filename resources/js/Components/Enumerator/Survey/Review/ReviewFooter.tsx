@@ -2,9 +2,11 @@ interface ReviewFooterProps {
     onBack: () => void;
     onSaveDraft?: () => void;
     onSubmit: () => void;
+    onSubmitAndContinue?: () => void;
     backLabel?: string;
     saveDraftLabel?: string;
     submitLabel?: string;
+    submitAndContinueLabel?: string;
     isSubmitting?: boolean;
 }
 
@@ -12,9 +14,11 @@ export default function ReviewFooter({
     onBack,
     onSaveDraft,
     onSubmit,
+    onSubmitAndContinue,
     backLabel = 'Back to Edit',
     saveDraftLabel = 'Save Draft',
-    submitLabel = 'Submit Final Survey',
+    submitLabel = 'Submit Final',
+    submitAndContinueLabel = 'Submit & Isi Lagi',
     isSubmitting = false,
 }: ReviewFooterProps) {
     return (
@@ -31,7 +35,7 @@ export default function ReviewFooter({
                     {backLabel}
                 </button>
 
-                <div className="flex w-full gap-4 sm:w-auto">
+                <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
                     {/* Save draft button */}
                     {onSaveDraft && (
                         <button
@@ -42,7 +46,19 @@ export default function ReviewFooter({
                         </button>
                     )}
 
-                    {/* Submit button */}
+                    {/* Submit & Continue button */}
+                    {onSubmitAndContinue && (
+                        <button
+                            onClick={onSubmitAndContinue}
+                            disabled={isSubmitting}
+                            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border-2 border-primary px-6 text-base font-bold text-primary transition-all hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                        >
+                            <span>{submitAndContinueLabel}</span>
+                            <span className="material-symbols-outlined">refresh</span>
+                        </button>
+                    )}
+
+                    {/* Submit Final button */}
                     <button
                         onClick={onSubmit}
                         disabled={isSubmitting}

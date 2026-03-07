@@ -361,28 +361,30 @@ class ProjectService
 
         // Age range buckets
         $ageBuckets = [
-            '18-25' => 0, '26-40' => 0, '41-60' => 0, '60+' => 0,
+            '17-25' => 0, '26-35' => 0, '36-45' => 0, '46-55' => 0, '56-65' => 0, '>65' => 0,
         ];
         foreach ($respondents as $r) {
             if ($r->age === null) {
                 continue;
             }
             if ($r->age <= 25) {
-                $ageBuckets['18-25']++;
-            } elseif ($r->age <= 40) {
-                $ageBuckets['26-40']++;
-            } elseif ($r->age <= 60) {
-                $ageBuckets['41-60']++;
+                $ageBuckets['17-25']++;
+            } elseif ($r->age <= 35) {
+                $ageBuckets['26-35']++;
+            } elseif ($r->age <= 45) {
+                $ageBuckets['36-45']++;
+            } elseif ($r->age <= 55) {
+                $ageBuckets['46-55']++;
+            } elseif ($r->age <= 65) {
+                $ageBuckets['56-65']++;
             } else {
-                $ageBuckets['60+']++;
+                $ageBuckets['>65']++;
             }
         }
-        $maxAge = max($ageBuckets) ?: 1;
-        $ageRange = collect($ageBuckets)->map(function ($count, $range) use ($maxAge) {
+        $ageRange = collect($ageBuckets)->map(function ($count, $range) {
             return [
                 'range' => $range,
                 'count' => $count,
-                'height' => round(($count / $maxAge) * 100),
             ];
         })->values()->toArray();
 

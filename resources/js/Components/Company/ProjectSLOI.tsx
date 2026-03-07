@@ -30,7 +30,6 @@ interface GenderItem {
 interface AgeRangeItem {
     range: string;
     count: number;
-    height: number;
 }
 
 interface EducationItem {

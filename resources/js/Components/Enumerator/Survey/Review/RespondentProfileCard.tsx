@@ -34,13 +34,13 @@ export default function RespondentProfileCard({
                             {name}
                         </h3>
                         <div className="flex flex-col gap-1 text-sm text-green-600 sm:flex-row sm:items-center sm:gap-3">
-                            <span className="flex items-center gap-1">
+                            {/* <span className="flex items-center gap-1">
                                 <span className="material-symbols-outlined text-[16px]">
                                     badge
                                 </span>
                                 ID: {id}
-                            </span>
-                            <span className="hidden sm:inline">•</span>
+                            </span> */}
+                            {/* <span className="hidden sm:inline">•</span> */}
                             <span className="flex items-center gap-1">
                                 <span className="material-symbols-outlined text-[16px]">
                                     location_on

@@ -107,9 +107,7 @@ export default function RespondentSurvey({
         }
     };
 
-    const handleFinalSubmit = (photo: File) => {
-        setIsSubmitting(true);
-
+    const buildFormData = (photo: File, redirectTo: 'final' | 'continue'): FormData => {
         const formData = new FormData();
 
         // Respondent fields — sesuai kolom tabel `respondents`
@@ -149,6 +147,9 @@ export default function RespondentSurvey({
         // Assessment type
         formData.append('assessment_type', surveyType);
 
+        // Redirect intent
+        formData.append('redirect_to', redirectTo);
+
         // Answers: [{question_id, type, value}, ...]
         // Key format: `${questionId}-${type}` e.g. "3-ikm-kepentingan", "3-ikm-kinerja", "5-sloi"
         Object.entries(answers).forEach(([key, value], index) => {
@@ -161,14 +162,46 @@ export default function RespondentSurvey({
             formData.append(`answers[${index}][value]`, String(value));
         });
 
+        return formData;
+    };
+
+    const submitSurvey = (photo: File, redirectTo: 'final' | 'continue') => {
+        setIsSubmitting(true);
+        const formData = buildFormData(photo, redirectTo);
+
         router.post(
             route('enumerator.survey.store', { projectId: project.id }),
             formData as unknown as Record<string, string>,
             {
+                onSuccess: () => {
+                    if (redirectTo === 'continue') {
+                        setRespondentData({
+                            name: '',
+                            address: '',
+                            phone: '',
+                            age: '',
+                            gender: '',
+                            respondent_status: '',
+                            education_level: '',
+                            main_occupation: '',
+                            monthly_income: '',
+                        });
+                        setAnswers({});
+                        setCurrentStep(1);
+                    }
+                },
                 onError: () => setIsSubmitting(false),
                 onFinish: () => setIsSubmitting(false),
             },
         );
+    };
+
+    const handleFinalSubmit = (photo: File) => {
+        submitSurvey(photo, 'final');
+    };
+
+    const handleSubmitAndContinue = (photo: File) => {
+        submitSurvey(photo, 'continue');
     };
 
     return (
@@ -258,11 +291,13 @@ export default function RespondentSurvey({
                 <ReviewForm
                     respondentData={respondentData}
                     answers={answers}
+                    questions={questions}
                     gpsLocation={gpsLocation}
                     onBack={() => goToStep(2)}
                     onEditRespondent={() => goToStep(1)}
                     onEditQuestions={() => goToStep(2)}
                     onSubmit={handleFinalSubmit}
+                    onSubmitAndContinue={handleSubmitAndContinue}
                     isSubmitting={isSubmitting}
                 />
             )}

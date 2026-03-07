@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Http\Requests\UpdateCompanyRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,9 +19,12 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $user = $request->user();
+
         return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
+            'company' => $user->role === 'company' ? $user->company : null,
         ]);
     }
 
@@ -37,7 +41,19 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit');
+        return Redirect::route('profile.edit')->with('success', 'Profile updated successfully.');
+    }
+
+    /**
+     * Update the user's company information.
+     */
+    public function updateCompany(UpdateCompanyRequest $request): RedirectResponse
+    {
+        $company = $request->user()->company;
+
+        $company->update($request->validated());
+
+        return Redirect::route('profile.edit')->with('success', 'Company information updated successfully.');
     }
 
     /**

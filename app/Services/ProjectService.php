@@ -276,6 +276,7 @@ class ProjectService
             'IKM' => $project->target_ikm_count,
             'SLOI' => $project->target_sloi_count,
             default => $project->target_ikm_count + $project->target_sloi_count,
+            //
         };
 
         $progress = $targetResponses > 0

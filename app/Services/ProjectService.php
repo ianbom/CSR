@@ -174,7 +174,7 @@ class ProjectService
 
     // ─── PROJECT DETAIL ───────────────────────────────────────────
 
-    public function getProjectDetail(int $projectId, string $detailType = 'overview'): array
+    public function getProjectDetail(int $projectId, string $detailType = 'overview', array $respondentParams = []): array
     {
         $project = Project::with([
             'company',
@@ -211,7 +211,7 @@ class ProjectService
             'questionScores' => $this->computeQuestionScores($submissionIds, $templateId),
             'auditLog' => $this->computeAuditLog($projectId, $assessmentType),
             'trendData' => $this->computeTrendData($projectId, $assessmentType),
-            'respondents' => $this->computeRespondents($projectId, $assessmentType, $templateId),
+            'respondents' => $this->computeRespondents($projectId, $assessmentType, $templateId, $respondentParams),
             'enumeratorList' => $this->computeEnumeratorList($project),
         ];
     }
@@ -533,7 +533,7 @@ class ProjectService
         })->toArray();
     }
 
-    protected function computeRespondents(int $projectId, ?string $assessmentType, ?int $templateId): array
+    protected function computeRespondents(int $projectId, ?string $assessmentType, ?int $templateId, array $params = []): array
     {
         $query = Submission::where('project_id', $projectId)
             ->with(['respondent', 'enumerator', 'templateAnswers.question', 'timelines.decidedBy']);
@@ -542,7 +542,88 @@ class ProjectService
             $query->where('assessment_type', $assessmentType);
         }
 
-        $submissions = $query->orderByDesc('submitted_at')->get();
+        // ─── Filter options (computed before applying filters) ───
+        $filterOptionsQuery = Submission::where('project_id', $projectId)
+            ->with(['respondent', 'enumerator']);
+        if ($assessmentType) {
+            $filterOptionsQuery->where('assessment_type', $assessmentType);
+        }
+        $allSubmissions = $filterOptionsQuery->get();
+
+        $enumeratorOptions = $allSubmissions
+            ->map(fn ($s) => $s->enumerator?->name)
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
+
+        $statusOptions = $allSubmissions
+            ->pluck('status')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
+
+        $educationOptions = $allSubmissions
+            ->map(fn ($s) => $s->respondent?->education_level)
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
+
+        $genderOptions = $allSubmissions
+            ->map(fn ($s) => $s->respondent?->gender)
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
+
+        // ─── Apply filters ───────────────────────────────────
+        $filterEnumerator = $params['enumerator'] ?? null;
+        $filterStatus = $params['status'] ?? null;
+        $filterEducation = $params['education'] ?? null;
+        $filterGender = $params['gender'] ?? null;
+
+        if (! empty($filterEnumerator)) {
+            $query->whereHas('enumerator', function ($q) use ($filterEnumerator) {
+                $q->where('name', $filterEnumerator);
+            });
+        }
+
+        if (! empty($filterStatus)) {
+            $query->where('status', $filterStatus);
+        }
+
+        if (! empty($filterEducation)) {
+            $query->whereHas('respondent', function ($q) use ($filterEducation) {
+                $q->where('education_level', $filterEducation);
+            });
+        }
+
+        if (! empty($filterGender)) {
+            $query->whereHas('respondent', function ($q) use ($filterGender) {
+                $q->where('gender', $filterGender);
+            });
+        }
+
+        // ─── Sorting ─────────────────────────────────────────
+        $sortBy = $params['sort_by'] ?? 'submitted_at';
+        $sortOrder = $params['sort_order'] ?? 'desc';
+
+        if ($sortBy === 'submitted_at') {
+            $query->orderBy('submitted_at', $sortOrder);
+        } else {
+            // For avgScore, we fall back to default order; scoring is computed after fetch
+            $query->orderByDesc('submitted_at');
+        }
+
+        // ─── Pagination ──────────────────────────────────────
+        $perPage = (int) ($params['per_page'] ?? 10);
+        $paginated = $query->paginate($perPage)->withQueryString();
 
         // Get question headers if template exists
         $questions = [];
@@ -557,7 +638,7 @@ class ProjectService
                 ->toArray();
         }
 
-        $rows = $submissions->map(function ($sub) {
+        $rows = $paginated->getCollection()->map(function ($sub) {
             $respondent = $sub->respondent;
 
             // Build answer map: question_code => { kepentingan, kinerja }
@@ -628,9 +709,30 @@ class ProjectService
             ];
         })->toArray();
 
+        // If sortBy is avgScore, sort the current page rows in PHP
+        if ($sortBy === 'avg_score') {
+            usort($rows, function ($a, $b) use ($sortOrder) {
+                $cmp = $a['avgScore'] <=> $b['avgScore'];
+
+                return $sortOrder === 'asc' ? $cmp : -$cmp;
+            });
+        }
+
         return [
             'questions' => $questions,
             'rows' => $rows,
+            'pagination' => [
+                'currentPage' => $paginated->currentPage(),
+                'lastPage' => $paginated->lastPage(),
+                'perPage' => $paginated->perPage(),
+                'total' => $paginated->total(),
+            ],
+            'filterOptions' => [
+                'enumerators' => $enumeratorOptions,
+                'statuses' => $statusOptions,
+                'educations' => $educationOptions,
+                'genders' => $genderOptions,
+            ],
         ];
     }
 

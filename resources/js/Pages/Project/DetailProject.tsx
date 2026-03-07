@@ -136,6 +136,28 @@ interface RespondentsData {
             notes: string | null;
         }[];
     }[];
+    pagination: {
+        currentPage: number;
+        lastPage: number;
+        perPage: number;
+        total: number;
+    };
+    filterOptions: {
+        enumerators: string[];
+        statuses: string[];
+        educations: string[];
+        genders: string[];
+    };
+}
+
+interface RespondentFilters {
+    enumerator: string;
+    resp_status: string;
+    education: string;
+    gender: string;
+    sort_by: string;
+    sort_order: string;
+    per_page: number;
 }
 
 interface EnumeratorListItem {
@@ -166,6 +188,7 @@ interface Props {
     trendData: TrendDataItem[];
     respondents: RespondentsData;
     enumeratorList: EnumeratorListItem[];
+    respondentFilters: RespondentFilters;
 }
 
 // ─── Tab Config ────────────────────────────────────────────
@@ -210,6 +233,7 @@ export default function DetailProject({
     trendData,
     respondents,
     enumeratorList,
+    respondentFilters,
 }: Props) {
     const activeTab = detailType || 'overview';
     const tabs = buildTabs(project);
@@ -261,9 +285,9 @@ export default function DetailProject({
                     />
                 );
             case 'ikm_respondent':
-                return <ProjectIKMRespondent respondents={respondents} />;
+                return <ProjectIKMRespondent respondents={respondents} projectId={project.id} filters={respondentFilters} />;
             case 'sloi_respondent':
-                return <ProjectSLOIRespondent respondents={respondents} />;
+                return <ProjectSLOIRespondent respondents={respondents} projectId={project.id} filters={respondentFilters} />;
             case 'sroi':
                 return <ProjectSROI />;
             case 'enumerator':

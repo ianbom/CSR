@@ -1,7 +1,8 @@
 import { ReactNode, useState, useMemo } from 'react';
 import SubmissionDetailModal from './SubmissionDetailModal';
 import BulkStatusModal from './BulkStatusModal';
-import { CheckSquare, Square, MinusSquare } from 'lucide-react';
+import { CheckSquare, Square, MinusSquare, ChevronUp, ChevronDown, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { router } from '@inertiajs/react';
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -50,22 +51,108 @@ interface RespondentRow {
     timelines: TimelineEntry[];
 }
 
+interface PaginationData {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
+}
+
+interface FilterOptions {
+    enumerators: string[];
+    statuses: string[];
+    educations: string[];
+    genders: string[];
+}
+
 interface RespondentsData {
     questions: QuestionHeader[];
     rows: RespondentRow[];
+    pagination: PaginationData;
+    filterOptions: FilterOptions;
+}
+
+interface RespondentFilters {
+    enumerator: string;
+    resp_status: string;
+    education: string;
+    gender: string;
+    sort_by: string;
+    sort_order: string;
+    per_page: number;
 }
 
 interface Props {
     respondents: RespondentsData;
+    projectId: number;
+    filters: RespondentFilters;
 }
 
 export default function ProjectIKMRespondent({
     respondents,
+    projectId,
+    filters,
 }: Props): ReactNode {
-    const { questions, rows } = respondents;
+    const { questions, rows, pagination, filterOptions } = respondents;
     const [selected, setSelected] = useState<RespondentRow | null>(null);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [showBulkModal, setShowBulkModal] = useState(false);
+
+    const hasActiveFilter = filters.enumerator || filters.resp_status || filters.education || filters.gender;
+
+    // ─── Server-side navigation helper ─────────────────────
+    const navigate = (params: Record<string, string | number>) => {
+        const query: Record<string, string | number> = {
+            detailType: 'ikm_respondent',
+            enumerator: filters.enumerator,
+            resp_status: filters.resp_status,
+            education: filters.education,
+            gender: filters.gender,
+            sort_by: filters.sort_by,
+            sort_order: filters.sort_order,
+            per_page: filters.per_page,
+            ...params,
+        };
+
+        // Remove empty values
+        const cleaned = Object.fromEntries(
+            Object.entries(query).filter(([, v]) => v !== '' && v !== undefined && v !== null),
+        );
+
+        router.get(
+            route('projects.show', { id: projectId }),
+            cleaned,
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const handleFilterChange = (key: string, value: string) => {
+        navigate({ [key]: value, page: 1 });
+    };
+
+    const clearFilters = () => {
+        navigate({ enumerator: '', resp_status: '', education: '', gender: '', page: 1 });
+    };
+
+    const handleSort = (field: string) => {
+        const sortKey = field === 'submittedAt' ? 'submitted_at' : 'avg_score';
+        const newOrder = filters.sort_by === sortKey && filters.sort_order === 'desc' ? 'asc' : 'desc';
+        navigate({ sort_by: sortKey, sort_order: newOrder, page: 1 });
+    };
+
+    const handlePageChange = (page: number) => {
+        navigate({ page });
+    };
+
+    const SortIcon = ({ field }: { field: string }) => {
+        const sortKey = field === 'submittedAt' ? 'submitted_at' : 'avg_score';
+        if (filters.sort_by !== sortKey) {
+            return <ChevronDown className="size-3 text-slate-300" />;
+        }
+        return filters.sort_order === 'asc'
+            ? <ChevronUp className="size-3 text-primary" />
+            : <ChevronDown className="size-3 text-primary" />;
+    };
 
     const allIds = useMemo(() => rows.map((r) => r.submissionId), [rows]);
     const isAllSelected = rows.length > 0 && selectedIds.length === rows.length;
@@ -81,6 +168,20 @@ export default function ProjectIKMRespondent({
         setSelectedIds(isAllSelected ? [] : allIds);
     };
 
+    // ─── Pagination range ──────────────────────────────────
+    const pageNumbers = useMemo(() => {
+        const pages: number[] = [];
+        const { currentPage, lastPage } = pagination;
+        const delta = 2;
+        for (let i = Math.max(1, currentPage - delta); i <= Math.min(lastPage, currentPage + delta); i++) {
+            pages.push(i);
+        }
+        return pages;
+    }, [pagination]);
+
+    const startItem = (pagination.currentPage - 1) * pagination.perPage + 1;
+    const endItem = Math.min(pagination.currentPage * pagination.perPage, pagination.total);
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -90,7 +191,7 @@ export default function ProjectIKMRespondent({
                         Data Responden IKM
                     </h2>
                     <p className="text-sm text-slate-500">
-                        Total {rows.length} responden
+                        Total {pagination.total} responden
                     </p>
                     <div className="mt-1 flex items-center gap-3 text-xs text-slate-400">
                         <span className="flex items-center gap-1">
@@ -102,6 +203,79 @@ export default function ProjectIKMRespondent({
                             <span className="size-2.5 rounded-full bg-emerald-500" />
                             Kinerja
                         </span>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Filter Section ── */}
+            <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+                <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                        <Filter className="size-4" />
+                        Filter
+                    </div>
+                    {hasActiveFilter && (
+                        <button
+                            onClick={clearFilters}
+                            className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                        >
+                            <X className="size-3" />
+                            Reset Filter
+                        </button>
+                    )}
+                </div>
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <div>
+                        <label className="mb-1 block text-[11px] font-medium text-slate-500">Enumerator</label>
+                        <select
+                            value={filters.enumerator}
+                            onChange={(e) => handleFilterChange('enumerator', e.target.value)}
+                            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                            <option value="">Semua</option>
+                            {filterOptions.enumerators.map((e) => (
+                                <option key={e} value={e}>{e}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="mb-1 block text-[11px] font-medium text-slate-500">Status Submission</label>
+                        <select
+                            value={filters.resp_status}
+                            onChange={(e) => handleFilterChange('resp_status', e.target.value)}
+                            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                            <option value="">Semua</option>
+                            {filterOptions.statuses.map((s) => (
+                                <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="mb-1 block text-[11px] font-medium text-slate-500">Pendidikan</label>
+                        <select
+                            value={filters.education}
+                            onChange={(e) => handleFilterChange('education', e.target.value)}
+                            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                            <option value="">Semua</option>
+                            {filterOptions.educations.map((ed) => (
+                                <option key={ed} value={ed}>{ed}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="mb-1 block text-[11px] font-medium text-slate-500">Gender</label>
+                        <select
+                            value={filters.gender}
+                            onChange={(e) => handleFilterChange('gender', e.target.value)}
+                            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                            <option value="">Semua</option>
+                            {filterOptions.genders.map((g) => (
+                                <option key={g} value={g}>{g}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
             </div>
@@ -161,11 +335,23 @@ export default function ProjectIKMRespondent({
                                 <th className="min-w-[130px] px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                     Enumerator
                                 </th>
-                                <th className="min-w-[130px] px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                                    Tgl Kirim
+                                <th
+                                    className="min-w-[130px] cursor-pointer select-none px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400 transition-colors hover:text-slate-600"
+                                    onClick={() => handleSort('submittedAt')}
+                                >
+                                    <span className="inline-flex items-center gap-1">
+                                        Tgl Kirim
+                                        <SortIcon field="submittedAt" />
+                                    </span>
                                 </th>
-                                <th className="min-w-[70px] px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                                    Rerata
+                                <th
+                                    className="min-w-[70px] cursor-pointer select-none px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400 transition-colors hover:text-slate-600"
+                                    onClick={() => handleSort('avgScore')}
+                                >
+                                    <span className="inline-flex items-center gap-1">
+                                        Rerata
+                                        <SortIcon field="avgScore" />
+                                    </span>
                                 </th>
                                 <th className="min-w-[70px] px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-blue-400">
                                     Rerata Kep.
@@ -219,7 +405,7 @@ export default function ProjectIKMRespondent({
                                         </button>
                                     </td>
                                     <td className="bg-white px-4 py-3 font-medium text-slate-500">
-                                        {idx + 1}
+                                        {startItem + idx}
                                     </td>
                                     <td className="sticky left-10 z-10 bg-white px-4 py-3">
                                         <div className="font-medium text-slate-900">
@@ -323,6 +509,81 @@ export default function ProjectIKMRespondent({
                     </table>
                 </div>
             </div>
+
+            {/* ── Pagination ── */}
+            <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-white px-5 py-3 shadow-sm">
+                <div className="flex items-center gap-3">
+                    <p className="text-xs text-slate-500">
+                        Menampilkan {startItem}-{endItem} dari {pagination.total} data
+                    </p>
+                    <select
+                        value={filters.per_page}
+                        onChange={(e) => navigate({ per_page: Number(e.target.value), page: 1 })}
+                        className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-600 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    >
+                        {[10, 50, 100].map((n) => (
+                            <option key={n} value={n}>{n} / halaman</option>
+                        ))}
+                    </select>
+                </div>
+                {pagination.lastPage > 1 && (
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => handlePageChange(pagination.currentPage - 1)}
+                            disabled={pagination.currentPage <= 1}
+                            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-40 disabled:hover:bg-transparent"
+                        >
+                            <ChevronLeft className="size-4" />
+                        </button>
+                        {pageNumbers[0] > 1 && (
+                            <>
+                                <button
+                                    onClick={() => handlePageChange(1)}
+                                    className="min-w-[32px] rounded-lg px-2 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100"
+                                >
+                                    1
+                                </button>
+                                {pageNumbers[0] > 2 && (
+                                    <span className="px-1 text-xs text-slate-400">...</span>
+                                )}
+                            </>
+                        )}
+                        {pageNumbers.map((p) => (
+                            <button
+                                key={p}
+                                onClick={() => handlePageChange(p)}
+                                className={`min-w-[32px] rounded-lg px-2 py-1 text-xs font-medium transition-colors ${
+                                    p === pagination.currentPage
+                                        ? 'bg-primary text-white'
+                                        : 'text-slate-600 hover:bg-slate-100'
+                                }`}
+                            >
+                                {p}
+                            </button>
+                        ))}
+                        {pageNumbers[pageNumbers.length - 1] < pagination.lastPage && (
+                            <>
+                                {pageNumbers[pageNumbers.length - 1] < pagination.lastPage - 1 && (
+                                    <span className="px-1 text-xs text-slate-400">...</span>
+                                )}
+                                <button
+                                    onClick={() => handlePageChange(pagination.lastPage)}
+                                    className="min-w-[32px] rounded-lg px-2 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100"
+                                >
+                                    {pagination.lastPage}
+                                </button>
+                            </>
+                        )}
+                        <button
+                            onClick={() => handlePageChange(pagination.currentPage + 1)}
+                            disabled={pagination.currentPage >= pagination.lastPage}
+                            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-40 disabled:hover:bg-transparent"
+                        >
+                            <ChevronRight className="size-4" />
+                        </button>
+                    </div>
+                )}
+                </div>
 
             {/* ── Detail Modal (shared component) ── */}
             {selected && (

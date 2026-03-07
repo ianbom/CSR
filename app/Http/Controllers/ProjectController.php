@@ -53,7 +53,19 @@ class ProjectController extends Controller
     public function detailProject(Request $request, int $id)
     {
         $detailType = $request->input('detailType', 'overview');
-        $data = $this->projectService->getProjectDetail($id, $detailType);
+
+        $respondentParams = [
+            'enumerator' => $request->input('enumerator'),
+            'status' => $request->input('resp_status'),
+            'education' => $request->input('education'),
+            'gender' => $request->input('gender'),
+            'sort_by' => $request->input('sort_by', 'submitted_at'),
+            'sort_order' => $request->input('sort_order', 'desc'),
+            'per_page' => $request->input('per_page', default: 10),
+            'page' => $request->input('page', 1),
+        ];
+
+        $data = $this->projectService->getProjectDetail($id, $detailType, $respondentParams);
 
         return Inertia::render('Project/DetailProject', [
             'project'        => $data['project'],
@@ -65,6 +77,15 @@ class ProjectController extends Controller
             'trendData'      => $data['trendData'],
             'respondents'    => $data['respondents'],
             'enumeratorList' => $data['enumeratorList'],
+            'respondentFilters' => [
+                'enumerator' => $request->input('enumerator', ''),
+                'resp_status' => $request->input('resp_status', ''),
+                'education' => $request->input('education', ''),
+                'gender' => $request->input('gender', ''),
+                'sort_by' => $request->input('sort_by', 'submitted_at'),
+                'sort_order' => $request->input('sort_order', 'desc'),
+                'per_page' => $request->input('per_page', 10),
+            ],
         ]);
     }
 

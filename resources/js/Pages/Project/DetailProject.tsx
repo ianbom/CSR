@@ -128,6 +128,13 @@ interface RespondentsData {
             string,
             { kepentingan: number | null; kinerja: number | null }
         >;
+        timelines: {
+            id: number;
+            action: string;
+            decidedAt: string | null;
+            decidedBy: string;
+            notes: string | null;
+        }[];
     }[];
 }
 

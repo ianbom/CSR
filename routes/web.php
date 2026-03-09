@@ -6,10 +6,12 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Enumerator\ProjectController as EnumeratorProjectController;
 use App\Http\Controllers\Enumerator\SurveyController as EnumeratorSurveyController;
 use App\Http\Controllers\EnumeratorController;
+use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\InstrumentTemplateController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SubmissionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -57,6 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/projects/{id}', [ProjectController::class, 'updateProject'])->name('projects.update');
     Route::patch('/projects/{id}/status', [ProjectController::class, 'updateStatus'])->name('projects.update-status');
     Route::patch('/submissions/bulk-status', [SubmissionController::class, 'bulkUpdateStatus'])->name('submissions.bulk-status');
+    Route::get('/projects/{id}/export-respondents', [ExcelController::class, 'exportRespondents'])->name('projects.export-respondents');
     Route::get('/projects/{id}', [ProjectController::class, 'detailProject'])->name('projects.show');
     // Enumerators
     Route::get('/enumerators', [EnumeratorController::class, 'index'])->name('enumerators.index');
@@ -65,12 +68,19 @@ Route::middleware('auth')->group(function () {
     Route::delete('/enumerators/{id}', [EnumeratorController::class, 'destroy'])->name('enumerators.destroy');
     // Companies
     Route::get('/companies', [CompanyController::class, 'index'])->name('companies.index');
+    // Users
+
     // Templates
     Route::get('/templates', [InstrumentTemplateController::class, 'index'])->name('templates.index');
     Route::get('/templates/{id}', [InstrumentTemplateController::class, 'show'])->name('templates.show');
     Route::post('/templates/{templateId}/questions', [InstrumentTemplateController::class, 'storeQuestion'])->name('templates.questions.store');
     Route::put('/templates/{templateId}/questions/{questionId}', [InstrumentTemplateController::class, 'updateQuestion'])->name('templates.questions.update');
     Route::delete('/templates/{templateId}/questions/{questionId}', [InstrumentTemplateController::class, 'destroyQuestion'])->name('templates.questions.destroy');
+
+    Route::group(['middleware' => 'role:admin,superadmin,company'], function () {
+    Route::get('/users', [UserController::class, 'index'])->middleware('role:admin,superadmin')->name('users.index');
+    });
+
 });
 
 Route::middleware('auth')->group(function () {

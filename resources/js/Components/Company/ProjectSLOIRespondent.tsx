@@ -1,7 +1,7 @@
 import { ReactNode, useState, useMemo } from 'react';
 import SubmissionDetailModal from './SubmissionDetailModal';
 import BulkStatusModal from './BulkStatusModal';
-import { CheckSquare, Square, MinusSquare, ChevronUp, ChevronDown, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CheckSquare, Square, MinusSquare, ChevronUp, ChevronDown, Filter, X, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { router } from '@inertiajs/react';
 
 // ─── Types ─────────────────────────────────────────────────
@@ -192,6 +192,13 @@ export default function ProjectSLOIRespondent({
                         Total {pagination.total} responden
                     </p>
                 </div>
+                <a
+                    href={route('projects.export-respondents', { id: projectId }) + '?type=SLOI'}
+                    className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
+                >
+                    <Download className="size-4" />
+                    Export Excel
+                </a>
             </div>
 
             {/* ── Filter Section ── */}

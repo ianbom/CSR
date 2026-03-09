@@ -14,6 +14,12 @@ interface DashboardStats {
     activeProjects: number;
     enumerators: number;
     monthlyResponses: number;
+    trends: {
+        newProjectsThisMonth: number;
+        operationalRate: number;
+        enumeratorGrowth: number;
+        responseGrowth: number;
+    };
 }
 
 interface ProjectData {
@@ -32,73 +38,24 @@ interface ActivityData {
     time: string;
 }
 
-// Data dummy - ganti dengan props dari backend
-const mockStats: DashboardStats = {
-    totalProjects: 12,
-    activeProjects: 8,
-    enumerators: 45,
-    monthlyResponses: 1240,
-};
+interface ScoreItem {
+    label: string;
+    value: string;
+}
 
-const mockProjects: ProjectData[] = [
-    {
-        name: 'Desa Hijau',
-        ikmHeight: '85%',
-        sloiHeight: '70%',
-        sroiHeight: '45%',
-    },
-    {
-        name: 'Daur Ulang',
-        ikmHeight: '60%',
-        sloiHeight: '90%',
-        sroiHeight: '75%',
-    },
-    {
-        name: 'EduCerdas',
-        ikmHeight: '40%',
-        sloiHeight: '35%',
-        sroiHeight: '20%',
-    },
-    {
-        name: 'Solar Hub',
-        ikmHeight: '95%',
-        sloiHeight: '80%',
-        sroiHeight: '90%',
-    },
-    {
-        name: 'AgriTech',
-        ikmHeight: '70%',
-        sloiHeight: '55%',
-        sroiHeight: '40%',
-    },
-];
+interface ScoreDistributionData {
+    percentage: number;
+    percentageLabel: string;
+    scores: ScoreItem[];
+}
 
-const mockActivities: ActivityData[] = [
-    {
-        icon: 'description',
-        iconBgColor: 'bg-primary/10',
-        iconColor: 'text-primary',
-        title: 'Laporan baru dikirim',
-        description: 'Proyek Solar Hub: Dampak Lingkungan Q2',
-        time: '2 menit lalu',
-    },
-    {
-        icon: 'person_add',
-        iconBgColor: 'bg-blue-500/10',
-        iconColor: 'text-blue-500',
-        title: 'Enumerator baru bergabung',
-        description: 'Sarah Jenkins ditugaskan ke Desa Hijau',
-        time: '45 menit lalu',
-    },
-    {
-        icon: 'priority_high',
-        iconBgColor: 'bg-orange-500/10',
-        iconColor: 'text-orange-500',
-        title: 'Peringatan skor IKM tinggi',
-        description: 'Proyek Daur Ulang mencapai 92/100',
-        time: '3 jam lalu',
-    },
-];
+interface Props {
+    stats: DashboardStats;
+    projects: ProjectData[];
+    scoreDistribution: ScoreDistributionData;
+    activities: ActivityData[];
+    dateLabels: string[];
+}
 
 const chartLegend = [
     { label: 'IKM', color: 'bg-primary' },
@@ -106,16 +63,13 @@ const chartLegend = [
     { label: 'SROI', color: 'bg-slate-200' },
 ];
 
-const scoreData = [
-    { label: 'Sangat Baik', value: '42%' },
-    { label: 'Baik', value: '38%' },
-    { label: 'Cukup', value: '15%' },
-    { label: 'Kurang', value: '5%' },
-];
-
-const dateLabels = ['01 Mei', '07 Mei', '14 Mei', '21 Mei', '28 Mei', '31 Mei'];
-
-export default function Dashboard() {
+export default function Dashboard({
+    stats,
+    projects,
+    scoreDistribution,
+    activities,
+    dateLabels,
+}: Props) {
     return (
         <CompanyLayout
             breadcrumb={{ parent: 'Dashboard', current: 'Perusahaan' }}
@@ -131,8 +85,11 @@ export default function Dashboard() {
                         iconColor="text-blue-600"
                         label="Total Proyek"
                         badge="TOTAL"
-                        value={mockStats.totalProjects}
-                        trend={{ text: '+2 bulan ini', isPositive: true }}
+                        value={stats.totalProjects}
+                        trend={{
+                            text: `+${stats.trends.newProjectsThisMonth} bulan ini`,
+                            isPositive: stats.trends.newProjectsThisMonth > 0,
+                        }}
                     />
                     <StatCard
                         icon="play_circle"
@@ -140,10 +97,10 @@ export default function Dashboard() {
                         iconColor="text-primary"
                         label="Proyek Aktif"
                         badge="AKTIF"
-                        value={mockStats.activeProjects}
+                        value={stats.activeProjects}
                         trend={{
-                            text: '66.7% tingkat operasional',
-                            isPositive: false,
+                            text: `${stats.trends.operationalRate}% tingkat operasional`,
+                            isPositive: stats.trends.operationalRate >= 50,
                         }}
                     />
                     <StatCard
@@ -152,10 +109,10 @@ export default function Dashboard() {
                         iconColor="text-purple-600"
                         label="Enumerator"
                         badge="STAF"
-                        value={mockStats.enumerators}
+                        value={stats.enumerators}
                         trend={{
-                            text: '+12% dari tahun lalu',
-                            isPositive: true,
+                            text: `${stats.trends.enumeratorGrowth >= 0 ? '+' : ''}${stats.trends.enumeratorGrowth}% dari tahun lalu`,
+                            isPositive: stats.trends.enumeratorGrowth > 0,
                         }}
                     />
                     <StatCard
@@ -164,8 +121,11 @@ export default function Dashboard() {
                         iconColor="text-orange-600"
                         label="Respons Bulanan"
                         badge="AKTIVITAS"
-                        value={mockStats.monthlyResponses.toLocaleString()}
-                        trend={{ text: '+8% keterlibatan', isPositive: true }}
+                        value={stats.monthlyResponses.toLocaleString()}
+                        trend={{
+                            text: `${stats.trends.responseGrowth >= 0 ? '+' : ''}${stats.trends.responseGrowth}% keterlibatan`,
+                            isPositive: stats.trends.responseGrowth > 0,
+                        }}
                     />
                 </section>
 
@@ -175,14 +135,14 @@ export default function Dashboard() {
                         title="Ringkasan Performa Proyek"
                         description="Perbandingan skor IKM, SLOI, dan SROI per proyek aktif."
                         legend={chartLegend}
-                        projects={mockProjects}
+                        projects={projects}
                     />
                     <ScoreDistribution
                         title="Distribusi Skor"
                         description="Sentimen agregat di seluruh proyek."
-                        percentage={82}
-                        percentageLabel="Positif"
-                        scores={scoreData}
+                        percentage={scoreDistribution.percentage}
+                        percentageLabel={scoreDistribution.percentageLabel}
+                        scores={scoreDistribution.scores}
                     />
                 </section>
 
@@ -195,7 +155,7 @@ export default function Dashboard() {
                     />
                     <ActivityFeed
                         title="Aktivitas Terbaru"
-                        activities={mockActivities}
+                        activities={activities}
                         viewAllLink="/activities"
                     />
                 </section>

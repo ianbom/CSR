@@ -1,5 +1,6 @@
 import {
     LikertScaleQuestion,
+    MaterialIcon,
     SurveyFooter,
     SurveyHeader,
     SurveyProgressCard,
@@ -21,6 +22,7 @@ export type QuestionAnswers = Record<string, number>;
 
 interface QuestionFormProps {
     questions: Question[];
+    companyName?: string;
     answers: QuestionAnswers;
     surveyType: string; // 'IKM' | 'SLOI'
     onChange: (answers: QuestionAnswers) => void;
@@ -41,6 +43,7 @@ const SLOI_LABELS = { min: 'Sangat Tidak Setuju', max: 'Sangat Setuju' };
 
 export default function QuestionForm({
     questions,
+    companyName,
     answers,
     surveyType,
     onChange,
@@ -75,6 +78,11 @@ export default function QuestionForm({
         return groups;
     }, [questions]);
 
+    const formatQuestionText = (text: string) => {
+        if (!companyName) return text;
+        return `${companyName} ${text}`;
+    };
+
     let questionNumber = 0;
 
     return (
@@ -96,6 +104,19 @@ export default function QuestionForm({
                         : 'Mohon lengkapi semua pertanyaan untuk melanjutkan.'
                 }
             />
+
+            {/* Company Name */}
+            {companyName && (
+                <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <MaterialIcon name="apartment" className="text-xl" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-medium text-gray-500">Perusahaan</p>
+                        <p className="text-base font-bold text-gray-900">{companyName}</p>
+                    </div>
+                </div>
+            )}
 
             {/* IKM legend */}
             {isIKM && (
@@ -156,7 +177,7 @@ export default function QuestionForm({
                                                         {questionNumber}
                                                     </span>
                                                     <h3 className="pt-0.5 text-base font-bold leading-snug text-gray-900">
-                                                        {question.question_text}
+                                                        {formatQuestionText(question.question_text)}
                                                     </h3>
                                                 </div>
 
@@ -233,7 +254,7 @@ export default function QuestionForm({
                                         <LikertScaleQuestion
                                             key={question.id}
                                             questionNumber={questionNumber}
-                                            question={question.question_text}
+                                            question={formatQuestionText(question.question_text)}
                                             name={sloiKey}
                                             value={answers[sloiKey]}
                                             onChange={(value) =>

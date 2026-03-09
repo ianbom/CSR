@@ -64,11 +64,11 @@ export default function CreateProject() {
                 </div>
 
                 {/* Progress Tracker */}
-                <StepProgress
+                {/* <StepProgress
                     currentStep={1}
                     totalSteps={3}
                     steps={formSteps}
-                />
+                /> */}
 
                 {/* Form Section */}
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">

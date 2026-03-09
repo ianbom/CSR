@@ -21,10 +21,11 @@ class SurveyController extends Controller
 
     public function surveyRespondentPage($projectId, Request $request)
     {
-        $project = Project::findOrFail($projectId);
+        $project = Project::with('company')->findOrFail($projectId);
         $projectCode = $request->projectCode;
         $surveyType = $request->surveyType;
         $isCodeTrue = $this->surveyService->checkProjectCode($projectCode, $projectId);
+
 
         if ($isCodeTrue == true) {
             // Load questions berdasarkan surveyType (IKM / SLOI)

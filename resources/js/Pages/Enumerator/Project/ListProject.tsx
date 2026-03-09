@@ -143,14 +143,14 @@ export default function ListProject({ projects, filters }: ListProjectProps) {
             <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center">
                 {/* Search Bar */}
                 <SearchInput
-                    placeholder="Cari berdasarkan nama project atau instansi..."
+                    placeholder="Cari berdasarkan nama project..."
                     value={searchQuery}
                     onChange={handleSearchChange}
                     className="w-full lg:max-w-md"
                 />
 
                 {/* Filter Chips */}
-                <div className="flex w-full gap-2 overflow-x-auto pb-2 lg:w-auto lg:pb-0">
+                {/* <div className="flex w-full gap-2 overflow-x-auto pb-2 lg:w-auto lg:pb-0">
                     {filterOptions.map((option) => (
                         <FilterChip
                             key={option.value}
@@ -161,7 +161,7 @@ export default function ListProject({ projects, filters }: ListProjectProps) {
                             {option.label}
                         </FilterChip>
                     ))}
-                </div>
+                </div> */}
             </div>
 
             {/* Project Grid */}

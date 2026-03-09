@@ -22,11 +22,13 @@ const navItems: NavItemProps[] = [
     { href: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
     { href: '/projects', icon: 'assignment', label: 'Projects' },
     { href: '/enumerators', icon: 'group', label: 'Enumerators' },
-    { href: '/inbox', icon: 'move_to_inbox', label: 'Data Inbox' },
-    { href: '/reports', icon: 'description', label: 'Reports' },
+    // { href: '/inbox', icon: 'move_to_inbox', label: 'Data Inbox' },
+    // { href: '/reports', icon: 'description', label: 'Reports' },
+
     { href: '/profile', icon: 'settings', label: 'Settings' },
     { href: '/templates', icon: 'folder', label: 'Templates' },
     { href: '/companies', icon: 'business', label: 'Companies' },
+    { href: '/users', icon: 'manage_accounts', label: 'Users' },
 ];
 
 function NavItem({

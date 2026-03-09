@@ -18,6 +18,10 @@ interface Project {
     id: number;
     company_id: number;
     name: string;
+    company?: {
+        id: number;
+        name: string;
+    };
 }
 
 interface Props {
@@ -278,6 +282,7 @@ export default function RespondentSurvey({
             {currentStep === 2 && (
                 <QuestionForm
                     questions={questions}
+                    companyName={project.company?.name ?? ''}
                     answers={answers}
                     surveyType={surveyType}
                     onChange={setAnswers}

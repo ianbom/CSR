@@ -3,7 +3,7 @@ import Badge from './UI/Badge';
 import Button from './UI/Button';
 
 export type ProjectStatus = 'active' | 'upcoming' | 'finished';
-export type ProjectType = 'IKM' | 'SLOI';
+export type ProjectType = 'IKM' | 'SLOI' | 'SROI';
 
 export interface ProjectData {
     id: string | number;
@@ -13,6 +13,9 @@ export interface ProjectData {
     status: ProjectStatus;
     startDate: string;
     endDate: string;
+    enable_ikm?: boolean;
+    enable_sloi?: boolean;
+    enable_sroi?: boolean;
 }
 
 interface ProjectCardProps {
@@ -21,9 +24,10 @@ interface ProjectCardProps {
     onViewReport?: (project: ProjectData) => void;
 }
 
-const typeVariants: Record<ProjectType, 'blue' | 'purple'> = {
+const typeVariants: Record<ProjectType, 'blue' | 'purple' | 'amber'> = {
     IKM: 'blue',
     SLOI: 'purple',
+    SROI: 'amber',
 };
 
 const statusConfig: Record<
@@ -45,6 +49,21 @@ export default function ProjectCard({
     onViewReport,
 }: ProjectCardProps) {
     const statusInfo = statusConfig[project.status];
+
+    const enabledTypes: ProjectType[] = [];
+    if (project.enable_ikm) {
+        enabledTypes.push('IKM');
+    }
+    if (project.enable_sloi) {
+        enabledTypes.push('SLOI');
+    }
+    if (project.enable_sroi) {
+        enabledTypes.push('SROI');
+    }
+    if (enabledTypes.length === 0) {
+        enabledTypes.push(project.type);
+    }
+
     const opacityClass =
         project.status === 'finished'
             ? 'opacity-75'
@@ -103,9 +122,13 @@ export default function ProjectCard({
             <div className="flex flex-1 flex-col gap-4 p-5">
                 {/* Header with badges */}
                 <div className="flex items-start justify-between">
-                    <Badge variant={typeVariants[project.type]}>
-                        {project.type}
-                    </Badge>
+                    <div className="flex flex-wrap gap-1.5">
+                        {enabledTypes.map((t) => (
+                            <Badge key={t} variant={typeVariants[t]}>
+                                {t}
+                            </Badge>
+                        ))}
+                    </div>
                     <Badge variant={statusInfo.variant} rounded="full">
                         {statusInfo.label}
                     </Badge>

@@ -204,9 +204,21 @@ class ProjectService
             $templateId = $project->sloi_template_id;
         }
 
+        // Compute per-type stats for overview metric cards
+        $ikmStats = null;
+        $sloiStats = null;
+        if ($assessmentType === null) {
+            $ikmSubmissions = Submission::where('project_id', $projectId)->where('assessment_type', 'IKM')->get();
+            $sloiSubmissions = Submission::where('project_id', $projectId)->where('assessment_type', 'SLOI')->get();
+            $ikmStats = $this->computeStats($project, $ikmSubmissions, 'IKM');
+            $sloiStats = $this->computeStats($project, $sloiSubmissions, 'SLOI');
+        }
+
         return [
             'project' => $this->formatProjectDetail($project),
             'stats' => $this->computeStats($project, $submissions, $assessmentType),
+            'ikmStats' => $ikmStats,
+            'sloiStats' => $sloiStats,
             'demographics' => $this->computeDemographics($respondentIds),
             'questionScores' => $this->computeQuestionScores($submissionIds, $templateId),
             'auditLog' => $this->computeAuditLog($projectId, $assessmentType),
@@ -308,6 +320,10 @@ class ProjectService
 
     protected function getScoreLabel(float $score): string
     {
+        if ($score >= 5) {
+            return 'Seumpurna';
+        }
+
         if ($score >= 4.0) {
             return 'Sangat Baik';
         }

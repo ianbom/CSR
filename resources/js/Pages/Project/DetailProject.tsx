@@ -182,6 +182,8 @@ interface Props {
     project: ProjectData;
     detailType: string;
     stats: StatsData;
+    ikmStats: StatsData | null;
+    sloiStats: StatsData | null;
     demographics: DemographicsData;
     questionScores: QuestionScoreItem[];
     auditLog: AuditLogItem[];
@@ -227,6 +229,8 @@ export default function DetailProject({
     project,
     detailType,
     stats,
+    ikmStats,
+    sloiStats,
     demographics,
     questionScores,
     auditLog,
@@ -261,6 +265,8 @@ export default function DetailProject({
                     <ProjectOverview
                         project={project}
                         stats={stats}
+                        ikmStats={ikmStats}
+                        sloiStats={sloiStats}
                         auditLog={auditLog}
                     />
                 );
@@ -306,6 +312,8 @@ export default function DetailProject({
                     <ProjectOverview
                         project={project}
                         stats={stats}
+                        ikmStats={ikmStats}
+                        sloiStats={sloiStats}
                         auditLog={auditLog}
                     />
                 );

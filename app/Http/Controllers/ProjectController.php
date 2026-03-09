@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Company\CreateProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
@@ -15,6 +14,7 @@ use Inertia\Inertia;
 class ProjectController extends Controller
 {
     protected ProjectService $projectService;
+
     protected AreaService $areaService;
 
     public function __construct(ProjectService $projectService, AreaService $areaService)
@@ -68,14 +68,16 @@ class ProjectController extends Controller
         $data = $this->projectService->getProjectDetail($id, $detailType, $respondentParams);
 
         return Inertia::render('Project/DetailProject', [
-            'project'        => $data['project'],
-            'detailType'     => $detailType,
-            'stats'          => $data['stats'],
-            'demographics'   => $data['demographics'],
+            'project' => $data['project'],
+            'detailType' => $detailType,
+            'stats' => $data['stats'],
+            'ikmStats' => $data['ikmStats'],
+            'sloiStats' => $data['sloiStats'],
+            'demographics' => $data['demographics'],
             'questionScores' => $data['questionScores'],
-            'auditLog'       => $data['auditLog'],
-            'trendData'      => $data['trendData'],
-            'respondents'    => $data['respondents'],
+            'auditLog' => $data['auditLog'],
+            'trendData' => $data['trendData'],
+            'respondents' => $data['respondents'],
             'enumeratorList' => $data['enumeratorList'],
             'respondentFilters' => [
                 'enumerator' => $request->input('enumerator', ''),
@@ -101,20 +103,20 @@ class ProjectController extends Controller
     public function storeProject(CreateProjectRequest $request)
     {
         try {
-        $user = Auth::user();
-        $companyId = $user->company_id;
+            $user = Auth::user();
+            $companyId = $user->company_id;
 
-        $project = $this->projectService->createProject(
-            $request->validated(),
-            $companyId,
-            $user->id
-        );
+            $project = $this->projectService->createProject(
+                $request->validated(),
+                $companyId,
+                $user->id
+            );
 
-        return redirect()
-            ->route('projects.show', $project->id)
-            ->with('success', 'Proyek berhasil dibuat.');
+            return redirect()
+                ->route('projects.show', $project->id)
+                ->with('success', 'Proyek berhasil dibuat.');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat membuat proyek: ' . $th->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat membuat proyek: '.$th->getMessage());
         }
 
     }
@@ -133,7 +135,7 @@ class ProjectController extends Controller
 
             return redirect()->back()->with('success', 'Proyek berhasil diperbarui.');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $th->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: '.$th->getMessage());
         }
     }
 

@@ -54,6 +54,8 @@ interface AuditLogItem {
 interface ProjectOverviewProps {
     project: ProjectData;
     stats: StatsData;
+    ikmStats: StatsData | null;
+    sloiStats: StatsData | null;
     auditLog: AuditLogItem[];
 }
 
@@ -92,8 +94,12 @@ function statusBadgeClass(status: string): string {
 export default function ProjectOverview({
     project,
     stats,
+    ikmStats,
+    sloiStats,
     auditLog,
 }: ProjectOverviewProps): ReactNode {
+    const effectiveIkmStats = ikmStats ?? stats;
+    const effectiveSloiStats = sloiStats ?? stats;
     const assessmentTypes = [
         {
             key: 'ikm',
@@ -131,17 +137,17 @@ export default function ProjectOverview({
                         iconBgColor="bg-blue-50"
                         iconColor="text-blue-600"
                         label="IKM Score"
-                        value={stats.score}
-                        unit="/ 5.0"
+                        value={effectiveIkmStats.score}
+                        unit="/ 4.0"
                         badge={{
-                            text: stats.scoreLabel,
-                            type: stats.score >= 4 ? 'positive' : 'stable',
+                            text: effectiveIkmStats.scoreLabel,
+                            type: effectiveIkmStats.score >= 4 ? 'positive' : 'stable',
                         }}
                         footer={
                             <p className="text-xs text-slate-500">
                                 Kualitas layanan dinilai{' '}
                                 <span className="font-bold text-blue-600">
-                                    {stats.scoreLabel}
+                                    {effectiveIkmStats.scoreLabel}
                                 </span>
                             </p>
                         }
@@ -153,15 +159,15 @@ export default function ProjectOverview({
                         iconBgColor="bg-amber-50"
                         iconColor="text-amber-600"
                         label="SLOI Level"
-                        value={stats.scoreLabel}
+                        value={effectiveSloiStats.scoreLabel}
                         badge={{ text: 'STABIL', type: 'stable' }}
                         footer={
                             <div className="flex gap-2">
-                                {[1, 2, 3, 4].map((i) => (
+                                {[1, 2, 3, 4, 5].map((i) => (
                                     <div
                                         key={i}
                                         className={`h-1.5 flex-1 rounded-full ${
-                                            i <= Math.ceil(stats.score)
+                                            i <= Math.ceil(effectiveSloiStats.score)
                                                 ? 'bg-primary'
                                                 : 'bg-slate-200'
                                         }`}

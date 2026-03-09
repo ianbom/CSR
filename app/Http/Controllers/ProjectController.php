@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Policies\ProjectPolicy;
 
 class ProjectController extends Controller
 {
@@ -129,6 +130,8 @@ class ProjectController extends Controller
         try {
             $user = Auth::user();
             $companyId = $user->company_id;
+
+            $this->
 
             $this->projectService->updateProject(
                 $id,

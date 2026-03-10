@@ -66,19 +66,23 @@ Route::middleware('auth')->group(function () {
     Route::post('/enumerators', [EnumeratorController::class, 'store'])->name('enumerators.store');
     Route::put('/enumerators/{id}', [EnumeratorController::class, 'update'])->name('enumerators.update');
     Route::delete('/enumerators/{id}', [EnumeratorController::class, 'destroy'])->name('enumerators.destroy');
+    Route::get('/enumerators/{id}', [EnumeratorController::class, 'show'])->name('enumerators.show');
     // Companies
     Route::get('/companies', [CompanyController::class, 'index'])->name('companies.index');
     // Users
 
     // Templates
     Route::get('/templates', [InstrumentTemplateController::class, 'index'])->name('templates.index');
+    Route::post('/templates', [InstrumentTemplateController::class, 'store'])->name('templates.store');
     Route::get('/templates/{id}', [InstrumentTemplateController::class, 'show'])->name('templates.show');
+    Route::put('/templates/{id}', [InstrumentTemplateController::class, 'update'])->name('templates.update');
+    Route::delete('/templates/{id}', [InstrumentTemplateController::class, 'destroy'])->name('templates.destroy');
     Route::post('/templates/{templateId}/questions', [InstrumentTemplateController::class, 'storeQuestion'])->name('templates.questions.store');
     Route::put('/templates/{templateId}/questions/{questionId}', [InstrumentTemplateController::class, 'updateQuestion'])->name('templates.questions.update');
     Route::delete('/templates/{templateId}/questions/{questionId}', [InstrumentTemplateController::class, 'destroyQuestion'])->name('templates.questions.destroy');
 
     Route::group(['middleware' => 'role:admin,superadmin,company'], function () {
-    Route::get('/users', [UserController::class, 'index'])->middleware('role:admin,superadmin')->name('users.index');
+        Route::get('/users', [UserController::class, 'index'])->middleware('role:admin,superadmin')->name('users.index');
     });
 
 });

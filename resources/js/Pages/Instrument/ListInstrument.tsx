@@ -4,6 +4,10 @@ import {
     SearchInput,
     SummaryCard,
 } from '@/Components/Company';
+import CreateInstrumentTemplateModal from '@/Components/Company/CreateInstrumentTemplateModal';
+import EditInstrumentTemplateModal, {
+    type EditTemplateData,
+} from '@/Components/Company/EditInstrumentTemplateModal';
 import AppLayout from '@/Layouts/AppLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import debounce from 'lodash/debounce';
@@ -81,6 +85,21 @@ const perPageOptions = [10, 25, 50, 100];
 
 export default function ListInstrument({ templates, summary, filters }: Props) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingTemplate, setEditingTemplate] = useState<EditTemplateData | null>(null);
+
+    const handleEdit = (tpl: TemplateData) => {
+        setEditingTemplate({
+            id: tpl.id,
+            type: tpl.type,
+            name: tpl.name,
+            version: tpl.version,
+            description: tpl.description,
+            isActive: tpl.isActive,
+        });
+        setShowEditModal(true);
+    };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedSearch = useCallback(
@@ -162,13 +181,22 @@ export default function ListInstrument({ templates, summary, filters }: Props) {
 
             <div className="p-8">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-slate-900">
-                        Instrument Templates
-                    </h1>
-                    <p className="mt-1 text-slate-500">
-                        Kelola template instrumen survei IKM dan SLOI.
-                    </p>
+                <div className="mb-8 flex items-start justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold text-slate-900">
+                            Instrument Templates
+                        </h1>
+                        <p className="mt-1 text-slate-500">
+                            Kelola template instrumen survei IKM dan SLOI.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setShowCreateModal(true)}
+                        className="flex items-center gap-2 rounded-lg bg-primary-btn px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary-btn/20 transition-all hover:bg-primary-btn-hover active:scale-95"
+                    >
+                        <Icon name="add" className="text-lg" />
+                        Tambah Template
+                    </button>
                 </div>
 
                 {/* Summary Cards */}
@@ -396,6 +424,7 @@ export default function ListInstrument({ templates, summary, filters }: Props) {
                                             <td className="px-6 py-4">
                                                 <ActionMenu
                                                     tpl={tpl}
+                                                    onEdit={handleEdit}
                                                     onDelete={handleDelete}
                                                 />
                                             </td>
@@ -449,6 +478,20 @@ export default function ListInstrument({ templates, summary, filters }: Props) {
                     </div>
                 )}
             </div>
+
+            {/* Modals */}
+            <CreateInstrumentTemplateModal
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+            />
+            <EditInstrumentTemplateModal
+                isOpen={showEditModal}
+                template={editingTemplate}
+                onClose={() => {
+                    setShowEditModal(false);
+                    setEditingTemplate(null);
+                }}
+            />
         </AppLayout>
     );
 }
@@ -495,9 +538,11 @@ function SortableHeader({
 
 function ActionMenu({
     tpl,
+    onEdit,
     onDelete,
 }: {
     tpl: TemplateData;
+    onEdit: (tpl: TemplateData) => void;
     onDelete: (tpl: TemplateData) => void;
 }) {
     const [open, setOpen] = useState(false);
@@ -525,7 +570,10 @@ function ActionMenu({
                     </Link>
                     <button
                         className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-amber-600"
-                        onClick={() => setOpen(false)}
+                        onClick={() => {
+                            setOpen(false);
+                            onEdit(tpl);
+                        }}
                     >
                         <Icon name="edit" className="text-base" />
                         Edit

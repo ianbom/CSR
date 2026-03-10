@@ -5,15 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Company\CreateProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
-use App\Models\Submission;
-use App\Models\TemplateQuestion;
 use App\Services\AreaService;
 use App\Services\ProjectService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use App\Policies\ProjectPolicy;
 
 class ProjectController extends Controller
 {
@@ -131,8 +127,6 @@ class ProjectController extends Controller
             $user = Auth::user();
             $companyId = $user->company_id;
 
-            $this->
-
             $this->projectService->updateProject(
                 $id,
                 $request->validated(),
@@ -196,6 +190,4 @@ class ProjectController extends Controller
 
         return redirect()->back()->with('success', 'Enumerator berhasil di-assign.');
     }
-
-
 }

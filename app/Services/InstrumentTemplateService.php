@@ -18,7 +18,7 @@ class InstrumentTemplateService
             ->with('creator:id,name');
 
         // Search
-        if (!empty($params['search'])) {
+        if (! empty($params['search'])) {
             $search = $params['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -28,12 +28,12 @@ class InstrumentTemplateService
         }
 
         // Type filter
-        if (!empty($params['type']) && $params['type'] !== 'all') {
+        if (! empty($params['type']) && $params['type'] !== 'all') {
             $query->where('type', strtoupper($params['type']));
         }
 
         // Status filter
-        if (!empty($params['status']) && $params['status'] !== 'all') {
+        if (! empty($params['status']) && $params['status'] !== 'all') {
             $query->where('is_active', $params['status'] === 'active');
         }
 
@@ -52,16 +52,16 @@ class InstrumentTemplateService
 
         $paginated->getCollection()->transform(function ($template) {
             return [
-                'id'             => $template->id,
-                'type'           => $template->type,
-                'name'           => $template->name,
-                'version'        => $template->version,
-                'description'    => $template->description,
-                'isActive'       => $template->is_active,
-                'publishedAt'    => $template->published_at?->format('d M Y'),
-                'createdBy'      => $template->creator?->name ?? '-',
+                'id' => $template->id,
+                'type' => $template->type,
+                'name' => $template->name,
+                'version' => $template->version,
+                'description' => $template->description,
+                'isActive' => $template->is_active,
+                'publishedAt' => $template->published_at?->format('d M Y'),
+                'createdBy' => $template->creator?->name ?? '-',
                 'questionsCount' => $template->questions_count ?? 0,
-                'createdAt'      => $template->created_at?->format('d M Y'),
+                'createdAt' => $template->created_at?->format('d M Y'),
             ];
         });
 
@@ -79,10 +79,10 @@ class InstrumentTemplateService
         $sloi = InstrumentTemplate::where('type', 'SLOI')->count();
 
         return [
-            'totalTemplates'  => $total,
+            'totalTemplates' => $total,
             'activeTemplates' => $active,
-            'ikmTemplates'    => $ikm,
-            'sloiTemplates'   => $sloi,
+            'ikmTemplates' => $ikm,
+            'sloiTemplates' => $sloi,
         ];
     }
 
@@ -100,30 +100,82 @@ class InstrumentTemplateService
             ->get()
             ->map(function ($q) {
                 return [
-                    'id'           => $q->id,
-                    'category'     => $q->category,
-                    'code'         => $q->code,
+                    'id' => $q->id,
+                    'category' => $q->category,
+                    'code' => $q->code,
                     'questionText' => $q->question_text,
-                    'orderNo'      => $q->order_no,
-                    'createdAt'    => $q->created_at?->format('d M Y'),
+                    'orderNo' => $q->order_no,
+                    'createdAt' => $q->created_at?->format('d M Y'),
                 ];
             });
 
         return [
             'template' => [
-                'id'             => $template->id,
-                'type'           => $template->type,
-                'name'           => $template->name,
-                'version'        => $template->version,
-                'description'    => $template->description,
-                'isActive'       => $template->is_active,
-                'publishedAt'    => $template->published_at?->format('d M Y'),
-                'createdBy'      => $template->creator?->name ?? '-',
+                'id' => $template->id,
+                'type' => $template->type,
+                'name' => $template->name,
+                'version' => $template->version,
+                'description' => $template->description,
+                'isActive' => $template->is_active,
+                'publishedAt' => $template->published_at?->format('d M Y'),
+                'createdBy' => $template->creator?->name ?? '-',
                 'questionsCount' => $template->questions_count ?? 0,
-                'createdAt'      => $template->created_at?->format('d M Y'),
+                'createdAt' => $template->created_at?->format('d M Y'),
             ],
             'questions' => $questions,
         ];
+    }
+
+    /**
+     * Create a new instrument template (always inactive).
+     */
+    public function createTemplate(array $data): InstrumentTemplate
+    {
+        return InstrumentTemplate::create([
+            'type' => $data['type'],
+            'name' => $data['name'],
+            'version' => $data['version'],
+            'description' => $data['description'] ?? null,
+            'is_active' => false,
+            'created_by' => auth()->id(),
+        ]);
+    }
+
+    /**
+     * Update an existing instrument template.
+     * When is_active is set to true, deactivate other templates of the same type.
+     */
+    public function updateTemplate(int $templateId, array $data): InstrumentTemplate
+    {
+        $template = InstrumentTemplate::findOrFail($templateId);
+
+        $isActive = (bool) ($data['is_active'] ?? $template->is_active);
+
+        if ($isActive) {
+            InstrumentTemplate::where('type', $data['type'] ?? $template->type)
+                ->where('id', '!=', $template->id)
+                ->where('is_active', true)
+                ->update(['is_active' => false]);
+        }
+
+        $template->update([
+            'type' => $data['type'],
+            'name' => $data['name'],
+            'version' => $data['version'],
+            'description' => $data['description'] ?? null,
+            'is_active' => $isActive,
+        ]);
+
+        return $template->fresh();
+    }
+
+    /**
+     * Delete an instrument template (soft delete).
+     */
+    public function deleteTemplate(int $templateId): void
+    {
+        $template = InstrumentTemplate::findOrFail($templateId);
+        $template->delete();
     }
 
     /**
@@ -138,11 +190,11 @@ class InstrumentTemplateService
         }
 
         return TemplateQuestion::create([
-            'template_id'   => $templateId,
-            'category'      => $data['category'] ?? null,
-            'code'          => $data['code'],
+            'template_id' => $templateId,
+            'category' => $data['category'] ?? null,
+            'code' => $data['code'],
             'question_text' => $data['question_text'],
-            'order_no'      => $data['order_no'],
+            'order_no' => $data['order_no'],
         ]);
     }
 
@@ -154,10 +206,10 @@ class InstrumentTemplateService
         $question = TemplateQuestion::findOrFail($questionId);
 
         $question->update([
-            'category'      => $data['category'] ?? null,
-            'code'          => $data['code'],
+            'category' => $data['category'] ?? null,
+            'code' => $data['code'],
             'question_text' => $data['question_text'],
-            'order_no'      => $data['order_no'] ?? $question->order_no,
+            'order_no' => $data['order_no'] ?? $question->order_no,
         ]);
 
         return $question->fresh();

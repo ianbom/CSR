@@ -15,12 +15,12 @@ export default {
         extend: {
             colors: {
                 primary: {
-                    DEFAULT: '#00753d',
+                    DEFAULT: '#214B42',
                     foreground: 'hsl(var(--primary-foreground))',
                 },
                 'primary-dark': '#15803d',
                 'primary-light': '#dcfce7',
-                'primary-btn': '#70C229',
+                'primary-btn': '#88C222',
                 'primary-btn-hover': '#5fa821',
                 'background-light': '#f9fafb',
                 'card-light': '#ffffff',

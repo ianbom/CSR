@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Enumerator\StoreEnumeratorRequest;
 use App\Http\Requests\Enumerator\UpdateEnumeratorRequest;
 use App\Services\EnumeratorService;
@@ -47,7 +46,7 @@ class EnumeratorController extends Controller
 
             return redirect()->back()->with('success', 'Enumerator berhasil ditambahkan.');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', 'Gagal menambahkan enumerator: ' . $th->getMessage());
+            return redirect()->back()->with('error', 'Gagal menambahkan enumerator: '.$th->getMessage());
         }
     }
 
@@ -71,7 +70,7 @@ class EnumeratorController extends Controller
 
             return redirect()->back()->with('success', 'Enumerator berhasil diperbarui.');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', 'Gagal memperbarui enumerator: ' . $th->getMessage());
+            return redirect()->back()->with('error', 'Gagal memperbarui enumerator: '.$th->getMessage());
         }
     }
 
@@ -83,7 +82,32 @@ class EnumeratorController extends Controller
 
             return redirect()->back()->with('success', 'Enumerator berhasil dihapus.');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', 'Gagal menghapus enumerator: ' . $th->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus enumerator: '.$th->getMessage());
         }
+    }
+
+    public function show(Request $request, int $id)
+    {
+        $user = Auth::user();
+        $tab = $request->input('tab', 'profile');
+
+        $respondentParams = [
+            'status' => $request->input('resp_status'),
+            'education' => $request->input('education'),
+            'gender' => $request->input('gender'),
+            'sort_by' => $request->input('sort_by', 'submitted_at'),
+            'sort_order' => $request->input('sort_order', 'desc'),
+            'per_page' => $request->input('per_page', 10),
+            'page' => $request->input('page', 1),
+        ];
+
+        $data = $this->enumeratorService->getEnumeratorDetail(
+            $id,
+            $user->company_id,
+            $tab,
+            $respondentParams
+        );
+
+        return Inertia::render('Company/Enumerator/DetailEnumerator', $data);
     }
 }

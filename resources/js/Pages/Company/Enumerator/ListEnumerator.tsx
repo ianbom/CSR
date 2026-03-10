@@ -2,7 +2,7 @@ import { Icon, SearchInput } from '@/Components/Company';
 import CreateEnumeratorModal from '@/Components/Company/CreateEnumeratorModal';
 import EditEnumeratorModal from '@/Components/Company/EditEnumeratorModal';
 import CompanyLayout from '@/Layouts/AppLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import debounce from 'lodash/debounce';
 import { useCallback, useState } from 'react';
 
@@ -187,18 +187,32 @@ function EnumeratorCardItem({
         .join('')
         .toUpperCase();
 
+    // Pastikan Anda memanggil helper route() dengan benar sesuai setup Laravel/Inertia Anda
+    const handleCardClick = () => {
+        router.get(route('enumerators.show', { id: enumerator.id }));
+    };
+
     return (
-        <div className="group relative rounded-2xl border border-slate-100 bg-white p-6 transition-all hover:shadow-xl hover:shadow-slate-200/50">
+        <div
+            onClick={handleCardClick}
+            className="group relative cursor-pointer rounded-2xl border border-slate-100 bg-white p-6 transition-all hover:shadow-xl hover:shadow-slate-200/50"
+        >
             {/* Action Buttons */}
-            <div className="absolute right-4 top-4 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="absolute right-4 top-4 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 z-10">
                 <button
-                    onClick={onEdit}
+                    onClick={(e) => {
+                        e.stopPropagation(); // Mencegah klik menembus ke card
+                        onEdit();
+                    }}
                     className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-primary"
                 >
                     <Icon name="edit" className="text-lg" />
                 </button>
                 <button
-                    onClick={onDelete}
+                    onClick={(e) => {
+                        e.stopPropagation(); // Mencegah klik menembus ke card
+                        onDelete();
+                    }}
                     className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
                 >
                     <Icon name="delete" className="text-lg" />
@@ -220,8 +234,8 @@ function EnumeratorCardItem({
                     />
                 </div>
 
-                {/* Info */}
-                <h3 className="text-lg font-bold text-slate-900">
+                {/* Info - Diubah dari <Link> menjadi tag teks biasa */}
+                <h3 className="text-lg font-bold text-slate-900 transition-colors group-hover:text-primary">
                     {enumerator.name}
                 </h3>
                 <p className="text-sm text-slate-500">{enumerator.email}</p>

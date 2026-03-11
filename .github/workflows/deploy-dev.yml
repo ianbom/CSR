@@ -1,0 +1,48 @@
+name: Deploy to cPanel (Dev)
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🚚 Checkout Code
+      uses: actions/checkout@v4
+
+    - name: 🐘 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4.5' # Sesuaikan dengan versi PHP di cPanel Anda
+
+    - name: 📦 Install Composer Dependencies
+      run: composer install --no-dev --optimize-autoloader
+
+    - name: 🚀 Sync files to cPanel via rsync
+      uses: easingthemes/ssh-deploy@main
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+        REMOTE_HOST: ${{ secrets.CPANEL_HOST }}
+        REMOTE_USER: ${{ secrets.CPANEL_USER }}
+        REMOTE_PORT: ${{ secrets.CPANEL_PORT }}
+        TARGET: ${{ secrets.CPANEL_TARGET_DIR }}
+        # PENTING: Jangan overwrite folder storage dan .env di server
+        EXCLUDE: "/.git/, /.github/, /node_modules/, /.env, /storage/"
+
+    - name: ⚙️ Execute Post-Deploy Commands via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.CPANEL_HOST }}
+        username: ${{ secrets.CPANEL_USER }}
+        key: ${{ secrets.CPANEL_SSH_KEY }}
+        port: ${{ secrets.CPANEL_PORT }}
+        script: |
+          cd ${{ secrets.CPANEL_TARGET_DIR }}
+          php artisan migrate --force
+          php artisan optimize:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache

@@ -180,7 +180,7 @@ export default function Welcome({
                                             className="gap-2 rounded-full"
                                         >
                                             <span className="text-white">
-                                                Mulai Sekarang
+                                                Daftar Sekarang
                                             </span>
                                             <LogIn className="size-4 text-white" />
                                         </Button>
@@ -545,7 +545,7 @@ export default function Welcome({
                                     . Hak cipta dilindungi undang-undang.
                                 </p>
                             </div>
-                            
+
                         </div>
                     </div>
                 </footer>

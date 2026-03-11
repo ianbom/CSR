@@ -18,6 +18,7 @@ jobs:
       with:
         php-version: '8.4.5' # Sesuaikan dengan versi PHP di cPanel Anda
         # Install ekstensi yang diperlukan (jika ada)
+        # harusnya bisa
 
     - name: 📦 Install Composer Dependencies
       run: composer install --no-dev --optimize-autoloader

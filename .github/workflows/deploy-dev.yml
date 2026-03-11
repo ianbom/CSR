@@ -17,22 +17,24 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.4.5' # Sesuaikan dengan versi PHP di cPanel Anda
-        # Install ekstensi yang diperlukan (jika ada)
-        # harusnya bisa
 
     - name: 📦 Install Composer Dependencies
       run: composer install --no-dev --optimize-autoloader
 
-    - name: 🚀 Sync files to cPanel via rsync
-      uses: easingthemes/ssh-deploy@main
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_KEY }}
-        REMOTE_HOST: ${{ secrets.CPANEL_HOST }}
-        REMOTE_USER: ${{ secrets.CPANEL_USER }}
-        REMOTE_PORT: ${{ secrets.CPANEL_PORT }}
-        TARGET: ${{ secrets.CPANEL_TARGET_DIR }}
-        # PENTING: Jangan overwrite folder storage dan .env di server
-        EXCLUDE: "/.git/, /.github/, /node_modules/, /.env, /storage/"
+    - name: 🗑️ Prepare files for SCP (Hapus file yang tidak perlu dikirim)
+      run: rm -rf .git .github node_modules
+
+    - name: 🚀 Upload files via SCP
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.CPANEL_HOST }}
+        username: ${{ secrets.CPANEL_USER }}
+        key: ${{ secrets.CPANEL_SSH_KEY }}
+        port: ${{ secrets.CPANEL_PORT }}
+        source: "."
+        target: ${{ secrets.CPANEL_TARGET_DIR }}
+        # Jika Anda ingin menyimpan struktur folder storage yang sudah ada di server, tambahkan ini:
+        rm: false
 
     - name: ⚙️ Execute Post-Deploy Commands via SSH
       uses: appleboy/ssh-action@master

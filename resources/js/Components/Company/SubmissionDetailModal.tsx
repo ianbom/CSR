@@ -1,6 +1,6 @@
+import { CheckCircle2, Clock, RotateCcw, Send, XCircle } from 'lucide-react';
 import { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { CheckCircle2, XCircle, Send, RotateCcw, Clock } from 'lucide-react';
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -57,7 +57,13 @@ function InfoRow({ label, value }: { label: string; value: ReactNode }) {
 
 const ACTION_CONFIG: Record<
     string,
-    { label: string; icon: ReactNode; color: string; bg: string; border: string }
+    {
+        label: string;
+        icon: ReactNode;
+        color: string;
+        bg: string;
+        border: string;
+    }
 > = {
     approved: {
         label: 'Disetujui',
@@ -140,7 +146,6 @@ export default function SubmissionDetailModal({
 
                     {/* ── Body: two columns ── */}
                     <div className="grid grid-cols-1 divide-y divide-slate-100 md:grid-cols-2 md:divide-x md:divide-y-0">
-
                         {/* ── LEFT: Foto + GPS ── */}
                         <div className="flex flex-col gap-6 overflow-y-auto p-6">
                             {/* Section label */}
@@ -322,16 +327,17 @@ export default function SubmissionDetailModal({
                                     </p>
                                     <div className="relative flex flex-col gap-0">
                                         {data.timelines.map((t, idx) => {
-                                            const cfg =
-                                                ACTION_CONFIG[t.action] ?? {
-                                                    label: t.action,
-                                                    icon: (
-                                                        <Clock className="size-4" />
-                                                    ),
-                                                    color: 'text-slate-600',
-                                                    bg: 'bg-slate-50',
-                                                    border: 'border-slate-200',
-                                                };
+                                            const cfg = ACTION_CONFIG[
+                                                t.action
+                                            ] ?? {
+                                                label: t.action,
+                                                icon: (
+                                                    <Clock className="size-4" />
+                                                ),
+                                                color: 'text-slate-600',
+                                                bg: 'bg-slate-50',
+                                                border: 'border-slate-200',
+                                            };
                                             const isLast =
                                                 idx ===
                                                 data.timelines!.length - 1;

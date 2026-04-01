@@ -10,7 +10,11 @@ export default function Edit({
     mustVerifyEmail,
     status,
     company,
-}: PageProps<{ mustVerifyEmail: boolean; status?: string; company?: Company | null }>) {
+}: PageProps<{
+    mustVerifyEmail: boolean;
+    status?: string;
+    company?: Company | null;
+}>) {
     const user = usePage().props.auth.user;
 
     return (

@@ -39,9 +39,7 @@ export default function TabNavigation({
                         </button>
                     ))}
                 </nav>
-                {actions && (
-                    <div className="pb-3">{actions}</div>
-                )}
+                {actions && <div className="pb-3">{actions}</div>}
             </div>
         </div>
     );

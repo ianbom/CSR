@@ -141,7 +141,10 @@ export default function ProjectOverview({
                         unit="/ 4.0"
                         badge={{
                             text: effectiveIkmStats.scoreLabel,
-                            type: effectiveIkmStats.score >= 4 ? 'positive' : 'stable',
+                            type:
+                                effectiveIkmStats.score >= 4
+                                    ? 'positive'
+                                    : 'stable',
                         }}
                         footer={
                             <p className="text-xs text-slate-500">
@@ -167,7 +170,8 @@ export default function ProjectOverview({
                                     <div
                                         key={i}
                                         className={`h-1.5 flex-1 rounded-full ${
-                                            i <= Math.ceil(effectiveSloiStats.score)
+                                            i <=
+                                            Math.ceil(effectiveSloiStats.score)
                                                 ? 'bg-primary'
                                                 : 'bg-slate-200'
                                         }`}

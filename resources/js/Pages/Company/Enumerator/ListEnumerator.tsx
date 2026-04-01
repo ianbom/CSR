@@ -2,7 +2,7 @@ import { Icon, SearchInput } from '@/Components/Company';
 import CreateEnumeratorModal from '@/Components/Company/CreateEnumeratorModal';
 import EditEnumeratorModal from '@/Components/Company/EditEnumeratorModal';
 import CompanyLayout from '@/Layouts/AppLayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import debounce from 'lodash/debounce';
 import { useCallback, useState } from 'react';
 
@@ -198,7 +198,7 @@ function EnumeratorCardItem({
             className="group relative cursor-pointer rounded-2xl border border-slate-100 bg-white p-6 transition-all hover:shadow-xl hover:shadow-slate-200/50"
         >
             {/* Action Buttons */}
-            <div className="absolute right-4 top-4 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 z-10">
+            <div className="absolute right-4 top-4 z-10 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                 <button
                     onClick={(e) => {
                         e.stopPropagation(); // Mencegah klik menembus ke card

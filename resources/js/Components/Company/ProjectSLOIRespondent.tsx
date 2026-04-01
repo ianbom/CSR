@@ -1,8 +1,11 @@
-import { ReactNode } from 'react';
-import SLOIRespondentTable from './SLOIRespondentTable';
-import type { SLOIRespondentsData, RespondentFilters } from './SLOIRespondentTable';
-import { Download } from 'lucide-react';
 import { router } from '@inertiajs/react';
+import { Download } from 'lucide-react';
+import { ReactNode } from 'react';
+import type {
+    RespondentFilters,
+    SLOIRespondentsData,
+} from './SLOIRespondentTable';
+import SLOIRespondentTable from './SLOIRespondentTable';
 
 interface Props {
     respondents: SLOIRespondentsData;
@@ -36,7 +39,11 @@ export default function ProjectSLOIRespondent({
                     </p>
                 </div>
                 <a
-                    href={route('projects.export-respondents', { id: projectId }) + '?type=SLOI'}
+                    href={
+                        route('projects.export-respondents', {
+                            id: projectId,
+                        }) + '?type=SLOI'
+                    }
                     className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
                 >
                     <Download className="size-4" />

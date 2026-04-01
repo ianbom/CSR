@@ -291,9 +291,21 @@ export default function DetailProject({
                     />
                 );
             case 'ikm_respondent':
-                return <ProjectIKMRespondent respondents={respondents} projectId={project.id} filters={respondentFilters} />;
+                return (
+                    <ProjectIKMRespondent
+                        respondents={respondents}
+                        projectId={project.id}
+                        filters={respondentFilters}
+                    />
+                );
             case 'sloi_respondent':
-                return <ProjectSLOIRespondent respondents={respondents} projectId={project.id} filters={respondentFilters} />;
+                return (
+                    <ProjectSLOIRespondent
+                        respondents={respondents}
+                        projectId={project.id}
+                        filters={respondentFilters}
+                    />
+                );
             case 'sroi':
                 return <ProjectSROI />;
             case 'enumerator':

@@ -112,8 +112,12 @@ export default function QuestionForm({
                         <MaterialIcon name="apartment" className="text-xl" />
                     </div>
                     <div>
-                        <p className="text-xs font-medium text-gray-500">Perusahaan</p>
-                        <p className="text-base font-bold text-gray-900">{companyName}</p>
+                        <p className="text-xs font-medium text-gray-500">
+                            Perusahaan
+                        </p>
+                        <p className="text-base font-bold text-gray-900">
+                            {companyName}
+                        </p>
                     </div>
                 </div>
             )}
@@ -177,7 +181,9 @@ export default function QuestionForm({
                                                         {questionNumber}
                                                     </span>
                                                     <h3 className="pt-0.5 text-base font-bold leading-snug text-gray-900">
-                                                        {formatQuestionText(question.question_text)}
+                                                        {formatQuestionText(
+                                                            question.question_text,
+                                                        )}
                                                     </h3>
                                                 </div>
 
@@ -254,7 +260,9 @@ export default function QuestionForm({
                                         <LikertScaleQuestion
                                             key={question.id}
                                             questionNumber={questionNumber}
-                                            question={formatQuestionText(question.question_text)}
+                                            question={formatQuestionText(
+                                                question.question_text,
+                                            )}
                                             name={sloiKey}
                                             value={answers[sloiKey]}
                                             onChange={(value) =>

@@ -24,7 +24,9 @@ export default function CreateInstrumentTemplateModal({
 }: CreateInstrumentTemplateModalProps): ReactNode {
     const [submitting, setSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [data, setDataState] = useState<InstrumentTemplateFormData>({ ...initialData });
+    const [data, setDataState] = useState<InstrumentTemplateFormData>({
+        ...initialData,
+    });
 
     const setData = <K extends keyof InstrumentTemplateFormData>(
         key: K,

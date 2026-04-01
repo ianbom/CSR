@@ -114,7 +114,9 @@ export default function RespondentForm({
                             icon="phone"
                             type="tel"
                             value={data.phone}
-                            onChange={(value) => updateDigitsOnly('phone', value)}
+                            onChange={(value) =>
+                                updateDigitsOnly('phone', value)
+                            }
                         />
 
                         {/* Usia */}

@@ -127,12 +127,9 @@ export default function InstrumentTemplateForm({
                     </label>
                     {data.is_active && (
                         <p className="mt-2 flex items-center gap-1 text-xs text-amber-600">
-                            <Icon
-                                name="warning"
-                                className="text-sm"
-                            />
-                            Mengaktifkan template ini akan menonaktifkan template{' '}
-                            {data.type || ''} lain yang sedang aktif.
+                            <Icon name="warning" className="text-sm" />
+                            Mengaktifkan template ini akan menonaktifkan
+                            template {data.type || ''} lain yang sedang aktif.
                         </p>
                     )}
                     {errors.is_active && (

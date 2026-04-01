@@ -1,4 +1,4 @@
-import { Icon, StepProgress } from '@/Components/Company';
+import { Icon } from '@/Components/Company';
 import ProjectForm from '@/Components/Company/ProjectForm';
 import { createProjectData } from '@/data';
 import CompanyLayout from '@/Layouts/AppLayout';

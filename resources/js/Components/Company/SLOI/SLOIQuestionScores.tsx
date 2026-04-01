@@ -1,4 +1,20 @@
 import { ReactNode } from 'react';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    LabelList,
+    XAxis,
+    YAxis,
+} from 'recharts';
+
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+    type ChartConfig,
+} from '@/Components/ui/chart';
 
 interface QuestionScore {
     id: string;
@@ -8,6 +24,21 @@ interface QuestionScore {
 interface SLOIQuestionScoresProps {
     scores?: QuestionScore[];
 }
+
+const chartConfig = {
+    score: {
+        label: 'Skor',
+    },
+    good: {
+        color: '#22c55e',
+    },
+    fair: {
+        color: '#eab308', // Yellow-500
+    },
+    poor: {
+        color: '#ef4444', // Red-500
+    },
+} satisfies ChartConfig;
 
 export default function SLOIQuestionScores({
     scores = [
@@ -25,11 +56,16 @@ export default function SLOIQuestionScores({
         { id: 'Q12', score: 4.2 },
     ],
 }: SLOIQuestionScoresProps): ReactNode {
-    const getBarColor = (score: number) => {
-        if (score >= 4) return 'bg-green-500';
-        if (score >= 3) return 'bg-primary';
-        return 'bg-amber-500';
-    };
+    const chartData = scores.map((item) => {
+        let fill = 'var(--color-poor)';
+        if (item.score >= 3) fill = 'var(--color-good)';
+        else if (item.score >= 2) fill = 'var(--color-fair)';
+
+        return {
+            ...item,
+            fill,
+        };
+    });
 
     return (
         <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
@@ -42,40 +78,46 @@ export default function SLOIQuestionScores({
                     <span>Skor (skala 1-5)</span>
                 </div>
             </div>
-            <div className="flex h-64 items-end justify-between gap-2 border-b border-l border-slate-200 pb-2 pl-2">
-                {scores.map((item) => {
-                    const heightPercent = (item.score / 5) * 100;
-                    return (
-                        <div
-                            key={item.id}
-                            className="group flex flex-1 flex-col items-center"
-                        >
-                            <div className="relative flex w-full flex-col items-center">
-                                <span className="mb-1 text-[10px] font-bold text-slate-700">
-                                    {item.score}
-                                </span>
-                                <div
-                                    className={`w-full max-w-8 rounded-t ${getBarColor(item.score)} transition-all group-hover:opacity-80`}
-                                    style={{
-                                        height: `${heightPercent * 2}px`,
-                                    }}
-                                ></div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-            {/* X-axis labels */}
-            <div className="mt-2 flex justify-between gap-2 pl-2">
-                {scores.map((item) => (
-                    <div
-                        key={item.id}
-                        className="flex-1 text-center text-[10px] font-bold text-slate-400"
-                    >
-                        {item.id}
-                    </div>
-                ))}
-            </div>
+
+            <ChartContainer config={chartConfig} className="h-72 w-full">
+                <BarChart
+                    accessibilityLayer
+                    data={chartData}
+                    margin={{
+                        top: 20,
+                    }}
+                >
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                        dataKey="id"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                    />
+                    <YAxis
+                        domain={[0, 5]}
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={10}
+                        hide
+                    />
+                    <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent hideLabel />}
+                    />
+                    <Bar dataKey="score" radius={8}>
+                        {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                        <LabelList
+                            position="top"
+                            offset={12}
+                            className="fill-foreground font-bold"
+                            fontSize={12}
+                        />
+                    </Bar>
+                </BarChart>
+            </ChartContainer>
         </div>
     );
 }

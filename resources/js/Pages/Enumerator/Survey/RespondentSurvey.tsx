@@ -111,7 +111,10 @@ export default function RespondentSurvey({
         }
     };
 
-    const buildFormData = (photo: File, redirectTo: 'final' | 'continue'): FormData => {
+    const buildFormData = (
+        photo: File,
+        redirectTo: 'final' | 'continue',
+    ): FormData => {
         const formData = new FormData();
 
         // Respondent fields — sesuai kolom tabel `respondents`

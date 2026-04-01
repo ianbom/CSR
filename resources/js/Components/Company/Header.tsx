@@ -29,7 +29,7 @@ export default function Header({ breadcrumb }: HeaderProps): ReactNode {
             </div>
 
             {/* Company / User Name */}
-            <div className="flex items-center gap-2.5  border-slate-200 bg-slate-50 px-4 py-2 shadow-sm">
+            <div className="flex items-center gap-2.5 border-slate-200 bg-slate-50 px-4 py-2 shadow-sm">
                 <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
                     <Building2 className="size-4 text-primary" />
                 </div>

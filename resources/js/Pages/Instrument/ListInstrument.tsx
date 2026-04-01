@@ -87,7 +87,8 @@ export default function ListInstrument({ templates, summary, filters }: Props) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
-    const [editingTemplate, setEditingTemplate] = useState<EditTemplateData | null>(null);
+    const [editingTemplate, setEditingTemplate] =
+        useState<EditTemplateData | null>(null);
 
     const handleEdit = (tpl: TemplateData) => {
         setEditingTemplate({

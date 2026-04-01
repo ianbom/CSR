@@ -1,7 +1,17 @@
-import { ReactNode, useState, useMemo } from 'react';
-import SubmissionDetailModal from './SubmissionDetailModal';
+import {
+    CheckSquare,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    ChevronUp,
+    Filter,
+    MinusSquare,
+    Square,
+    X,
+} from 'lucide-react';
+import { ReactNode, useMemo, useState } from 'react';
 import BulkStatusModal from './BulkStatusModal';
-import { CheckSquare, Square, MinusSquare, ChevronUp, ChevronDown, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import SubmissionDetailModal from './SubmissionDetailModal';
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -95,7 +105,11 @@ export default function SLOIRespondentTable({
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [showBulkModal, setShowBulkModal] = useState(false);
 
-    const hasActiveFilter = filters.enumerator || filters.resp_status || filters.education || filters.gender;
+    const hasActiveFilter =
+        filters.enumerator ||
+        filters.resp_status ||
+        filters.education ||
+        filters.gender;
 
     const navigate = (params: Record<string, string | number>) => {
         const query: Record<string, string | number> = {
@@ -110,7 +124,9 @@ export default function SLOIRespondentTable({
         };
 
         const cleaned = Object.fromEntries(
-            Object.entries(query).filter(([, v]) => v !== '' && v !== undefined && v !== null),
+            Object.entries(query).filter(
+                ([, v]) => v !== '' && v !== undefined && v !== null,
+            ),
         );
 
         onNavigate(cleaned);
@@ -121,12 +137,21 @@ export default function SLOIRespondentTable({
     };
 
     const clearFilters = () => {
-        navigate({ enumerator: '', resp_status: '', education: '', gender: '', page: 1 });
+        navigate({
+            enumerator: '',
+            resp_status: '',
+            education: '',
+            gender: '',
+            page: 1,
+        });
     };
 
     const handleSort = (field: string) => {
         const sortKey = field === 'submittedAt' ? 'submitted_at' : 'avg_score';
-        const newOrder = filters.sort_by === sortKey && filters.sort_order === 'desc' ? 'asc' : 'desc';
+        const newOrder =
+            filters.sort_by === sortKey && filters.sort_order === 'desc'
+                ? 'asc'
+                : 'desc';
         navigate({ sort_by: sortKey, sort_order: newOrder, page: 1 });
     };
 
@@ -139,14 +164,17 @@ export default function SLOIRespondentTable({
         if (filters.sort_by !== sortKey) {
             return <ChevronDown className="size-3 text-slate-300" />;
         }
-        return filters.sort_order === 'asc'
-            ? <ChevronUp className="size-3 text-primary" />
-            : <ChevronDown className="size-3 text-primary" />;
+        return filters.sort_order === 'asc' ? (
+            <ChevronUp className="size-3 text-primary" />
+        ) : (
+            <ChevronDown className="size-3 text-primary" />
+        );
     };
 
     const allIds = useMemo(() => rows.map((r) => r.submissionId), [rows]);
     const isAllSelected = rows.length > 0 && selectedIds.length === rows.length;
-    const isPartialSelected = selectedIds.length > 0 && selectedIds.length < rows.length;
+    const isPartialSelected =
+        selectedIds.length > 0 && selectedIds.length < rows.length;
 
     const toggleSelect = (id: number) => {
         setSelectedIds((prev) =>
@@ -162,14 +190,21 @@ export default function SLOIRespondentTable({
         const pages: number[] = [];
         const { currentPage, lastPage } = pagination;
         const delta = 2;
-        for (let i = Math.max(1, currentPage - delta); i <= Math.min(lastPage, currentPage + delta); i++) {
+        for (
+            let i = Math.max(1, currentPage - delta);
+            i <= Math.min(lastPage, currentPage + delta);
+            i++
+        ) {
             pages.push(i);
         }
         return pages;
     }, [pagination]);
 
     const startItem = (pagination.currentPage - 1) * pagination.perPage + 1;
-    const endItem = Math.min(pagination.currentPage * pagination.perPage, pagination.total);
+    const endItem = Math.min(
+        pagination.currentPage * pagination.perPage,
+        pagination.total,
+    );
 
     return (
         <div className="space-y-6">
@@ -192,54 +227,81 @@ export default function SLOIRespondentTable({
                 </div>
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                     <div>
-                        <label className="mb-1 block text-[11px] font-medium text-slate-500">Enumerator</label>
+                        <label className="mb-1 block text-[11px] font-medium text-slate-500">
+                            Enumerator
+                        </label>
                         <select
                             value={filters.enumerator}
-                            onChange={(e) => handleFilterChange('enumerator', e.target.value)}
+                            onChange={(e) =>
+                                handleFilterChange('enumerator', e.target.value)
+                            }
                             className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                         >
                             <option value="">Semua</option>
                             {filterOptions.enumerators.map((e) => (
-                                <option key={e} value={e}>{e}</option>
+                                <option key={e} value={e}>
+                                    {e}
+                                </option>
                             ))}
                         </select>
                     </div>
                     <div>
-                        <label className="mb-1 block text-[11px] font-medium text-slate-500">Status Submission</label>
+                        <label className="mb-1 block text-[11px] font-medium text-slate-500">
+                            Status Submission
+                        </label>
                         <select
                             value={filters.resp_status}
-                            onChange={(e) => handleFilterChange('resp_status', e.target.value)}
+                            onChange={(e) =>
+                                handleFilterChange(
+                                    'resp_status',
+                                    e.target.value,
+                                )
+                            }
                             className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                         >
                             <option value="">Semua</option>
                             {filterOptions.statuses.map((s) => (
-                                <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                                <option key={s} value={s}>
+                                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                                </option>
                             ))}
                         </select>
                     </div>
                     <div>
-                        <label className="mb-1 block text-[11px] font-medium text-slate-500">Pendidikan</label>
+                        <label className="mb-1 block text-[11px] font-medium text-slate-500">
+                            Pendidikan
+                        </label>
                         <select
                             value={filters.education}
-                            onChange={(e) => handleFilterChange('education', e.target.value)}
+                            onChange={(e) =>
+                                handleFilterChange('education', e.target.value)
+                            }
                             className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                         >
                             <option value="">Semua</option>
                             {filterOptions.educations.map((ed) => (
-                                <option key={ed} value={ed}>{ed}</option>
+                                <option key={ed} value={ed}>
+                                    {ed}
+                                </option>
                             ))}
                         </select>
                     </div>
                     <div>
-                        <label className="mb-1 block text-[11px] font-medium text-slate-500">Gender</label>
+                        <label className="mb-1 block text-[11px] font-medium text-slate-500">
+                            Gender
+                        </label>
                         <select
                             value={filters.gender}
-                            onChange={(e) => handleFilterChange('gender', e.target.value)}
+                            onChange={(e) =>
+                                handleFilterChange('gender', e.target.value)
+                            }
                             className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                         >
                             <option value="">Semua</option>
                             {filterOptions.genders.map((g) => (
-                                <option key={g} value={g}>{g}</option>
+                                <option key={g} value={g}>
+                                    {g}
+                                </option>
                             ))}
                         </select>
                     </div>
@@ -354,10 +416,14 @@ export default function SLOIRespondentTable({
                                 >
                                     <td className="sticky left-0 z-10 bg-white px-3 py-3 text-center">
                                         <button
-                                            onClick={() => toggleSelect(row.submissionId)}
+                                            onClick={() =>
+                                                toggleSelect(row.submissionId)
+                                            }
                                             className="text-slate-400 transition-colors hover:text-primary"
                                         >
-                                            {selectedIds.includes(row.submissionId) ? (
+                                            {selectedIds.includes(
+                                                row.submissionId,
+                                            ) ? (
                                                 <CheckSquare className="size-4 text-primary" />
                                             ) : (
                                                 <Square className="size-4" />
@@ -445,22 +511,32 @@ export default function SLOIRespondentTable({
             <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-white px-5 py-3 shadow-sm">
                 <div className="flex items-center gap-3">
                     <p className="text-xs text-slate-500">
-                        Menampilkan {startItem}-{endItem} dari {pagination.total} data
+                        Menampilkan {startItem}-{endItem} dari{' '}
+                        {pagination.total} data
                     </p>
                     <select
                         value={filters.per_page}
-                        onChange={(e) => navigate({ per_page: Number(e.target.value), page: 1 })}
+                        onChange={(e) =>
+                            navigate({
+                                per_page: Number(e.target.value),
+                                page: 1,
+                            })
+                        }
                         className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-600 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     >
                         {[10, 50, 100].map((n) => (
-                            <option key={n} value={n}>{n} / halaman</option>
+                            <option key={n} value={n}>
+                                {n} / halaman
+                            </option>
                         ))}
                     </select>
                 </div>
                 {pagination.lastPage > 1 && (
                     <div className="flex items-center gap-1">
                         <button
-                            onClick={() => handlePageChange(pagination.currentPage - 1)}
+                            onClick={() =>
+                                handlePageChange(pagination.currentPage - 1)
+                            }
                             disabled={pagination.currentPage <= 1}
                             className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-40 disabled:hover:bg-transparent"
                         >
@@ -475,7 +551,9 @@ export default function SLOIRespondentTable({
                                     1
                                 </button>
                                 {pageNumbers[0] > 2 && (
-                                    <span className="px-1 text-xs text-slate-400">...</span>
+                                    <span className="px-1 text-xs text-slate-400">
+                                        ...
+                                    </span>
                                 )}
                             </>
                         )}
@@ -492,13 +570,19 @@ export default function SLOIRespondentTable({
                                 {p}
                             </button>
                         ))}
-                        {pageNumbers[pageNumbers.length - 1] < pagination.lastPage && (
+                        {pageNumbers[pageNumbers.length - 1] <
+                            pagination.lastPage && (
                             <>
-                                {pageNumbers[pageNumbers.length - 1] < pagination.lastPage - 1 && (
-                                    <span className="px-1 text-xs text-slate-400">...</span>
+                                {pageNumbers[pageNumbers.length - 1] <
+                                    pagination.lastPage - 1 && (
+                                    <span className="px-1 text-xs text-slate-400">
+                                        ...
+                                    </span>
                                 )}
                                 <button
-                                    onClick={() => handlePageChange(pagination.lastPage)}
+                                    onClick={() =>
+                                        handlePageChange(pagination.lastPage)
+                                    }
                                     className="min-w-[32px] rounded-lg px-2 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100"
                                 >
                                     {pagination.lastPage}
@@ -506,8 +590,12 @@ export default function SLOIRespondentTable({
                             </>
                         )}
                         <button
-                            onClick={() => handlePageChange(pagination.currentPage + 1)}
-                            disabled={pagination.currentPage >= pagination.lastPage}
+                            onClick={() =>
+                                handlePageChange(pagination.currentPage + 1)
+                            }
+                            disabled={
+                                pagination.currentPage >= pagination.lastPage
+                            }
                             className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-40 disabled:hover:bg-transparent"
                         >
                             <ChevronRight className="size-4" />
@@ -531,12 +619,14 @@ export default function SLOIRespondentTable({
                                   name: selected.respondent.name,
                                   gender: selected.respondent.gender,
                                   age: selected.respondent.age,
-                                  educationLevel: selected.respondent.educationLevel,
+                                  educationLevel:
+                                      selected.respondent.educationLevel,
                                   address: selected.respondent.address,
                                   phone: selected.respondent.phone,
                                   status: selected.respondent.status,
                                   occupation: selected.respondent.occupation,
-                                  monthlyIncome: selected.respondent.monthlyIncome,
+                                  monthlyIncome:
+                                      selected.respondent.monthlyIncome,
                               }
                             : null,
                         timelines: selected.timelines,

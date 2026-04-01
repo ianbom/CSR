@@ -58,11 +58,7 @@ export default function SLOIAgeRangeChart({
                         cursor={false}
                         content={<ChartTooltipContent hideLabel />}
                     />
-                    <Bar
-                        dataKey="count"
-                        fill="var(--color-count)"
-                        radius={8}
-                    >
+                    <Bar dataKey="count" fill="var(--color-count)" radius={8}>
                         <LabelList
                             position="top"
                             offset={12}

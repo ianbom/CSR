@@ -1,9 +1,11 @@
 import { Icon, TabNavigation } from '@/Components/Company';
+import type {
+    IKMRespondentsData,
+    RespondentFilters,
+} from '@/Components/Company/IKMRespondentTable';
 import IKMRespondentTable from '@/Components/Company/IKMRespondentTable';
-import type { IKMRespondentsData } from '@/Components/Company/IKMRespondentTable';
-import SLOIRespondentTable from '@/Components/Company/SLOIRespondentTable';
 import type { SLOIRespondentsData } from '@/Components/Company/SLOIRespondentTable';
-import type { RespondentFilters } from '@/Components/Company/IKMRespondentTable';
+import SLOIRespondentTable from '@/Components/Company/SLOIRespondentTable';
 import CompanyLayout from '@/Layouts/AppLayout';
 import { Head, Link, router } from '@inertiajs/react';
 
@@ -71,7 +73,9 @@ export default function DetailEnumerator({
         );
     };
 
-    const handleRespondentNavigate = (params: Record<string, string | number>) => {
+    const handleRespondentNavigate = (
+        params: Record<string, string | number>,
+    ) => {
         router.get(
             route('enumerators.show', { id: profile.id }),
             { tab, ...params },
@@ -87,7 +91,9 @@ export default function DetailEnumerator({
         .toUpperCase();
 
     return (
-        <CompanyLayout breadcrumb={{ parent: 'Enumerator', current: profile.name }}>
+        <CompanyLayout
+            breadcrumb={{ parent: 'Enumerator', current: profile.name }}
+        >
             <Head title={`Detail Enumerator - ${profile.name}`} />
 
             <div className="p-8">
@@ -109,7 +115,9 @@ export default function DetailEnumerator({
                             </div>
                             <div
                                 className={`absolute bottom-1 right-1 size-4 rounded-full border-2 border-white ${
-                                    profile.isActive ? 'bg-green-500' : 'bg-slate-300'
+                                    profile.isActive
+                                        ? 'bg-green-500'
+                                        : 'bg-slate-300'
                                 }`}
                             />
                         </div>
@@ -135,13 +143,19 @@ export default function DetailEnumerator({
                                 </span>
                                 {profile.phone && (
                                     <span className="flex items-center gap-1">
-                                        <Icon name="phone" className="text-base" />
+                                        <Icon
+                                            name="phone"
+                                            className="text-base"
+                                        />
                                         {profile.phone}
                                     </span>
                                 )}
                                 {profile.createdAt && (
                                     <span className="flex items-center gap-1">
-                                        <Icon name="calendar_today" className="text-base" />
+                                        <Icon
+                                            name="calendar_today"
+                                            className="text-base"
+                                        />
                                         Bergabung {profile.createdAt}
                                     </span>
                                 )}
@@ -152,16 +166,66 @@ export default function DetailEnumerator({
 
                 {/* Stats Cards */}
                 <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
-                    <StatCard label="Total Pengiriman" value={stats.totalSubmissions} icon="send" color="primary" />
-                    <StatCard label="IKM" value={stats.ikmSubmissions} icon="sentiment_satisfied" color="blue" />
-                    <StatCard label="SLOI" value={stats.sloiSubmissions} icon="assessment" color="indigo" />
-                    <StatCard label="Disetujui" value={stats.approvedSubmissions} icon="check_circle" color="green" />
-                    <StatCard label="Ditolak" value={stats.rejectedSubmissions} icon="cancel" color="red" />
-                    <StatCard label="Menunggu" value={stats.pendingSubmissions} icon="pending" color="amber" />
-                    <StatCard label="Total Proyek" value={stats.totalProjects} icon="folder" color="slate" />
-                    <StatCard label="Proyek Aktif" value={stats.activeProjects} icon="folder_open" color="emerald" />
-                    <StatCard label="Rerata IKM" value={stats.avgScoreIkm} icon="sentiment_satisfied" color="yellow" />
-                    <StatCard label="Rerata SLOI" value={stats.avgScoreSloi} icon="assessment" color="purple" />
+                    <StatCard
+                        label="Total Pengiriman"
+                        value={stats.totalSubmissions}
+                        icon="send"
+                        color="primary"
+                    />
+                    <StatCard
+                        label="IKM"
+                        value={stats.ikmSubmissions}
+                        icon="sentiment_satisfied"
+                        color="blue"
+                    />
+                    <StatCard
+                        label="SLOI"
+                        value={stats.sloiSubmissions}
+                        icon="assessment"
+                        color="indigo"
+                    />
+                    <StatCard
+                        label="Disetujui"
+                        value={stats.approvedSubmissions}
+                        icon="check_circle"
+                        color="green"
+                    />
+                    <StatCard
+                        label="Ditolak"
+                        value={stats.rejectedSubmissions}
+                        icon="cancel"
+                        color="red"
+                    />
+                    <StatCard
+                        label="Menunggu"
+                        value={stats.pendingSubmissions}
+                        icon="pending"
+                        color="amber"
+                    />
+                    <StatCard
+                        label="Total Proyek"
+                        value={stats.totalProjects}
+                        icon="folder"
+                        color="slate"
+                    />
+                    <StatCard
+                        label="Proyek Aktif"
+                        value={stats.activeProjects}
+                        icon="folder_open"
+                        color="emerald"
+                    />
+                    <StatCard
+                        label="Rerata IKM"
+                        value={stats.avgScoreIkm}
+                        icon="sentiment_satisfied"
+                        color="yellow"
+                    />
+                    <StatCard
+                        label="Rerata SLOI"
+                        value={stats.avgScoreSloi}
+                        icon="assessment"
+                        color="purple"
+                    />
                 </div>
 
                 {/* Tab Navigation */}
@@ -183,7 +247,9 @@ export default function DetailEnumerator({
                 {tab === 'ikm' && respondents && (
                     <div className="space-y-4">
                         <div>
-                            <h2 className="text-xl font-bold text-slate-900">Data Responden IKM</h2>
+                            <h2 className="text-xl font-bold text-slate-900">
+                                Data Responden IKM
+                            </h2>
                             <p className="text-sm text-slate-500">
                                 Total {respondents.pagination.total} responden
                             </p>
@@ -210,7 +276,9 @@ export default function DetailEnumerator({
                 {tab === 'sloi' && respondents && (
                     <div className="space-y-4">
                         <div>
-                            <h2 className="text-xl font-bold text-slate-900">Data Responden SLOI</h2>
+                            <h2 className="text-xl font-bold text-slate-900">
+                                Data Responden SLOI
+                            </h2>
                             <p className="text-sm text-slate-500">
                                 Total {respondents.pagination.total} responden
                             </p>
@@ -242,16 +310,32 @@ const colorMap: Record<string, string> = {
     purple: 'bg-purple-50 text-purple-600',
 };
 
-function StatCard({ label, value, icon, color }: { label: string; value: number; icon: string; color: string }) {
+function StatCard({
+    label,
+    value,
+    icon,
+    color,
+}: {
+    label: string;
+    value: number;
+    icon: string;
+    color: string;
+}) {
     return (
         <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
             <div className="flex items-center gap-3">
-                <div className={`flex size-10 items-center justify-center rounded-lg ${colorMap[color] ?? colorMap.primary}`}>
+                <div
+                    className={`flex size-10 items-center justify-center rounded-lg ${colorMap[color] ?? colorMap.primary}`}
+                >
                     <Icon name={icon} className="text-xl" />
                 </div>
                 <div>
-                    <p className="text-2xl font-black text-slate-900">{value}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{label}</p>
+                    <p className="text-2xl font-black text-slate-900">
+                        {value}
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        {label}
+                    </p>
                 </div>
             </div>
         </div>
@@ -273,28 +357,62 @@ function ProfileTab({
         <div className="grid gap-6 lg:grid-cols-2">
             {/* Profile Info */}
             <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
-                <h3 className="mb-4 text-lg font-bold text-slate-900">Informasi Profil</h3>
+                <h3 className="mb-4 text-lg font-bold text-slate-900">
+                    Informasi Profil
+                </h3>
                 <dl className="space-y-3">
                     <InfoRow label="Nama Lengkap" value={profile.name} />
                     <InfoRow label="Email" value={profile.email} />
                     <InfoRow label="Telepon" value={profile.phone ?? '-'} />
-                    <InfoRow label="Status" value={profile.isActive ? 'Aktif' : 'Tidak Aktif'} />
-                    <InfoRow label="Bergabung Sejak" value={profile.createdAt ?? '-'} />
+                    <InfoRow
+                        label="Status"
+                        value={profile.isActive ? 'Aktif' : 'Tidak Aktif'}
+                    />
+                    <InfoRow
+                        label="Bergabung Sejak"
+                        value={profile.createdAt ?? '-'}
+                    />
                 </dl>
             </div>
 
             {/* Performance Summary */}
             <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
-                <h3 className="mb-4 text-lg font-bold text-slate-900">Ringkasan Kinerja</h3>
+                <h3 className="mb-4 text-lg font-bold text-slate-900">
+                    Ringkasan Kinerja
+                </h3>
                 <dl className="space-y-3">
-                    <InfoRow label="Total Pengiriman" value={String(stats.totalSubmissions)} />
-                    <InfoRow label="Pengiriman IKM" value={String(stats.ikmSubmissions)} />
-                    <InfoRow label="Pengiriman SLOI" value={String(stats.sloiSubmissions)} />
-                    <InfoRow label="Disetujui" value={String(stats.approvedSubmissions)} />
-                    <InfoRow label="Ditolak" value={String(stats.rejectedSubmissions)} />
-                    <InfoRow label="Menunggu" value={String(stats.pendingSubmissions)} />
-                    <InfoRow label="Rerata Skor IKM" value={String(stats.avgScoreIkm)} />
-                    <InfoRow label="Rerata Skor SLOI" value={String(stats.avgScoreSloi)} />
+                    <InfoRow
+                        label="Total Pengiriman"
+                        value={String(stats.totalSubmissions)}
+                    />
+                    <InfoRow
+                        label="Pengiriman IKM"
+                        value={String(stats.ikmSubmissions)}
+                    />
+                    <InfoRow
+                        label="Pengiriman SLOI"
+                        value={String(stats.sloiSubmissions)}
+                    />
+                    <InfoRow
+                        label="Disetujui"
+                        value={String(stats.approvedSubmissions)}
+                    />
+                    <InfoRow
+                        label="Ditolak"
+                        value={String(stats.rejectedSubmissions)}
+                    />
+                    <InfoRow
+                        label="Menunggu"
+                        value={String(stats.pendingSubmissions)}
+                    />
+                    <InfoRow
+                        label="Rerata Skor IKM"
+                        value={String(stats.avgScoreIkm)}
+                    />
+                    <InfoRow
+                        label="Rerata Skor SLOI"
+                        value={String(stats.avgScoreSloi)}
+                    />
                 </dl>
             </div>
 
@@ -304,7 +422,9 @@ function ProfileTab({
                     Proyek Ditugaskan ({assignedProjects.length})
                 </h3>
                 {assignedProjects.length === 0 ? (
-                    <p className="text-sm text-slate-400">Belum ada proyek yang ditugaskan</p>
+                    <p className="text-sm text-slate-400">
+                        Belum ada proyek yang ditugaskan
+                    </p>
                 ) : (
                     <div className="overflow-hidden rounded-lg border border-slate-100">
                         <table className="w-full text-sm">
@@ -323,13 +443,18 @@ function ProfileTab({
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {assignedProjects.map((project) => (
-                                    <tr key={project.id} className="transition-colors hover:bg-slate-50/50">
+                                    <tr
+                                        key={project.id}
+                                        className="transition-colors hover:bg-slate-50/50"
+                                    >
                                         <td className="px-4 py-3 font-mono text-xs font-medium text-slate-600">
                                             {project.projectCode}
                                         </td>
                                         <td className="px-4 py-3 font-medium text-slate-900">
                                             <Link
-                                                href={route('projects.show', { id: project.id })}
+                                                href={route('projects.show', {
+                                                    id: project.id,
+                                                })}
                                                 className="transition-colors hover:text-primary"
                                             >
                                                 {project.name}
@@ -340,7 +465,8 @@ function ProfileTab({
                                                 className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
                                                     project.status === 'active'
                                                         ? 'bg-green-100 text-green-700'
-                                                        : project.status === 'draft'
+                                                        : project.status ===
+                                                            'draft'
                                                           ? 'bg-amber-100 text-amber-700'
                                                           : 'bg-slate-100 text-slate-600'
                                                 }`}

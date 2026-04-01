@@ -176,17 +176,17 @@ function IPAScatterChart({
 
                 {/* X-axis tick labels */}
                 {xTicks.map((tick) => (
-                        <text
-                            key={`xl-${tick}`}
-                            x={toSvgX(tick)}
-                            y={marginTop + plotH + (compact ? 14 : 18)}
-                            textAnchor="middle"
-                            className="fill-slate-500"
-                            style={{ fontSize }}
-                        >
-                            {tick.toFixed(2).replace('.', ',')}
-                        </text>
-                    ))}
+                    <text
+                        key={`xl-${tick}`}
+                        x={toSvgX(tick)}
+                        y={marginTop + plotH + (compact ? 14 : 18)}
+                        textAnchor="middle"
+                        className="fill-slate-500"
+                        style={{ fontSize }}
+                    >
+                        {tick.toFixed(2).replace('.', ',')}
+                    </text>
+                ))}
 
                 {/* Y-axis tick labels */}
                 {yTicks.map((tick) => (
@@ -248,7 +248,8 @@ function IPAScatterChart({
                                 prev.performance === q.performance &&
                                 prev.importance === q.importance,
                         ).length;
-                    const angle = (overlapIndex * (2 * Math.PI)) / 3 - Math.PI / 2;
+                    const angle =
+                        (overlapIndex * (2 * Math.PI)) / 3 - Math.PI / 2;
                     const offsetDist = overlapIndex > 0 ? dotR * 2.5 : 0;
                     const cx = baseCx + Math.cos(angle) * offsetDist;
                     const cy = baseCy + Math.sin(angle) * offsetDist;

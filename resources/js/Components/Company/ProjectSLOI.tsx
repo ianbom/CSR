@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 
 import {
     SLOIAgeRangeChart,
-    SLOIAuditLog,
     SLOIEducationChart,
     SLOIGenderPieChart,
     SLOIHeader,
@@ -145,10 +144,10 @@ export default function ProjectSLOI({
             />
 
             {/* Audit Log */}
-            <SLOIAuditLog
+            {/* <SLOIAuditLog
                 auditLog={auditLog}
                 totalResponses={stats.totalResponses}
-            />
+            /> */}
         </div>
     );
 }

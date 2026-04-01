@@ -46,22 +46,18 @@ export default function CreateQuestionModal({
         setSubmitting(true);
         setErrors({});
 
-        router.post(
-            `/templates/${templateId}/questions`,
-            data as any,
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setSubmitting(false);
-                    resetForm();
-                    onClose();
-                },
-                onError: (errs) => {
-                    setErrors(errs as Record<string, string>);
-                    setSubmitting(false);
-                },
+        router.post(`/templates/${templateId}/questions`, data as any, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setSubmitting(false);
+                resetForm();
+                onClose();
             },
-        );
+            onError: (errs) => {
+                setErrors(errs as Record<string, string>);
+                setSubmitting(false);
+            },
+        });
     };
 
     if (!isOpen) return null;

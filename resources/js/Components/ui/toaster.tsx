@@ -95,13 +95,9 @@ export function Toaster() {
                         )}
                     >
                         {toast.type === 'success' ? (
-                            <CheckCircle2
-                                className="size-4 text-green-600 dark:text-green-400"
-                            />
+                            <CheckCircle2 className="size-4 text-green-600 dark:text-green-400" />
                         ) : (
-                            <AlertCircle
-                                className="size-4 text-red-600 dark:text-red-400"
-                            />
+                            <AlertCircle className="size-4 text-red-600 dark:text-red-400" />
                         )}
                     </div>
 

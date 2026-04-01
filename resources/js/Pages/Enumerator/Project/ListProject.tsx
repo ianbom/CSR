@@ -1,5 +1,4 @@
 import {
-    FilterChip,
     PageHeader,
     ProjectCard,
     ProjectData,

@@ -54,7 +54,9 @@ export default function ReviewFooter({
                             className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border-2 border-primary px-6 text-base font-bold text-primary transition-all hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                         >
                             <span>{submitAndContinueLabel}</span>
-                            <span className="material-symbols-outlined">refresh</span>
+                            <span className="material-symbols-outlined">
+                                refresh
+                            </span>
                         </button>
                     )}
 

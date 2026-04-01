@@ -107,10 +107,14 @@ export default function ReviewForm({
 
     const typeLabel = (type: string): string => {
         switch (type) {
-            case 'ikm-kepentingan': return 'IKM Kepentingan';
-            case 'ikm-kinerja': return 'IKM Kinerja';
-            case 'sloi': return 'SLOI';
-            default: return type;
+            case 'ikm-kepentingan':
+                return 'IKM Kepentingan';
+            case 'ikm-kinerja':
+                return 'IKM Kinerja';
+            case 'sloi':
+                return 'SLOI';
+            default:
+                return type;
         }
     };
 
@@ -220,33 +224,39 @@ export default function ReviewForm({
                     {Object.entries(answers).length > 0 ? (
                         Object.entries(answers)
                             .sort(([keyA], [keyB]) => {
-                                const qIdA = Number(keyA.substring(0, keyA.indexOf('-')));
-                                const qIdB = Number(keyB.substring(0, keyB.indexOf('-')));
-                                const orderA = questionMap.get(qIdA)?.order_no ?? qIdA;
-                                const orderB = questionMap.get(qIdB)?.order_no ?? qIdB;
+                                const qIdA = Number(
+                                    keyA.substring(0, keyA.indexOf('-')),
+                                );
+                                const qIdB = Number(
+                                    keyB.substring(0, keyB.indexOf('-')),
+                                );
+                                const orderA =
+                                    questionMap.get(qIdA)?.order_no ?? qIdA;
+                                const orderB =
+                                    questionMap.get(qIdB)?.order_no ?? qIdB;
                                 if (orderA !== orderB) return orderA - orderB;
                                 return keyA.localeCompare(keyB);
                             })
                             .map(([key, value]) => {
-                            const dashIdx = key.indexOf('-');
-                            const qId = Number(key.substring(0, dashIdx));
-                            const type = key.substring(dashIdx + 1);
-                            const question = questionMap.get(qId);
+                                const dashIdx = key.indexOf('-');
+                                const qId = Number(key.substring(0, dashIdx));
+                                const type = key.substring(dashIdx + 1);
+                                const question = questionMap.get(qId);
 
-                            return (
-                                <ReviewItem
-                                    key={key}
-                                    label={`${question?.code ?? `Q${qId}`} — ${typeLabel(type)}`}
-                                    value={question?.question_text ?? '-'}
-                                    badge={
-                                        <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-sm font-semibold text-primary">
-                                            Nilai: {value}
-                                        </span>
-                                    }
-                                    onEdit={onEditQuestions}
-                                />
-                            );
-                        })
+                                return (
+                                    <ReviewItem
+                                        key={key}
+                                        label={`${question?.code ?? `Q${qId}`} — ${typeLabel(type)}`}
+                                        value={question?.question_text ?? '-'}
+                                        badge={
+                                            <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-sm font-semibold text-primary">
+                                                Nilai: {value}
+                                            </span>
+                                        }
+                                        onEdit={onEditQuestions}
+                                    />
+                                );
+                            })
                     ) : (
                         <ReviewItem
                             label="Status"

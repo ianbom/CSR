@@ -45,7 +45,10 @@ export default function UpdateCompanyForm({
 
             <form onSubmit={submit} className="mt-6 space-y-6">
                 <div>
-                    <InputLabel htmlFor="company_name" value="Nama Perusahaan" />
+                    <InputLabel
+                        htmlFor="company_name"
+                        value="Nama Perusahaan"
+                    />
 
                     <TextInput
                         id="company_name"
@@ -73,7 +76,10 @@ export default function UpdateCompanyForm({
 
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                        <InputLabel htmlFor="company_email" value="Email Perusahaan" />
+                        <InputLabel
+                            htmlFor="company_email"
+                            value="Email Perusahaan"
+                        />
 
                         <TextInput
                             id="company_email"
@@ -87,7 +93,10 @@ export default function UpdateCompanyForm({
                     </div>
 
                     <div>
-                        <InputLabel htmlFor="company_phone" value="Telepon Perusahaan" />
+                        <InputLabel
+                            htmlFor="company_phone"
+                            value="Telepon Perusahaan"
+                        />
 
                         <TextInput
                             id="company_phone"
@@ -119,7 +128,9 @@ export default function UpdateCompanyForm({
                     <PrimaryButton disabled={processing}>Simpan</PrimaryButton>
 
                     <Transition
-                        show={recentlySuccessful || status === 'company-updated'}
+                        show={
+                            recentlySuccessful || status === 'company-updated'
+                        }
                         enter="transition ease-in-out"
                         enterFrom="opacity-0"
                         leave="transition ease-in-out"

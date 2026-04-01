@@ -60,21 +60,17 @@ export default function EditEnumeratorModal({
         setSubmitting(true);
         setErrors({});
 
-        router.put(
-            `/enumerators/${enumerator.id}`,
-            data as any,
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setSubmitting(false);
-                    onClose();
-                },
-                onError: (errs) => {
-                    setErrors(errs as Record<string, string>);
-                    setSubmitting(false);
-                },
+        router.put(`/enumerators/${enumerator.id}`, data as any, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setSubmitting(false);
+                onClose();
             },
-        );
+            onError: (errs) => {
+                setErrors(errs as Record<string, string>);
+                setSubmitting(false);
+            },
+        });
     };
 
     if (!isOpen) return null;

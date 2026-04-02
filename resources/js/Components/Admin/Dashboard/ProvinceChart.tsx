@@ -55,7 +55,7 @@ export function ProvinceChart({ data }: ProvinceChartProps) {
                             <Bar dataKey="count" radius={[0, 6, 6, 0]}>
                                 {data.map((_, index) => (
                                     <Cell
-                                        key={'cell-'+{index}}
+                                        key={'cell-' + { index }}
                                         fill={
                                             pieColors[index % pieColors.length]
                                         }

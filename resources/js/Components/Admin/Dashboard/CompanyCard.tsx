@@ -37,7 +37,10 @@ export function CompanyCard({ company }: CompanyCardProps) {
                 </div>
             </div>
             <span
-                className={'rounded-full px-2.5 py-1 text-xs font-medium ' + statusColors[company.status]}
+                className={
+                    'rounded-full px-2.5 py-1 text-xs font-medium ' +
+                    statusColors[company.status]
+                }
             >
                 {company.status}
             </span>

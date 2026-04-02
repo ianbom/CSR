@@ -5,7 +5,12 @@ interface MiniStatProps {
     subtitle?: string;
 }
 
-export function MiniStat({ icon: Icon, label, value, subtitle }: MiniStatProps) {
+export function MiniStat({
+    icon: Icon,
+    label,
+    value,
+    subtitle,
+}: MiniStatProps) {
     return (
         <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700">

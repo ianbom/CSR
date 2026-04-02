@@ -18,12 +18,7 @@ import {
     type SubmissionTypeData,
     type User,
 } from '@/Components/Admin/Dashboard';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/Components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import AppLayout from '@/Layouts/AppLayout';
 import { Head, Link } from '@inertiajs/react';
 import {

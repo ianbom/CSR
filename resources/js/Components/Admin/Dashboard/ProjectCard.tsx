@@ -45,7 +45,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
                     </p>
                 </div>
                 <span
-                    className={'flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ' + config.color}
+                    className={
+                        'flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ' +
+                        config.color
+                    }
                 >
                     <StatusIcon className="h-3 w-3" />
                     {project.status}

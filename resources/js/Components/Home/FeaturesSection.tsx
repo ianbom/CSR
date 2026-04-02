@@ -1,5 +1,5 @@
 import { BentoCard, BentoGrid } from '@/Components/ui/bento-grid';
-import { Users, Leaf, TrendingUp, Database } from 'lucide-react';
+import { Leaf, TrendingUp, Users } from 'lucide-react';
 
 const features = [
     {

@@ -16,8 +16,11 @@ export default function AppLayout({
     children,
     breadcrumb,
 }: AppLayoutProps): ReactNode {
-    const { auth } = usePage().props as {
-        auth: { user: { name: string; email: string } };
+    const { auth } = usePage().props as unknown as {
+        auth: {
+            user: { name: string; email: string; role: string };
+            companyName?: string;
+        };
     };
     const currentPath = window.location.pathname;
 
@@ -27,8 +30,10 @@ export default function AppLayout({
             <Sidebar
                 currentRoute={currentPath}
                 user={{
+                    companyName: auth.companyName,
                     name: auth.user.name,
                     email: auth.user.email,
+                    role: auth.user.role,
                 }}
             />
 

@@ -14,10 +14,14 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
+        if ($user->role == 'admin' || $user->role == 'superadmin') {
+            return Inertia::render('Dashboard/AdminDashboard');
+        }
+
         if ($user->role == 'company') {
             $data = $this->dashboardService->getCompanyDashboardData($user->company_id);
 
-            return Inertia::render('Company/Dashboard', $data);
+            return Inertia::render('Dashboard/CompanyDashboard', $data);
         }
 
         if ($user->role == 'enumerator') {

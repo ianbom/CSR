@@ -1,7 +1,8 @@
-import { Link } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
+import { Link } from '@inertiajs/react';
 import {
     ArrowUpRight,
+    Database,
     Github,
     Instagram,
     Leaf,
@@ -12,7 +13,6 @@ import {
     TrendingUp,
     Twitter,
     Users,
-    Database,
 } from 'lucide-react';
 
 export default function FooterSection() {
@@ -35,15 +35,33 @@ export default function FooterSection() {
                                 />
                             </div>
                             <p className="mt-4 text-sm leading-6 text-gray-500 dark:text-gray-400">
-                                Platform evaluasi program CSR terdepan di Indonesia. Ukur, kelola, dan tingkatkan dampak sosial perusahaan Anda.
+                                Platform evaluasi program CSR terdepan di
+                                Indonesia. Ukur, kelola, dan tingkatkan dampak
+                                sosial perusahaan Anda.
                             </p>
                             {/* Social Links */}
                             <div className="mt-6 flex items-center gap-3">
                                 {[
-                                    { icon: Twitter, label: 'Twitter', href: '#' },
-                                    { icon: Linkedin, label: 'LinkedIn', href: '#' },
-                                    { icon: Instagram, label: 'Instagram', href: '#' },
-                                    { icon: Github, label: 'GitHub', href: '#' },
+                                    {
+                                        icon: Twitter,
+                                        label: 'Twitter',
+                                        href: '#',
+                                    },
+                                    {
+                                        icon: Linkedin,
+                                        label: 'LinkedIn',
+                                        href: '#',
+                                    },
+                                    {
+                                        icon: Instagram,
+                                        label: 'Instagram',
+                                        href: '#',
+                                    },
+                                    {
+                                        icon: Github,
+                                        label: 'GitHub',
+                                        href: '#',
+                                    },
                                 ].map(({ icon: Icon, label, href }) => (
                                     <a
                                         key={label}

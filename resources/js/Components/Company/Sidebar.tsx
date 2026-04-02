@@ -7,14 +7,17 @@ interface NavItemProps {
     icon: string;
     label: string;
     active?: boolean;
+    roles?: string[];
 }
 
 interface SidebarProps {
     currentRoute?: string;
     user: {
+        companyName?: string;
         name: string;
         email: string;
         avatar?: string;
+        role: string;
     };
 }
 
@@ -26,9 +29,24 @@ const navItems: NavItemProps[] = [
     // { href: '/reports', icon: 'description', label: 'Reports' },
 
     { href: '/profile', icon: 'settings', label: 'Settings' },
-    { href: '/templates', icon: 'folder', label: 'Templates' },
-    { href: '/companies', icon: 'business', label: 'Companies' },
-    { href: '/users', icon: 'manage_accounts', label: 'Users' },
+    {
+        href: '/templates',
+        icon: 'folder',
+        label: 'Templates',
+        roles: ['superadmin', 'admin'],
+    },
+    {
+        href: '/companies',
+        icon: 'business',
+        label: 'Companies',
+        roles: ['superadmin', 'admin'],
+    },
+    {
+        href: '/users',
+        icon: 'manage_accounts',
+        label: 'Users',
+        roles: ['superadmin', 'admin'],
+    },
 ];
 
 function NavItem({
@@ -69,16 +87,20 @@ export default function Sidebar({
 
             {/* Navigation */}
             <nav className="mt-4 flex-1 space-y-1 px-4">
-                {navItems.map((item) => (
-                    <NavItem
-                        key={item.href}
-                        {...item}
-                        active={
-                            currentRoute === item.href ||
-                            currentRoute?.startsWith(item.href + '/')
-                        }
-                    />
-                ))}
+                {navItems
+                    .filter(
+                        (item) => !item.roles || item.roles.includes(user.role),
+                    )
+                    .map((item) => (
+                        <NavItem
+                            key={item.href}
+                            {...item}
+                            active={
+                                currentRoute === item.href ||
+                                currentRoute?.startsWith(item.href + '/')
+                            }
+                        />
+                    ))}
             </nav>
 
             {/* User Profile */}
@@ -100,7 +122,7 @@ export default function Sidebar({
                     </div>
                     <div className="flex-1 overflow-hidden">
                         <p className="truncate text-sm font-bold">
-                            {user.name ?? 'Admin'}
+                            {user.companyName ?? user.name ?? 'Admin'}
                         </p>
                         <p className="truncate text-xs opacity-70">
                             {user.email ?? 'admin@gmail.com'}

@@ -86,7 +86,7 @@ const speeds = ['60s', '70s', '55s', '65s'];
 
 export default function LogoGrid() {
     return (
-        <section className="w-full border-t border-[#f0f4f2] bg-white py-16 mt-16">
+        <section className="mt-16 w-full border-t border-[#f0f4f2] bg-white py-16">
             <h3 className="mb-10 text-center text-2xl font-bold uppercase tracking-widest">
                 Dipercaya oleh Perusahaan
             </h3>

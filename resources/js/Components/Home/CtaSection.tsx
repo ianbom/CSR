@@ -1,9 +1,9 @@
-import { Link } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
+import { Link } from '@inertiajs/react';
 
 export default function CtaSection() {
     return (
-        <div className="relative isolate flex flex-col items-center justify-center overflow-hidden px-6 mt-40 py-32 sm:py-40 lg:px-8">
+        <div className="relative isolate mt-40 flex flex-col items-center justify-center overflow-hidden px-6 py-32 sm:py-40 lg:px-8">
             {/* Video Background */}
             <video
                 autoPlay
@@ -21,7 +21,9 @@ export default function CtaSection() {
                     Siap Mengukur Dampak Program Keberlanjutan Anda?
                 </h2>
                 <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-200 drop-shadow-md">
-                    Bergabunglah dengan perusahaan lain yang sudah menggunakan platform kami untuk mengukur dan melaporkan program keberlanjutan mereka.
+                    Bergabunglah dengan perusahaan lain yang sudah menggunakan
+                    platform kami untuk mengukur dan melaporkan program
+                    keberlanjutan mereka.
                 </p>
                 <div className="mt-10 flex items-center justify-center gap-x-6">
                     <Link href={route('register')}>

@@ -30,7 +30,8 @@ export default function HeroSection() {
                             </div> */}
 
                 <h1 className="text-5xl font-extrabold tracking-tight text-white drop-shadow-xl sm:text-7xl">
-                    Evaluasi Dampak Program Keberlanjutan <br className="hidden sm:block" />
+                    Evaluasi Dampak Program Keberlanjutan{' '}
+                    <br className="hidden sm:block" />
                     <span className="bg-gradient-to-r from-green-300 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg">
                         Secara Terukur & Profesional
                     </span>
@@ -61,7 +62,7 @@ export default function HeroSection() {
                         }}
                         variant="outline"
                         size="lg"
-                        className="hidden h-12 rounded-full border-white/30 px-8 text-black bg-white hover:bg-white/10 sm:flex"
+                        className="hidden h-12 rounded-full border-white/30 bg-white px-8 text-black hover:bg-white/10 sm:flex"
                     >
                         Pelajari Fitur
                     </Button>

@@ -1,4 +1,4 @@
-import { Trophy, Shield, BarChart3, Users } from 'lucide-react';
+import { BarChart3, Shield, Trophy, Users } from 'lucide-react';
 
 const whyChooseUs = [
     {

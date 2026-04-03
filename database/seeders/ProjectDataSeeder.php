@@ -23,7 +23,7 @@ class ProjectDataSeeder extends Seeder
      */
     public function run(): void
     {
-        $company = Company::where('name', 'PT Maju Bersama Baru')->firstOrFail();
+        $company = Company::where('name', 'PT Maju Bersama')->firstOrFail();
         $companyAdmin = User::where('company_id', $company->id)->where('role', 'company')->firstOrFail();
         $enumerators = User::where('company_id', $company->id)->where('role', 'enumerator')->get();
         $district = District::firstOrFail();

@@ -11,12 +11,14 @@ interface Props {
     respondents: SLOIRespondentsData;
     projectId: number;
     filters: RespondentFilters;
+    canEdit?: boolean;
 }
 
 export default function ProjectSLOIRespondent({
     respondents,
     projectId,
     filters,
+    canEdit = true,
 }: Props): ReactNode {
     const handleNavigate = (params: Record<string, string | number>) => {
         router.get(
@@ -55,6 +57,7 @@ export default function ProjectSLOIRespondent({
                 respondents={respondents}
                 filters={filters}
                 onNavigate={handleNavigate}
+                canEdit={canEdit}
             />
         </div>
     );

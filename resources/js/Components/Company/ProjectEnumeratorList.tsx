@@ -40,11 +40,13 @@ interface ProjectInfo {
 interface Props {
     enumeratorList: EnumeratorItem[];
     project: ProjectInfo;
+    canEdit?: boolean;
 }
 
 export default function ProjectEnumeratorList({
     enumeratorList,
     project,
+    canEdit = true,
 }: Props): ReactNode {
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [showAssign, setShowAssign] = useState(false);
@@ -97,15 +99,17 @@ export default function ProjectEnumeratorList({
                         Total {enumeratorList.length} enumerator ditugaskan
                     </p>
                 </div>
-                <button
-                    onClick={() => setShowAssign(true)}
-                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-                >
-                    <span className="material-symbols-outlined text-base leading-none">
-                        person_add
-                    </span>
-                    Assign Enumerator
-                </button>
+                {canEdit && (
+                    <button
+                        onClick={() => setShowAssign(true)}
+                        className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+                    >
+                        <span className="material-symbols-outlined text-base leading-none">
+                            person_add
+                        </span>
+                        Assign Enumerator
+                    </button>
+                )}
             </div>
 
             {/* Table */}
@@ -239,15 +243,17 @@ export default function ProjectEnumeratorList({
             )}
 
             {/* Assign Enumerator Modal */}
-            <AssignEnumeratorModal
-                isOpen={showAssign}
-                onClose={() => setShowAssign(false)}
-                project={project}
-                enumerators={allEnumerators}
-                assignedEnumeratorIds={assignedIds}
-                onSubmit={handleAssign}
-                isLoading={isFetching || isLoading}
-            />
+            {canEdit && (
+                <AssignEnumeratorModal
+                    isOpen={showAssign}
+                    onClose={() => setShowAssign(false)}
+                    project={project}
+                    enumerators={allEnumerators}
+                    assignedEnumeratorIds={assignedIds}
+                    onSubmit={handleAssign}
+                    isLoading={isFetching || isLoading}
+                />
+            )}
         </div>
     );
 }

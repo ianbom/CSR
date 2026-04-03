@@ -298,6 +298,7 @@ export default function DetailProject({
                         respondents={respondents}
                         projectId={project.id}
                         filters={respondentFilters}
+                        canEdit={canEdit}
                     />
                 );
             case 'sloi_respondent':
@@ -306,6 +307,7 @@ export default function DetailProject({
                         respondents={respondents}
                         projectId={project.id}
                         filters={respondentFilters}
+                        canEdit={canEdit}
                     />
                 );
             case 'sroi':
@@ -319,6 +321,7 @@ export default function DetailProject({
                             name: project.name,
                             code: project.projectCode,
                         }}
+                        canEdit={canEdit}
                     />
                 );
             default:

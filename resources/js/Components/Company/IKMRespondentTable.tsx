@@ -95,12 +95,14 @@ interface Props {
     respondents: IKMRespondentsData;
     filters: RespondentFilters;
     onNavigate: (params: Record<string, string | number>) => void;
+    canEdit?: boolean;
 }
 
 export default function IKMRespondentTable({
     respondents,
     filters,
     onNavigate,
+    canEdit = true,
 }: Props): ReactNode {
     const { questions, rows, pagination, filterOptions } = respondents;
     const [selected, setSelected] = useState<IKMRespondentRow | null>(null);
@@ -311,7 +313,7 @@ export default function IKMRespondentTable({
             </div>
 
             {/* Bulk Action Bar */}
-            {selectedIds.length > 0 && (
+            {canEdit && selectedIds.length > 0 && (
                 <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 px-5 py-3">
                     <div className="flex items-center gap-3">
                         <CheckSquare className="size-5 text-primary" />
@@ -343,18 +345,20 @@ export default function IKMRespondentTable({
                         <thead>
                             <tr className="border-b border-slate-100 bg-slate-50/80">
                                 <th className="sticky left-0 z-10 bg-slate-50/80 px-3 py-3 text-center">
-                                    <button
-                                        onClick={toggleSelectAll}
-                                        className="text-slate-400 transition-colors hover:text-primary"
-                                    >
-                                        {isAllSelected ? (
-                                            <CheckSquare className="size-4 text-primary" />
-                                        ) : isPartialSelected ? (
-                                            <MinusSquare className="size-4 text-primary" />
-                                        ) : (
-                                            <Square className="size-4" />
-                                        )}
-                                    </button>
+                                    {canEdit && (
+                                        <button
+                                            onClick={toggleSelectAll}
+                                            className="text-slate-400 transition-colors hover:text-primary"
+                                        >
+                                            {isAllSelected ? (
+                                                <CheckSquare className="size-4 text-primary" />
+                                            ) : isPartialSelected ? (
+                                                <MinusSquare className="size-4 text-primary" />
+                                            ) : (
+                                                <Square className="size-4" />
+                                            )}
+                                        </button>
+                                    )}
                                 </th>
                                 <th className="bg-slate-50/80 px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                     No
@@ -423,20 +427,22 @@ export default function IKMRespondentTable({
                                     className={`transition-colors hover:bg-slate-50/50 ${selectedIds.includes(row.submissionId) ? 'bg-primary/5' : ''}`}
                                 >
                                     <td className="sticky left-0 z-10 bg-white px-3 py-3 text-center">
-                                        <button
-                                            onClick={() =>
-                                                toggleSelect(row.submissionId)
-                                            }
-                                            className="text-slate-400 transition-colors hover:text-primary"
-                                        >
-                                            {selectedIds.includes(
-                                                row.submissionId,
-                                            ) ? (
-                                                <CheckSquare className="size-4 text-primary" />
-                                            ) : (
-                                                <Square className="size-4" />
-                                            )}
-                                        </button>
+                                        {canEdit && (
+                                            <button
+                                                onClick={() =>
+                                                    toggleSelect(row.submissionId)
+                                                }
+                                                className="text-slate-400 transition-colors hover:text-primary"
+                                            >
+                                                {selectedIds.includes(
+                                                    row.submissionId,
+                                                ) ? (
+                                                    <CheckSquare className="size-4 text-primary" />
+                                                ) : (
+                                                    <Square className="size-4" />
+                                                )}
+                                            </button>
+                                        )}
                                     </td>
                                     <td className="bg-white px-4 py-3 font-medium text-slate-500">
                                         {startItem + idx}
@@ -677,7 +683,7 @@ export default function IKMRespondentTable({
             )}
 
             {/* ── Bulk Status Modal ── */}
-            {showBulkModal && (
+            {canEdit && showBulkModal && (
                 <BulkStatusModal
                     selectedIds={selectedIds}
                     onClose={() => setShowBulkModal(false)}

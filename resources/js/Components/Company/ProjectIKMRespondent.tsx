@@ -11,12 +11,14 @@ interface Props {
     respondents: IKMRespondentsData;
     projectId: number;
     filters: RespondentFilters;
+    canEdit?: boolean;
 }
 
 export default function ProjectIKMRespondent({
     respondents,
     projectId,
     filters,
+    canEdit = true,
 }: Props): ReactNode {
     const handleNavigate = (params: Record<string, string | number>) => {
         router.get(
@@ -66,6 +68,7 @@ export default function ProjectIKMRespondent({
                 respondents={respondents}
                 filters={filters}
                 onNavigate={handleNavigate}
+                canEdit={canEdit}
             />
         </div>
     );

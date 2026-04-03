@@ -26,7 +26,7 @@ class ProjectController extends Controller
     public function listProjectPage(Request $request)
     {
         $user = Auth::user();
-        $companyId = $user->company_id;
+        $isAdmin = in_array($user->role, ['admin', 'superadmin']);
 
         $params = [
             'search' => $request->input('search'),
@@ -36,9 +36,22 @@ class ProjectController extends Controller
             'per_page' => $request->input('per_page', 10),
         ];
 
-        $projects = $this->projectService->getAllProjectsByCompany($companyId, $params);
-        $summary = $this->projectService->getProjectSummary($companyId);
-        $enumerators = $this->projectService->getEnumeratorsByCompany($companyId);
+        if ($isAdmin) {
+            $params['company_id'] = $request->input('company_id');
+            $params['province_id'] = $request->input('province_id');
+
+            $projects = $this->projectService->getAllProjectsForAdmin($params);
+            $summary = $this->projectService->getAdminProjectSummary($params);
+            $enumerators = [];
+            $companies = \App\Models\Company::select('id', 'name')->orderBy('name')->get()->toArray();
+        } else {
+            $companyId = $user->company_id;
+            $projects = $this->projectService->getAllProjectsByCompany($companyId, $params);
+            $summary = $this->projectService->getProjectSummary($companyId);
+            $enumerators = $this->projectService->getEnumeratorsByCompany($companyId);
+            $companies = [];
+        }
+
         $provinces = $this->areaService->getAllProvinces();
 
         return Inertia::render('Project/ListProject', [
@@ -47,11 +60,16 @@ class ProjectController extends Controller
             'enumerators' => $enumerators,
             'filters' => $params,
             'provinces' => $provinces,
+            'canEdit' => ! $isAdmin,
+            'companies' => $companies,
         ]);
     }
 
     public function detailProject(Request $request, int $id)
     {
+        $user = Auth::user();
+        $isAdmin = in_array($user->role, ['admin', 'superadmin']);
+
         $detailType = $request->input('detailType', 'overview');
 
         $respondentParams = [
@@ -88,6 +106,7 @@ class ProjectController extends Controller
                 'sort_order' => $request->input('sort_order', 'desc'),
                 'per_page' => $request->input('per_page', 10),
             ],
+            'canEdit' => ! $isAdmin,
         ]);
     }
 

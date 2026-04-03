@@ -77,12 +77,13 @@ export default function Sidebar({
         <aside className="flex w-72 flex-shrink-0 flex-col bg-primary text-white transition-all duration-300">
             {/* Logo */}
             <div className="flex items-center gap-3 p-8">
-                <div className="rounded-lg bg-white/20 p-2">
-                    <Icon name="analytics" className="text-3xl text-white" />
-                </div>
-                <h1 className="text-xl font-extrabold tracking-tight">
-                    CSR<span className="font-light opacity-80">SAAS</span>
-                </h1>
+                <a href="/">
+                    <img
+                        src="/img/LogoHeader.png"
+                        alt="Logo"
+                        className="h-10 w-auto opacity-75 brightness-0 invert filter"
+                    />
+                </a>
             </div>
 
             {/* Navigation */}

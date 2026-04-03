@@ -286,7 +286,7 @@ export default function QuestionForm({
                                                     value,
                                                 )
                                             }
-                                            scaleSize={5}
+                                            scaleSize={6}
                                             minLabel={SLOI_LABELS.min}
                                             maxLabel={SLOI_LABELS.max}
                                             isAnswered={

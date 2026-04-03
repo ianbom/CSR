@@ -10,7 +10,7 @@ import {
     VerifiedBadge,
     WarningBox,
 } from '@/Components/Enumerator';
-import React, { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { QuestionAnswers } from './QuestionForm';
 import { RespondentData } from './RespondentForm';
 
@@ -57,23 +57,115 @@ export default function ReviewForm({
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [photoError, setPhotoError] = useState<string | null>(null);
 
-    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const [isCameraOpen, setIsCameraOpen] = useState(false);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [stream, setStream] = useState<MediaStream | null>(null);
 
-        if (file.size > 5 * 1024 * 1024) {
-            setPhotoError('Ukuran foto maksimal 5MB.');
-            return;
+    const startCamera = async () => {
+        try {
+            const mediaStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment',
+                    aspectRatio: { ideal: 4 / 3 },
+                },
+                audio: false,
+            });
+            setStream(mediaStream);
+            setIsCameraOpen(true);
+            // Attachment ke videoRef dilakukan di useEffect setelah render
+        } catch (err) {
+            alert(
+                'Tidak dapat mengakses kamera. Pastikan izin kamera telah diberikan di browser/OS Anda.',
+            );
+            console.error(err);
         }
-        if (!file.type.startsWith('image/')) {
-            setPhotoError('File harus berupa gambar.');
-            return;
-        }
-
-        setPhotoError(null);
-        setPhoto(file);
-        setPhotoPreview(URL.createObjectURL(file));
     };
+
+    const stopCamera = () => {
+        if (stream) {
+            stream.getTracks().forEach((track) => track.stop());
+            setStream(null);
+        }
+        setIsCameraOpen(false);
+    };
+
+    const capturePhoto = () => {
+        if (!videoRef.current) return;
+        const video = videoRef.current;
+        const canvas = document.createElement('canvas');
+
+        // Menentukan rasio 4:3 atau 3:4 tergantung orientasi kamera
+        const videoWidth = video.videoWidth;
+        const videoHeight = video.videoHeight;
+        const isPortrait = videoHeight > videoWidth;
+        const targetRatio = isPortrait ? 3 / 4 : 4 / 3;
+
+        let cropWidth = videoWidth;
+        let cropHeight = videoHeight;
+
+        if (videoWidth / videoHeight > targetRatio) {
+            // Video lebih lebar proporsinya dibanding target, potong kiri & kanan
+            cropWidth = videoHeight * targetRatio;
+        } else {
+            // Video lebih tinggi proporsinya dibanding target, potong atas & bawah
+            cropHeight = videoWidth / targetRatio;
+        }
+
+        const startX = (videoWidth - cropWidth) / 2;
+        const startY = (videoHeight - cropHeight) / 2;
+
+        canvas.width = cropWidth;
+        canvas.height = cropHeight;
+
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            ctx.drawImage(
+                video,
+                startX,
+                startY,
+                cropWidth,
+                cropHeight,
+                0,
+                0,
+                cropWidth,
+                cropHeight,
+            );
+            canvas.toBlob(
+                (blob) => {
+                    if (blob) {
+                        const file = new File(
+                            [blob],
+                            `photo_${Date.now()}.jpg`,
+                            { type: 'image/jpeg' },
+                        );
+                        setPhoto(file);
+                        setPhotoPreview(URL.createObjectURL(file));
+                        setPhotoError(null);
+                        stopCamera();
+                    }
+                },
+                'image/jpeg',
+                0.8,
+            );
+        }
+    };
+
+    // Attach stream ke video element setelah elemen muncul di DOM
+    useEffect(() => {
+        if (isCameraOpen && stream && videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play().catch(console.error);
+        }
+    }, [isCameraOpen, stream]);
+
+    // Bersihkan stream jika komponen di-unmount
+    useEffect(() => {
+        return () => {
+            if (stream) {
+                stream.getTracks().forEach((track) => track.stop());
+            }
+        };
+    }, [stream]);
 
     const validateBeforeSubmit = (): boolean => {
         if (!photo) {
@@ -315,39 +407,85 @@ export default function ReviewForm({
                         5MB (JPG/PNG/WebP).
                     </p>
 
-                    {photoPreview && (
-                        <div className="overflow-hidden rounded-lg border border-gray-200">
-                            <img
-                                src={photoPreview}
-                                alt="Preview foto bukti"
-                                className="h-48 w-full object-cover"
+                    {!photoPreview && !isCameraOpen && (
+                        <button
+                            type="button"
+                            onClick={startCamera}
+                            className={`flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-6 text-sm transition-colors ${
+                                photoError
+                                    ? 'border-red-300 bg-red-50 text-red-600'
+                                    : 'border-gray-300 bg-gray-50 text-gray-500 hover:border-primary hover:bg-primary/5'
+                            }`}
+                        >
+                            <MaterialIcon
+                                name="photo_camera"
+                                className="text-xl"
                             />
+                            <span>Buka Kamera untuk Mengambil Foto</span>
+                        </button>
+                    )}
+
+                    {isCameraOpen && (
+                        <div className="flex flex-col gap-3 overflow-hidden rounded-lg border border-gray-200 bg-black">
+                            <video
+                                ref={videoRef}
+                                autoPlay
+                                playsInline
+                                    className="aspect-[3/4] w-full object-cover md:aspect-[4/3]"
+                            />
+                            <div className="flex items-center justify-between p-3">
+                                <button
+                                    type="button"
+                                    onClick={stopCamera}
+                                    className="flex items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+                                >
+                                    <MaterialIcon
+                                        name="close"
+                                        className="text-sm"
+                                    />
+                                    Batal
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={capturePhoto}
+                                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                                >
+                                    <MaterialIcon
+                                        name="camera"
+                                        className="text-sm"
+                                    />
+                                    Ambil Foto
+                                </button>
+                            </div>
                         </div>
                     )}
 
-                    <label
-                        htmlFor="photo-upload"
-                        className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-6 text-sm transition-colors ${
-                            photo
-                                ? 'border-primary bg-primary/5 text-primary'
-                                : 'border-gray-300 bg-gray-50 text-gray-500 hover:border-primary hover:bg-primary/5'
-                        }`}
-                    >
-                        <MaterialIcon
-                            name={photo ? 'check_circle' : 'upload'}
-                            className="text-lg"
-                        />
-                        <span>
-                            {photo ? photo.name : 'Klik untuk upload foto'}
-                        </span>
-                        <input
-                            id="photo-upload"
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            className="hidden"
-                            onChange={handlePhotoChange}
-                        />
-                    </label>
+                    {photoPreview && !isCameraOpen && (
+                        <div className="flex flex-col gap-3">
+                            <div className="overflow-hidden rounded-lg border border-gray-200">
+                                <img
+                                    src={photoPreview}
+                                    alt="Preview foto bukti"
+                                    className="aspect-[3/4] w-full object-cover md:aspect-[4/3]"
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setPhoto(null);
+                                    setPhotoPreview(null);
+                                    startCamera();
+                                }}
+                                className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                            >
+                                <MaterialIcon
+                                    name="refresh"
+                                    className="text-sm"
+                                />
+                                Foto Ulang
+                            </button>
+                        </div>
+                    )}
 
                     {photoError && (
                         <p className="text-xs text-red-500">{photoError}</p>

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Survey;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class StoreSurveyRequest extends FormRequest
 {
@@ -40,7 +41,7 @@ class StoreSurveyRequest extends FormRequest
             'answers' => ['required', 'array', 'min:1'],
             'answers.*.question_id' => ['required', 'integer', 'exists:template_questions,id'],
             'answers.*.type' => ['required', 'string', 'in:ikm-kepentingan,ikm-kinerja,sloi'],
-            'answers.*.value' => ['required', 'integer', 'min:1', 'max:5'],
+            'answers.*.value' => ['required', 'integer', 'min:1', 'max:6'],
         ];
     }
 
@@ -54,9 +55,35 @@ class StoreSurveyRequest extends FormRequest
             'submission.latitude.required' => 'Koordinat GPS (latitude) diperlukan.',
             'submission.longitude.required' => 'Koordinat GPS (longitude) diperlukan.',
             'answers.required' => 'Jawaban kuesioner wajib diisi.',
-            'answers.*.type.in' => 'Tipe jawaban tidak valid.',
-            'answers.*.value.min' => 'Nilai jawaban minimal 1.',
-            'answers.*.value.max' => 'Nilai jawaban maksimal 5.',
+            'answers.*.type.in'    => 'Tipe jawaban tidak valid.',
+            'answers.*.value.min'  => 'Nilai jawaban minimal 1.',
+            'answers.*.value.max'  => 'Nilai jawaban maksimal 6.',
+        ];
+    }
+    public function after(): array
+    {
+        return [
+            function (Validator $validator) {
+                $answers = $this->input('answers', []);
+                foreach ($answers as $index => $answer) {
+                    $type  = $answer['type'] ?? null;
+                    $value = (int) ($answer['value'] ?? 0);
+
+                    if (in_array($type, ['ikm-kepentingan', 'ikm-kinerja']) && $value > 4) {
+                        $validator->errors()->add(
+                            "answers.{$index}.value",
+                            'Nilai jawaban IKM maksimal 4.',
+                        );
+                    }
+
+                    if ($type === 'sloi' && $value > 6) {
+                        $validator->errors()->add(
+                            "answers.{$index}.value",
+                            'Nilai jawaban SLOI maksimal 6.',
+                        );
+                    }
+                }
+            },
         ];
     }
 }

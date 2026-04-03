@@ -191,6 +191,7 @@ interface Props {
     respondents: RespondentsData;
     enumeratorList: EnumeratorListItem[];
     respondentFilters: RespondentFilters;
+    canEdit?: boolean;
 }
 
 // ─── Tab Config ────────────────────────────────────────────
@@ -238,6 +239,7 @@ export default function DetailProject({
     respondents,
     enumeratorList,
     respondentFilters,
+    canEdit = true,
 }: Props) {
     const activeTab = detailType || 'overview';
     const tabs = buildTabs(project);
@@ -382,31 +384,33 @@ export default function DetailProject({
                     activeTab={activeTab}
                     onTabChange={handleTabChange}
                     actions={
-                        <button
-                            onClick={() => setShowStatusModal(true)}
-                            className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
-                                project.status === 'active'
-                                    ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-                                    : 'bg-green-100 text-green-700 hover:bg-green-200'
-                            }`}
-                        >
-                            {project.status === 'active' ? (
-                                <>
-                                    <PauseCircle className="size-3.5" />
-                                    Jadikan Draft
-                                </>
-                            ) : (
-                                <>
-                                    <CheckCircle className="size-3.5" />
-                                    Aktifkan Proyek
-                                </>
-                            )}
-                        </button>
+                        canEdit ? (
+                            <button
+                                onClick={() => setShowStatusModal(true)}
+                                className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
+                                    project.status === 'active'
+                                        ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                }`}
+                            >
+                                {project.status === 'active' ? (
+                                    <>
+                                        <PauseCircle className="size-3.5" />
+                                        Jadikan Draft
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircle className="size-3.5" />
+                                        Aktifkan Proyek
+                                    </>
+                                )}
+                            </button>
+                        ) : undefined
                     }
                 />
 
                 {/* Konfirmasi Status Modal */}
-                {showStatusModal && (
+                {canEdit && showStatusModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center">
                         {/* Backdrop */}
                         <div

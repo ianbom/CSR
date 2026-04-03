@@ -314,4 +314,250 @@ class DashboardService
             ])
             ->toArray();
     }
+
+    // ==========================================
+    // ADMIN DASHBOARD
+    // ==========================================
+
+    public function getAdminDashboardData(): array
+    {
+        return [
+            'stats' => $this->getAdminStats(),
+            'recentCompanies' => $this->getRecentCompanies(),
+            'recentProjects' => $this->getRecentProjects(),
+            'submissionTrends' => $this->getSubmissionTrends(),
+            'projectsByStatus' => $this->getProjectsByStatus(),
+            'submissionsByType' => $this->getSubmissionsByType(),
+            'recentActivities' => $this->getAdminRecentActivities(),
+            'topProvinces' => $this->getTopProvinces(),
+        ];
+    }
+
+    protected function getAdminStats(): array
+    {
+        $now = Carbon::now();
+        $lastMonth = $now->copy()->subMonth();
+
+        $totalCompanies = \App\Models\Company::count();
+        $activeCompanies = \App\Models\Company::where('status', 'active')->count();
+
+        $totalUsers = \App\Models\User::count();
+        $totalEnumerators = \App\Models\User::where('role', 'enumerator')->count();
+
+        $totalProjects = Project::count();
+        $activeProjects = Project::active()->count();
+
+        $totalSubmissions = Submission::count();
+        $totalRespondents = \App\Models\Respondent::count();
+
+        $pendingSubmissions = Submission::where('status', 'submitted')->count();
+        $approvedSubmissions = Submission::where('status', 'approved')->count();
+        $rejectedSubmissions = Submission::where('status', 'rejected')->count();
+
+        // Growth calculations (compare with last month)
+        $companiesLastMonth = \App\Models\Company::where('created_at', '<', $now->startOfMonth())->count();
+        $companiesGrowth = $companiesLastMonth > 0
+            ? round((($totalCompanies - $companiesLastMonth) / $companiesLastMonth) * 100)
+            : ($totalCompanies > 0 ? 100 : 0);
+
+        $usersLastMonth = \App\Models\User::where('created_at', '<', $now->copy()->startOfMonth())->count();
+        $usersGrowth = $usersLastMonth > 0
+            ? round((($totalUsers - $usersLastMonth) / $usersLastMonth) * 100)
+            : ($totalUsers > 0 ? 100 : 0);
+
+        $projectsLastMonth = Project::where('created_at', '<', $now->copy()->startOfMonth())->count();
+        $projectsGrowth = $projectsLastMonth > 0
+            ? round((($totalProjects - $projectsLastMonth) / $projectsLastMonth) * 100)
+            : ($totalProjects > 0 ? 100 : 0);
+
+        $submissionsThisMonth = Submission::whereMonth('submitted_at', $now->month)
+            ->whereYear('submitted_at', $now->year)
+            ->count();
+        $submissionsLastMonth = Submission::whereMonth('submitted_at', $lastMonth->month)
+            ->whereYear('submitted_at', $lastMonth->year)
+            ->count();
+        $submissionsGrowth = $submissionsLastMonth > 0
+            ? round((($submissionsThisMonth - $submissionsLastMonth) / $submissionsLastMonth) * 100)
+            : ($submissionsThisMonth > 0 ? 100 : 0);
+
+        return [
+            'totalCompanies' => $totalCompanies,
+            'activeCompanies' => $activeCompanies,
+            'totalUsers' => $totalUsers,
+            'totalEnumerators' => $totalEnumerators,
+            'totalProjects' => $totalProjects,
+            'activeProjects' => $activeProjects,
+            'totalSubmissions' => $totalSubmissions,
+            'totalRespondents' => $totalRespondents,
+            'pendingSubmissions' => $pendingSubmissions,
+            'approvedSubmissions' => $approvedSubmissions,
+            'rejectedSubmissions' => $rejectedSubmissions,
+            'trends' => [
+                'companiesGrowth' => $companiesGrowth,
+                'usersGrowth' => $usersGrowth,
+                'projectsGrowth' => $projectsGrowth,
+                'submissionsGrowth' => $submissionsGrowth,
+            ],
+        ];
+    }
+
+    protected function getRecentCompanies(): array
+    {
+        return \App\Models\Company::select('id', 'name', 'status')
+            ->withCount(['projects', 'users'])
+            ->orderByDesc('created_at')
+            ->limit(4)
+            ->get()
+            ->map(fn ($c) => [
+                'id' => $c->id,
+                'name' => $c->name,
+                'status' => $c->status ?? 'active',
+                'projects_count' => $c->projects_count,
+                'users_count' => $c->users_count,
+            ])
+            ->toArray();
+    }
+
+    protected function getRecentProjects(): array
+    {
+        return Project::with('company:id,name')
+            ->withCount('submissions')
+            ->orderByDesc('created_at')
+            ->limit(3)
+            ->get()
+            ->map(fn (Project $p) => [
+                'id' => $p->id,
+                'name' => $p->name,
+                'project_code' => $p->project_code,
+                'status' => $p->status,
+                'company' => ['name' => $p->company?->name ?? '-'],
+                'submissions_count' => $p->submissions_count,
+                'target_ikm_count' => $p->target_ikm_count ?? 0,
+                'target_sloi_count' => $p->target_sloi_count ?? 0,
+            ])
+            ->toArray();
+    }
+
+    protected function getSubmissionTrends(): array
+    {
+        $now = Carbon::now();
+        $data = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = $now->copy()->subDays($i * 5);
+            $start = $date->copy()->startOfDay();
+            $end = $date->copy()->endOfDay();
+
+            $ikm = Submission::where('assessment_type', 'IKM')
+                ->whereBetween('submitted_at', [$start, $end])->count();
+            $sloi = Submission::where('assessment_type', 'SLOI')
+                ->whereBetween('submitted_at', [$start, $end])->count();
+            $sroi = Submission::where('assessment_type', 'SROI')
+                ->whereBetween('submitted_at', [$start, $end])->count();
+
+            $data[] = [
+                'date' => $date->translatedFormat('d M'),
+                'ikm' => $ikm,
+                'sloi' => $sloi,
+                'sroi' => $sroi,
+            ];
+        }
+
+        return $data;
+    }
+
+    protected function getProjectsByStatus(): array
+    {
+        return Project::select('status', DB::raw('COUNT(*) as count'))
+            ->whereNull('deleted_at')
+            ->groupBy('status')
+            ->get()
+            ->map(fn ($row) => [
+                'status' => ucfirst($row->status),
+                'count' => $row->count,
+            ])
+            ->toArray();
+    }
+
+    protected function getSubmissionsByType(): array
+    {
+        return Submission::select('assessment_type as type', DB::raw('COUNT(*) as count'))
+            ->whereNull('deleted_at')
+            ->groupBy('assessment_type')
+            ->get()
+            ->map(fn ($row) => [
+                'type' => $row->type,
+                'count' => $row->count,
+            ])
+            ->toArray();
+    }
+
+    protected function getAdminRecentActivities(): array
+    {
+        $activities = [];
+        $counter = 1;
+
+        // Submissions terbaru
+        $submissions = Submission::with(['project', 'enumerator', 'respondent'])
+            ->orderByDesc('submitted_at')
+            ->limit(3)
+            ->get();
+
+        foreach ($submissions as $s) {
+            $statusLabel = match ($s->status) {
+                'approved' => 'disetujui',
+                'rejected' => 'ditolak',
+                'submitted' => 'dikirim',
+                default => $s->status,
+            };
+
+            $activities[] = [
+                'id' => $counter++,
+                'type' => 'submission',
+                'action' => "Submission {$s->assessment_type} {$statusLabel}",
+                'description' => ($s->project?->name ?? 'Proyek') . ': ' . ($s->respondent?->name ?? 'Responden') . ' oleh ' . ($s->enumerator?->name ?? 'Enumerator'),
+                'time' => $s->submitted_at ? $s->submitted_at->diffForHumans() : '-',
+            ];
+        }
+
+        // Proyek terbaru
+        $projects = Project::with('company:id,name')
+            ->orderByDesc('created_at')
+            ->limit(2)
+            ->get();
+
+        foreach ($projects as $p) {
+            $activities[] = [
+                'id' => $counter++,
+                'type' => 'project',
+                'action' => 'Proyek ' . ($p->status === 'active' ? 'aktif' : 'dibuat'),
+                'description' => $p->name . ' - ' . ($p->company?->name ?? '-'),
+                'time' => $p->created_at ? $p->created_at->diffForHumans() : '-',
+            ];
+        }
+
+        // Sort by time (most recent first) — activities are already sorted above
+        return array_slice($activities, 0, 5);
+    }
+
+    protected function getTopProvinces(): array
+    {
+        return DB::table('submissions as s')
+            ->join('project_locations as pl', 'pl.project_id', '=', 's.project_id')
+            ->join('districts as d', 'pl.district_id', '=', 'd.id')
+            ->join('cities as c', 'd.city_id', '=', 'c.id')
+            ->join('provinces as prov', 'c.province_id', '=', 'prov.id')
+            ->whereNull('s.deleted_at')
+            ->whereNull('pl.deleted_at')
+            ->select('prov.name', DB::raw('COUNT(DISTINCT s.id) as count'))
+            ->groupBy('prov.name')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get()
+            ->map(fn ($row) => [
+                'name' => $row->name,
+                'count' => (int) $row->count,
+            ])
+            ->toArray();
+    }
 }

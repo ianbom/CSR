@@ -42,6 +42,13 @@ interface Filters {
     sort_by: string;
     sort_order: string;
     per_page: number;
+    company_id?: string | null;
+    province_id?: string | null;
+}
+
+interface CompanyOption {
+    id: number;
+    name: string;
 }
 
 interface Props {
@@ -50,6 +57,8 @@ interface Props {
     enumerators: EnumeratorType[];
     filters: Filters;
     provinces: Province[];
+    canEdit?: boolean;
+    companies?: CompanyOption[];
 }
 
 const filterTabs = [
@@ -67,6 +76,8 @@ export default function ListProject({
     enumerators,
     filters,
     provinces,
+    canEdit = true,
+    companies = [],
 }: Props) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
@@ -86,12 +97,31 @@ export default function ListProject({
         null,
     );
 
+    const isAdminView = !canEdit;
+
+    // Build clean filter params (exclude null/empty values)
+    const buildFilterParams = (
+        overrides: Record<string, string | number | null | undefined> = {},
+    ) => {
+        const merged: Record<string, string | number | null | undefined> = {
+            ...filters,
+            ...overrides,
+        };
+        const clean: Record<string, string | number> = {};
+        for (const [key, val] of Object.entries(merged)) {
+            if (val !== null && val !== undefined && val !== '') {
+                clean[key] = val;
+            }
+        }
+        return clean;
+    };
+
     // Debounced search
     const debouncedSearch = useCallback(
         debounce((value: string) => {
             router.get(
                 '/projects',
-                { ...filters, search: value || null, page: 1 },
+                buildFilterParams({ search: value || null, page: 1 }),
                 { preserveState: true, preserveScroll: true },
             );
         }, 300),
@@ -104,11 +134,10 @@ export default function ListProject({
     };
 
     const handleFilterChange = (status: string) => {
-        router.get(
-            '/projects',
-            { ...filters, status, page: 1 },
-            { preserveState: true, preserveScroll: true },
-        );
+        router.get('/projects', buildFilterParams({ status, page: 1 }), {
+            preserveState: true,
+            preserveScroll: true,
+        });
     };
 
     const handleSort = (key: string) => {
@@ -118,30 +147,44 @@ export default function ListProject({
                 : 'asc';
         router.get(
             '/projects',
-            { ...filters, sort_by: key, sort_order: newOrder, page: 1 },
+            buildFilterParams({ sort_by: key, sort_order: newOrder, page: 1 }),
             { preserveState: true, preserveScroll: true },
         );
     };
 
     const handlePageChange = (page: number) => {
-        router.get(
-            '/projects',
-            { ...filters, page },
-            { preserveState: true, preserveScroll: true },
-        );
+        router.get('/projects', buildFilterParams({ page }), {
+            preserveState: true,
+            preserveScroll: true,
+        });
     };
 
     const handlePerPageChange = (perPage: number) => {
         router.get(
             '/projects',
-            { ...filters, per_page: perPage, page: 1 },
+            buildFilterParams({ per_page: perPage, page: 1 }),
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const handleCompanyFilter = (companyId: string) => {
+        router.get(
+            '/projects',
+            buildFilterParams({ company_id: companyId || null, page: 1 }),
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const handleProvinceFilter = (provinceId: string) => {
+        router.get(
+            '/projects',
+            buildFilterParams({ province_id: provinceId || null, page: 1 }),
             { preserveState: true, preserveScroll: true },
         );
     };
 
     const handleEdit = async (project: Project) => {
         setSelectedProject(project);
-        // Fetch assigned enumerators for this project
         try {
             const response = await fetch(
                 `/api/projects/${project.id}/enumerators`,
@@ -202,17 +245,20 @@ export default function ListProject({
                             Portofolio Proyek
                         </h1>
                         <p className="mt-2 text-slate-500">
-                            Pantau performa dampak sosial melalui survei IKM,
-                            SLOI, dan SROI.
+                            {isAdminView
+                                ? 'Pantau seluruh proyek dari semua perusahaan.'
+                                : 'Pantau performa dampak sosial melalui survei IKM, SLOI, dan SROI.'}
                         </p>
                     </div>
-                    <Link
-                        href="/projects/create"
-                        className="flex items-center gap-2 rounded-lg bg-primary-btn px-5 py-3 font-semibold text-white transition-colors hover:bg-primary-btn-hover"
-                    >
-                        <Icon name="add" />
-                        Buat Proyek
-                    </Link>
+                    {canEdit && (
+                        <Link
+                            href="/projects/create"
+                            className="flex items-center gap-2 rounded-lg bg-primary-btn px-5 py-3 font-semibold text-white transition-colors hover:bg-primary-btn-hover"
+                        >
+                            <Icon name="add" />
+                            Buat Proyek
+                        </Link>
+                    )}
                 </div>
 
                 {/* Kartu Ringkasan */}
@@ -275,6 +321,50 @@ export default function ListProject({
                     </div>
                 </div>
 
+                {/* Admin Filters: Company & Province */}
+                {isAdminView && (
+                    <div className="mb-6 flex flex-wrap items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-slate-600">
+                                Perusahaan:
+                            </span>
+                            <select
+                                value={filters.company_id || ''}
+                                onChange={(e) =>
+                                    handleCompanyFilter(e.target.value)
+                                }
+                                className="min-w-[200px] rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                            >
+                                <option value="">Semua Perusahaan</option>
+                                {companies.map((c) => (
+                                    <option key={c.id} value={c.id}>
+                                        {c.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-slate-600">
+                                Provinsi:
+                            </span>
+                            <select
+                                value={filters.province_id || ''}
+                                onChange={(e) =>
+                                    handleProvinceFilter(e.target.value)
+                                }
+                                className="min-w-[200px] rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                            >
+                                <option value="">Semua Provinsi</option>
+                                {provinces.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                )}
+
                 {/* Tabel Proyek */}
                 <div className="mb-6">
                     {projects.data.length > 0 ? (
@@ -288,14 +378,18 @@ export default function ListProject({
                                 order: filters.sort_order as 'asc' | 'desc',
                             }}
                             onSort={handleSort}
-                            onEdit={handleEdit}
-                            onEditProject={(project) => {
-                                setEditProject(
-                                    project as unknown as EditProjectData,
-                                );
-                                setIsEditModalOpen(true);
-                            }}
-                            onDelete={handleDelete}
+                            onEdit={canEdit ? handleEdit : undefined}
+                            onEditProject={
+                                canEdit
+                                    ? (project) => {
+                                          setEditProject(
+                                              project as unknown as EditProjectData,
+                                          );
+                                          setIsEditModalOpen(true);
+                                      }
+                                    : undefined
+                            }
+                            onDelete={canEdit ? handleDelete : undefined}
                         />
                     ) : (
                         <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
@@ -339,27 +433,31 @@ export default function ListProject({
                 )}
             </div>
 
-            {/* Assign Enumerator Modal */}
-            <AssignEnumeratorModal
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                project={selectedProject}
-                enumerators={enumerators || []}
-                assignedEnumeratorIds={assignedEnumeratorIds}
-                onSubmit={handleAssignEnumerators}
-                isLoading={isSubmitting}
-            />
+            {/* Assign Enumerator Modal — only for company role */}
+            {canEdit && (
+                <AssignEnumeratorModal
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                    project={selectedProject}
+                    enumerators={enumerators || []}
+                    assignedEnumeratorIds={assignedEnumeratorIds}
+                    onSubmit={handleAssignEnumerators}
+                    isLoading={isSubmitting}
+                />
+            )}
 
-            {/* Edit Project Modal */}
-            <EditProjectModal
-                isOpen={isEditModalOpen}
-                project={editProject}
-                provinces={provinces || []}
-                onClose={() => {
-                    setIsEditModalOpen(false);
-                    setEditProject(null);
-                }}
-            />
+            {/* Edit Project Modal — only for company role */}
+            {canEdit && (
+                <EditProjectModal
+                    isOpen={isEditModalOpen}
+                    project={editProject}
+                    provinces={provinces || []}
+                    onClose={() => {
+                        setIsEditModalOpen(false);
+                        setEditProject(null);
+                    }}
+                />
+            )}
         </CompanyLayout>
     );
 }

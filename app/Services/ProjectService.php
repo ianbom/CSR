@@ -27,6 +27,50 @@ class ProjectService
         return $this->buildProjectListQuery($query, $params);
     }
 
+    public function getAllProjectsForAdmin(array $params = []): LengthAwarePaginator
+    {
+        $query = Project::query();
+
+        // Filter by company
+        if (! empty($params['company_id'])) {
+            $query->where('company_id', $params['company_id']);
+        }
+
+        // Filter by province (via project_locations → districts → cities → provinces)
+        if (! empty($params['province_id'])) {
+            $query->whereHas('locations.district.city.province', function ($q) use ($params) {
+                $q->where('id', $params['province_id']);
+            });
+        }
+
+        return $this->buildProjectListQuery($query, $params);
+    }
+
+    public function getAdminProjectSummary(array $params = []): array
+    {
+        $query = Project::query();
+
+        if (! empty($params['company_id'])) {
+            $query->where('company_id', $params['company_id']);
+        }
+
+        if (! empty($params['province_id'])) {
+            $query->whereHas('locations.district.city.province', function ($q) use ($params) {
+                $q->where('id', $params['province_id']);
+            });
+        }
+
+        $projects = $query->get();
+
+        return [
+            'totalProjects' => $projects->count(),
+            'activeProjects' => $projects->where('status', 'active')->count(),
+            'draftProjects' => $projects->where('status', 'draft')->count(),
+            'closedProjects' => $projects->where('status', 'closed')->count(),
+            'totalRespondents' => $projects->sum(fn ($p) => $p->submissions()->count()),
+        ];
+    }
+
     public function getProjectsByEnumerator(int $enumeratorId, array $params = []): LengthAwarePaginator
     {
         $assignedProjectIds = ProjectEnumeratorAssignment::where('enumerator_id', $enumeratorId)

@@ -42,8 +42,34 @@ class CreateProjectRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'target_ikm_count' => ['nullable', 'integer', 'min:0'],
-            'target_sloi_count' => ['nullable', 'integer', 'min:0'],
+            'target_ikm_count' => [
+                'nullable',
+                'integer',
+                'min:0',
+                function ($attribute, $value, $fail) {
+                    $targetIkm = (int) $value;
+                    $targetSloi = (int) $this->input('target_sloi_count', 0);
+
+                    // Minimal salah satu target harus > 0
+                    if ($targetIkm === 0 && $targetSloi === 0) {
+                        $fail('Target responden tidak boleh 0. Harap isi minimal salah satu target (IKM atau SLOI).');
+                    }
+                },
+            ],
+            'target_sloi_count' => [
+                'nullable',
+                'integer',
+                'min:0',
+                function ($attribute, $value, $fail) {
+                    $targetSloi = (int) $value;
+                    $targetIkm = (int) $this->input('target_ikm_count', 0);
+
+                    // Minimal salah satu target harus > 0
+                    if ($targetSloi === 0 && $targetIkm === 0) {
+                        $fail('Target responden tidak boleh 0. Harap isi minimal salah satu target (IKM atau SLOI).');
+                    }
+                },
+            ],
             'enable_ikm' => ['boolean'],
             'enable_sloi' => ['boolean'],
             'enable_sroi' => ['boolean'],

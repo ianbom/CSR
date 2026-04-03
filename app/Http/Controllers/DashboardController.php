@@ -19,15 +19,16 @@ class DashboardController extends Controller
         }
 
         if ($user->role == 'company') {
-            $data = $this->dashboardService->getCompanyDashboardData($user->company_id);
+            $selectedProjectId = request('project_id', null);
+            $data = $this->dashboardService->getCompanyDashboardData($user->company_id, $selectedProjectId);
 
             return Inertia::render('Dashboard/CompanyDashboard', $data);
         }
 
         if ($user->role == 'enumerator') {
-            return Inertia::render('Enumerator/Project/ListProject');
+            return redirect()->route('enumerator.list-survey');
         }
 
-        return Inertia::render('Company/Dashboard');
+        return Inertia::render('Welcome');
     }
 }

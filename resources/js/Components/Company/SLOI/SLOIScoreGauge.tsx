@@ -5,89 +5,147 @@ interface SLOIScoreGaugeProps {
     trustLevel: string;
 }
 
+const STEPS = [
+    { min: 0, max: 1, step: 1, label: 'Sangat Rendah', color: '#ef4444' },
+    { min: 1, max: 2, step: 2, label: 'Rendah',        color: '#f97316' },
+    { min: 2, max: 3, step: 3, label: 'Cukup',         color: '#eab308' },
+    { min: 3, max: 4, step: 4, label: 'Baik',          color: '#84cc16' },
+    { min: 4, max: 5, step: 5, label: 'Sangat Baik',   color: '#22c55e' },
+    { min: 5, max: 6, step: 6, label: 'Luar Biasa',    color: '#166534' },
+];
+
+// Heights in px — stair steps from short to tall (l→r)
+const BAR_HEIGHTS = [64, 96, 128, 160, 192, 240];
+
+function getActiveStep(score: number): number {
+    if (score <= 0) return -1;
+    for (let i = 0; i < STEPS.length; i++) {
+        if (score > STEPS[i].min && score <= STEPS[i].max) return i;
+    }
+    return STEPS.length - 1;
+}
+
 export default function SLOIScoreGauge({
     sloiScore,
     trustLevel,
 }: SLOIScoreGaugeProps): ReactNode {
+    const activeIdx = getActiveStep(sloiScore);
+    const activeStep = activeIdx >= 0 ? STEPS[activeIdx] : null;
+
     return (
-        <div className="lg:col-span-2">
-            <div className="flex h-full flex-col items-center justify-center rounded-xl border border-slate-100 bg-white p-8 shadow-sm">
-                <h3 className="mb-6 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                    Total Skor SLOI
-                </h3>
+        <div className="w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
 
-                {/* Gauge Chart */}
-                <div className="relative mb-4 h-28 w-56">
-                    <svg viewBox="0 0 200 100" className="h-full w-full">
-                        <defs>
-                            <linearGradient
-                                id="gaugeGradient"
-                                x1="0%"
-                                y1="0%"
-                                x2="100%"
-                                y2="0%"
+            {/* ── Header ─────────────────────────────────────────── */}
+            <div className="mb-8 flex items-start justify-between">
+                <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+                        Total Skor SLOI
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-slate-300">Skala 0 – 6</p>
+                </div>
+
+                <div className="text-right">
+                    <p className="text-4xl font-bold tracking-tight text-slate-900 leading-none">
+                        {sloiScore > 0 ? sloiScore.toFixed(1) : '–'}
+                        <span className="ml-1 text-base font-normal text-slate-400">/6</span>
+                    </p>
+                    {activeStep && (
+                        <p
+                            className="mt-1 text-sm font-semibold"
+                            style={{ color: activeStep.color }}
+                        >
+                            {trustLevel || activeStep.label}
+                        </p>
+                    )}
+                </div>
+            </div>
+
+            {/* ── Staircase ──────────────────────────────────────── */}
+            <div className="flex items-end gap-2" style={{ height: 240 }}>
+                {STEPS.map((step, idx) => {
+                    const isActive  = idx === activeIdx;
+                    const isPast    = activeIdx >= 0 && idx < activeIdx;
+                    const isFuture  = activeIdx >= 0 && idx > activeIdx;
+
+                    // Flat color logic — no gradients
+                    let barColor: string;
+                    if (isActive)       barColor = step.color;
+                    else if (isPast)    barColor = step.color + '60'; // 38% opacity hex
+                    else if (isFuture)  barColor = '#e2e8f0';          // slate-200
+                    else                barColor = '#e2e8f0';
+
+                    return (
+                        <div
+                            key={idx}
+                            className="relative flex flex-1 flex-col items-center justify-end"
+                            style={{ height: '100%' }}
+                        >
+                            {/* Pin marker on active */}
+                            {isActive && (
+                                <div className="absolute bottom-full mb-2 flex flex-col items-center">
+                                    <span
+                                        className="rounded px-1.5 py-0.5 text-[10px] font-bold text-white"
+                                        style={{ backgroundColor: step.color }}
+                                    >
+                                        {sloiScore.toFixed(1)}
+                                    </span>
+                                    <div
+                                        className="mt-0.5 h-3 w-px"
+                                        style={{ backgroundColor: step.color }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Bar — flat, no gradient */}
+                            <div
+                                className="w-full rounded-t"
+                                style={{
+                                    height: BAR_HEIGHTS[idx],
+                                    backgroundColor: barColor,
+                                }}
+                            />
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* ── X-axis labels ──────────────────────────────────── */}
+            <div className="mt-2 flex gap-2">
+                {STEPS.map((step, idx) => (
+                    <div
+                        key={idx}
+                        className="flex-1 text-center text-[11px] font-medium"
+                        style={{
+                            color: idx === activeIdx ? step.color : '#cbd5e1',
+                        }}
+                    >
+                        {step.step}
+                    </div>
+                ))}
+            </div>
+
+            {/* ── Legend ─────────────────────────────────────────── */}
+            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t border-slate-100 pt-4">
+                {STEPS.map((step, idx) => {
+                    const isActive = idx === activeIdx;
+                    return (
+                        <div key={idx} className="flex items-center gap-1.5">
+                            <div
+                                className="h-2 w-2 rounded-sm"
+                                style={{ backgroundColor: step.color, opacity: isActive ? 1 : 0.3 }}
+                            />
+                            <span
+                                className="text-[11px]"
+                                style={{
+                                    color: isActive ? step.color : '#94a3b8',
+                                    fontWeight: isActive ? 600 : 400,
+                                }}
                             >
-                                <stop offset="0%" stopColor="#dc2626" />
-                                <stop offset="50%" stopColor="#eab308" />
-                                <stop offset="100%" stopColor="#22c55e" />
-                            </linearGradient>
-                        </defs>
-                        {/* Background arc */}
-                        <path
-                            d="M 20 90 A 80 80 0 0 1 180 90"
-                            fill="none"
-                            stroke="#e2e8f0"
-                            strokeWidth="14"
-                            strokeLinecap="round"
-                        />
-                        {/* Colored arc */}
-                        <path
-                            d="M 20 90 A 80 80 0 0 1 180 90"
-                            fill="none"
-                            stroke="url(#gaugeGradient)"
-                            strokeWidth="14"
-                            strokeLinecap="round"
-                            opacity="0.3"
-                        />
-                        {/* Needle */}
-                        <line
-                            x1="100"
-                            y1="90"
-                            x2="100"
-                            y2="25"
-                            stroke="#1e293b"
-                            strokeWidth="3"
-                            strokeLinecap="round"
-                            transform="rotate(55, 100, 90)"
-                        />
-                        {/* Center dot */}
-                        <circle cx="100" cy="90" r="6" fill="#1e293b" />
-                    </svg>
-                </div>
-
-                <div className="text-center">
-                    <p className="text-5xl font-bold text-green-600">
-                        {sloiScore}
-                    </p>
-                    <p className="mt-1 text-sm font-bold uppercase tracking-wider text-green-600">
-                        {trustLevel.toUpperCase()}
-                    </p>
-                </div>
-
-                <div className="mt-6 flex flex-wrap justify-center gap-4 text-[10px] font-medium">
-                    <div className="flex items-center gap-1.5">
-                        <div className="size-2.5 rounded-full bg-red-500" />
-                        <span className="text-slate-500">1-2.5</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <div className="size-2.5 rounded-full bg-amber-500" />
-                        <span className="text-slate-500">2.5-3.5</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <div className="size-2.5 rounded-full bg-green-500" />
-                        <span className="text-slate-500">3.5-5.0</span>
-                    </div>
-                </div>
+                                {step.label}
+                            </span>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

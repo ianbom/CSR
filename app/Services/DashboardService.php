@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\DB;
 class DashboardService
 {
     /**
-     * @return array{stats: array, projects: array, scoreDistribution: array, activities: array, dateLabels: array}
+     * @return array{stats: array, projects: array, scoreDistribution: array, activities: array, dateLabels: array, trendData: array, projectList: array, selectedProjectId: int|null}
      */
-    public function getCompanyDashboardData(int $companyId): array
+    public function getCompanyDashboardData(int $companyId, ?int $selectedProjectId = null): array
     {
         return [
             'stats' => $this->getStats($companyId),
@@ -22,6 +22,9 @@ class DashboardService
             'scoreDistribution' => $this->getScoreDistribution($companyId),
             'activities' => $this->getRecentActivities($companyId),
             'dateLabels' => $this->getDateLabels(),
+            'trendData' => $this->getTrendData($companyId, $selectedProjectId),
+            'projectList' => $this->getProjectList($companyId),
+            'selectedProjectId' => $selectedProjectId,
         ];
     }
 
@@ -257,5 +260,58 @@ class DashboardService
         }
 
         return $labels;
+    }
+
+    /**
+     * Get trend data for approved submissions per project
+     *
+     * @return array<int, array{date: string, count: int}>
+     */
+    protected function getTrendData(int $companyId, ?int $projectId = null): array
+    {
+        $now = Carbon::now();
+        $data = [];
+
+        // Get submissions for last 30 days (6 points, each 5 days)
+        for ($i = 5; $i >= 0; $i--) {
+            $endDate = $now->copy()->subDays($i * 5);
+            $startDate = $endDate->copy()->subDays(4);
+
+            $query = Submission::where('company_id', $companyId)
+                ->where('status', 'approved') // Only approved submissions
+                ->whereBetween('submitted_at', [$startDate->startOfDay(), $endDate->endOfDay()]);
+
+            // Filter by project if selected
+            if ($projectId) {
+                $query->where('project_id', $projectId);
+            }
+
+            $count = $query->count();
+
+            $data[] = [
+                'date' => $endDate->translatedFormat('d M'),
+                'count' => $count,
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get list of projects for filter dropdown
+     *
+     * @return array<int, array{id: int, name: string}>
+     */
+    protected function getProjectList(int $companyId): array
+    {
+        return Project::where('company_id', $companyId)
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($project) => [
+                'id' => $project->id,
+                'name' => $project->name,
+            ])
+            ->toArray();
     }
 }

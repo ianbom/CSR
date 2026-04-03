@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="403c4e90-d41e-4651-9b64-30470d7245f8" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/AdminDashboard-D8Tf52Ro.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/AppLayout-ChQUJA1n.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/AssignEnumeratorModal-DjoJcE9_.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/BarChart-o6fj_DEN.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/Button-D4wyS7PW.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/CompanyDashboard-eFwuJ_-L.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/ConfirmPassword-bhC9UWwc.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/CreateProject-C5gOsHKq.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/Dashboard-Cxec30-2.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/DashboardOld-BhmKm1T0.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/DeleteUserForm-QJczeGga.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/DetailEnumerator-Ce-i-h9B.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/DetailInstrument-Dl4DyuDB.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/DetailProject-CxwisBPY.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/Edit-WD-b9Cyx.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/EnumeratorLayout-DTBqstvb.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/ForgotPassword-CmWIuHEI.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/FormInput-B6D1nWOg.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/FormTextarea-C8gboCP6.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/GuestLayout-17EKFiVm.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/InputLabel-DoCE_c1G.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/ListCompany-a47zDe3t.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/ListEnumerator-B2AcKdZC.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/ListInstrument-C_zdX0qV.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/ListProject-BUs0ijUp.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/ListProject-Dus8rxdC.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/ListUser-CL1aMK9j.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/Login-CZTR2RYX.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/MaterialIcon-CM9GcmY5.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/Pagination-Bfy4h1xJ.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/PrimaryButton-49H1zODY.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/ProjectForm-DKp1XtG8.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/QuestionForm-CUv-nOJN.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/QuestionSurvey-CBYYSUKd.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/Register-7MHa19ay.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/ResetPassword-BBJ2bERM.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/RespondentForm-JHd9rcCi.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/RespondentSurvey-CpoPxxhH.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/ReviewForm-YHKWlcAn.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/ReviewSurvey-CgssodkH.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/StatCard-D8vgeC8O.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/SummaryCard-9u8LEB7G.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/SurveyProgressCard-CJLY9S_u.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/TabNavigation-UqbQOVjZ.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/TextInput-CmrAtBmn.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/UpdateCompanyForm-F4jRveXF.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/UpdatePasswordForm-DJYMP8zL.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/UpdateProfileInformationForm-cA52gAet.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/VerifyEmail-DQxIpsCn.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/WarningBox-kS-wAmSs.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/Welcome-DagoTNKD.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/app-D_AmJSxB.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/button-D-UEHdkI.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/card-BFrDzEgY.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/chart-BnIwEaPt.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/createLucideIcon-lcSTDVrz.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/debounce-BiKTtVYJ.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/file-text-Ce0JTfdu.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/label-DqDy4WIM.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/leaf-CVv7LNwQ.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/toaster-CxoFcLs1.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/transition-BFPX__FL.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/assets/users-DsVBtBCc.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../public/build/manifest.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/ActivityItem.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/ActivityItem.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/CompanyCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/CompanyCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/MiniStat.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/MiniStat.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/ProjectCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/ProjectCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/ProjectStatusChart.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/ProjectStatusChart.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/ProvinceChart.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/ProvinceChart.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/StatCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/StatCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/SubmissionTypeChart.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/SubmissionTypeChart.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../resources/js/Components/Admin/Dashboard/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/js/Pages/Dashboard/AdminDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../resources/js/Pages/Dashboard/AdminDashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/../vite.config.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 6
+}]]></component>
+  <component name="ProjectId" id="3BnCmpvGO85qSWoREV5SdB7rBpO" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "android.gradle.sync.needed": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "mobile",
+    "kotlin-language-version-configured": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="403c4e90-d41e-4651-9b64-30470d7245f8" name="Changes" comment="" />
+      <created>1775115610384</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1775115610384</updated>
+    </task>
+    <servers />
+  </component>
+</project>

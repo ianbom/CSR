@@ -5,7 +5,7 @@ import {
     SurveyHeader,
     SurveyProgressCard,
 } from '@/Components/Enumerator';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 // Question interface — sesuai kolom tabel template_questions
 interface Question {
@@ -100,7 +100,7 @@ export default function QuestionForm({
                 title="Kelengkapan Survei"
                 description={
                     isIKM
-                        ? 'Tiap pertanyaan memiliki 2 penilaian: Kepentingan dan Kinerja.'
+                        ? 'Tiap aspek dinilai dari 2 sisi: Kepentingan dan Kinerja.'
                         : 'Mohon lengkapi semua pertanyaan untuk melanjutkan.'
                 }
             />
@@ -124,20 +124,25 @@ export default function QuestionForm({
 
             {/* IKM legend */}
             {isIKM && (
-                <div className="flex gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm">
+                <div className="flex flex-wrap gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4 text-sm">
                     <div className="flex items-center gap-2">
-                        <span className="inline-block size-3 rounded-full bg-blue-500" />
+                        <span className="inline-flex size-5 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-700">
+                            K
+                        </span>
                         <span className="font-semibold text-blue-700">
                             Kepentingan
                         </span>
-                        <span className="text-blue-500">— skala 1–4</span>
+                        <span className="text-gray-400">— skala 1–4</span>
                     </div>
+                    <div className="h-4 w-px bg-gray-200" />
                     <div className="flex items-center gap-2">
-                        <span className="inline-block size-3 rounded-full bg-emerald-500" />
-                        <span className="font-semibold text-emerald-700">
-                            Kinerja
+                        <span className="inline-flex size-5 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-700">
+                            P
                         </span>
-                        <span className="text-emerald-500">— skala 1–4</span>
+                        <span className="font-semibold text-emerald-700">
+                            Kinerja (Performa)
+                        </span>
+                        <span className="text-gray-400">— skala 1–4</span>
                     </div>
                 </div>
             )}
@@ -150,7 +155,7 @@ export default function QuestionForm({
                     </p>
                 </div>
             ) : (
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                     {Object.entries(groupedQuestions).map(
                         ([category, catQuestions]) => (
                             <div key={category} className="flex flex-col gap-4">
@@ -165,96 +170,106 @@ export default function QuestionForm({
                                 )}
 
                                 {catQuestions.map((question) => {
-                                    questionNumber++;
-
                                     if (isIKM) {
                                         const kepKey = `${question.id}-ikm-kepentingan`;
                                         const kinKey = `${question.id}-ikm-kinerja`;
+                                        const kepNumber = ++questionNumber;
+                                        const kinNumber = ++questionNumber;
                                         return (
-                                            <div
-                                                key={question.id}
-                                                className="flex flex-col gap-2 rounded-xl border border-gray-100 bg-white p-5 shadow-sm"
-                                            >
-                                                {/* Question title */}
-                                                <div className="flex gap-3">
-                                                    <span className="flex size-7 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-600">
-                                                        {questionNumber}
-                                                    </span>
-                                                    <h3 className="pt-0.5 text-base font-bold leading-snug text-gray-900">
-                                                        {formatQuestionText(
-                                                            question.question_text,
-                                                        )}
-                                                    </h3>
+                                            <React.Fragment key={question.id}>
+                                                {/* ── IKM Kepentingan ── */}
+                                                <div className="rounded-xl border border-blue-100 bg-white shadow-sm">
+                                                    <div className="flex items-center gap-2 rounded-t-xl border-b border-blue-100 bg-blue-50 px-4 py-2.5">
+                                                        <span className="inline-flex size-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">
+                                                            K
+                                                        </span>
+                                                        <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                                                            IKM Kepentingan
+                                                        </span>
+                                                    </div>
+                                                    <div className="p-4">
+                                                        <LikertScaleQuestion
+                                                            questionNumber={
+                                                                kepNumber
+                                                            }
+                                                            question={`Bagaimana Kepentingan ${formatQuestionText(question.question_text)}?`}
+                                                            name={kepKey}
+                                                            value={
+                                                                answers[kepKey]
+                                                            }
+                                                            onChange={(v) =>
+                                                                handleAnswerChange(
+                                                                    kepKey,
+                                                                    v,
+                                                                )
+                                                            }
+                                                            scaleSize={4}
+                                                            minLabel={
+                                                                IKM_LABELS
+                                                                    .kepentingan
+                                                                    .min
+                                                            }
+                                                            maxLabel={
+                                                                IKM_LABELS
+                                                                    .kepentingan
+                                                                    .max
+                                                            }
+                                                            isAnswered={
+                                                                answers[
+                                                                    kepKey
+                                                                ] !== undefined
+                                                            }
+                                                        />
+                                                    </div>
                                                 </div>
 
-                                                {/* Kepentingan */}
-                                                <div className="mt-2 rounded-lg border border-blue-100 bg-blue-50/40 p-3">
-                                                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-blue-600">
-                                                        Kepentingan
-                                                    </p>
-                                                    <LikertScaleQuestion
-                                                        questionNumber={0}
-                                                        question=""
-                                                        name={kepKey}
-                                                        value={answers[kepKey]}
-                                                        onChange={(v) =>
-                                                            handleAnswerChange(
-                                                                kepKey,
-                                                                v,
-                                                            )
-                                                        }
-                                                        scaleSize={4}
-                                                        minLabel={
-                                                            IKM_LABELS
-                                                                .kepentingan.min
-                                                        }
-                                                        maxLabel={
-                                                            IKM_LABELS
-                                                                .kepentingan.max
-                                                        }
-                                                        isAnswered={
-                                                            answers[kepKey] !==
-                                                            undefined
-                                                        }
-                                                    />
+                                                {/* ── IKM Kinerja ── */}
+                                                <div className="rounded-xl border border-emerald-100 bg-white shadow-sm">
+                                                    <div className="flex items-center gap-2 rounded-t-xl border-b border-emerald-100 bg-emerald-50 px-4 py-2.5">
+                                                        <span className="inline-flex size-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
+                                                            P
+                                                        </span>
+                                                        <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+                                                            IKM Kinerja
+                                                        </span>
+                                                    </div>
+                                                    <div className="p-4">
+                                                        <LikertScaleQuestion
+                                                            questionNumber={
+                                                                kinNumber
+                                                            }
+                                                            question={`Bagaimana Kinerja ${formatQuestionText(question.question_text)}?`}
+                                                            name={kinKey}
+                                                            value={
+                                                                answers[kinKey]
+                                                            }
+                                                            onChange={(v) =>
+                                                                handleAnswerChange(
+                                                                    kinKey,
+                                                                    v,
+                                                                )
+                                                            }
+                                                            scaleSize={4}
+                                                            minLabel={
+                                                                IKM_LABELS.kinerja.min
+                                                            }
+                                                            maxLabel={
+                                                                IKM_LABELS.kinerja.max
+                                                            }
+                                                            isAnswered={
+                                                                answers[
+                                                                    kinKey
+                                                                ] !== undefined
+                                                            }
+                                                        />
+                                                    </div>
                                                 </div>
-
-                                                {/* Kinerja */}
-                                                <div className="rounded-lg border border-emerald-100 bg-emerald-50/40 p-3">
-                                                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-emerald-600">
-                                                        Kinerja
-                                                    </p>
-                                                    <LikertScaleQuestion
-                                                        questionNumber={0}
-                                                        question=""
-                                                        name={kinKey}
-                                                        value={answers[kinKey]}
-                                                        onChange={(v) =>
-                                                            handleAnswerChange(
-                                                                kinKey,
-                                                                v,
-                                                            )
-                                                        }
-                                                        scaleSize={4}
-                                                        minLabel={
-                                                            IKM_LABELS.kinerja
-                                                                .min
-                                                        }
-                                                        maxLabel={
-                                                            IKM_LABELS.kinerja
-                                                                .max
-                                                        }
-                                                        isAnswered={
-                                                            answers[kinKey] !==
-                                                            undefined
-                                                        }
-                                                    />
-                                                </div>
-                                            </div>
+                                            </React.Fragment>
                                         );
                                     }
 
                                     // SLOI — single answer
+                                    questionNumber++;
                                     const sloiKey = `${question.id}-sloi`;
                                     return (
                                         <LikertScaleQuestion

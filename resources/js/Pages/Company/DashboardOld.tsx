@@ -152,6 +152,9 @@ export default function Dashboard({
                         title="Tren Respons"
                         description="Volume pengiriman selama 30 hari terakhir."
                         dateLabels={dateLabels}
+                        trendData={[]}
+                        projectList={[]}
+                        selectedProjectId={null}
                     />
                     <ActivityFeed
                         title="Aktivitas Terbaru"

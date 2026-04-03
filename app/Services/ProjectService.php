@@ -192,6 +192,11 @@ class ProjectService
             $submissionsQuery->where('assessment_type', $assessmentType);
         }
 
+        // For overview, IKM, and SLOI tabs: only show approved submissions
+        if (in_array($detailType, ['overview', 'ikm', 'sloi'])) {
+            $submissionsQuery->approved();
+        }
+
         $submissions = $submissionsQuery->get();
         $submissionIds = $submissions->pluck('id');
         $respondentIds = $submissions->pluck('respondent_id')->filter()->unique();
@@ -208,8 +213,15 @@ class ProjectService
         $ikmStats = null;
         $sloiStats = null;
         if ($assessmentType === null) {
-            $ikmSubmissions = Submission::where('project_id', $projectId)->where('assessment_type', 'IKM')->get();
-            $sloiSubmissions = Submission::where('project_id', $projectId)->where('assessment_type', 'SLOI')->get();
+            // For overview: only show approved submissions
+            $ikmSubmissions = Submission::where('project_id', $projectId)
+                ->where('assessment_type', 'IKM')
+                ->approved()
+                ->get();
+            $sloiSubmissions = Submission::where('project_id', $projectId)
+                ->where('assessment_type', 'SLOI')
+                ->approved()
+                ->get();
             $ikmStats = $this->computeStats($project, $ikmSubmissions, 'IKM');
             $sloiStats = $this->computeStats($project, $sloiSubmissions, 'SLOI');
         }
@@ -221,8 +233,8 @@ class ProjectService
             'sloiStats' => $sloiStats,
             'demographics' => $this->computeDemographics($respondentIds),
             'questionScores' => $this->computeQuestionScores($submissionIds, $templateId),
-            'auditLog' => $this->computeAuditLog($projectId, $assessmentType),
-            'trendData' => $this->computeTrendData($projectId, $assessmentType),
+            'auditLog' => $this->computeAuditLog($projectId, $assessmentType, $detailType),
+            'trendData' => $this->computeTrendData($projectId, $assessmentType, $detailType),
             'respondents' => $this->computeRespondents($projectId, $assessmentType, $templateId, $respondentParams),
             'enumeratorList' => $this->computeEnumeratorList($project),
         ];
@@ -488,7 +500,7 @@ class ProjectService
         })->toArray();
     }
 
-    protected function computeAuditLog(int $projectId, ?string $assessmentType): array
+    protected function computeAuditLog(int $projectId, ?string $assessmentType, string $detailType = 'overview'): array
     {
         $query = Submission::where('project_id', $projectId)
             ->with(['respondent', 'enumerator'])
@@ -497,6 +509,11 @@ class ProjectService
 
         if ($assessmentType) {
             $query->where('assessment_type', $assessmentType);
+        }
+
+        // For overview, IKM, and SLOI tabs: only show approved submissions
+        if (in_array($detailType, ['overview', 'ikm', 'sloi'])) {
+            $query->approved();
         }
 
         return $query->get()->map(function ($sub) {
@@ -515,7 +532,7 @@ class ProjectService
         })->toArray();
     }
 
-    protected function computeTrendData(int $projectId, ?string $assessmentType): array
+    protected function computeTrendData(int $projectId, ?string $assessmentType, string $detailType = 'overview'): array
     {
         $query = DB::table('submissions')
             ->join('submission_template_answers', 'submissions.id', '=', 'submission_template_answers.submission_id')
@@ -524,6 +541,11 @@ class ProjectService
 
         if ($assessmentType) {
             $query->where('submissions.assessment_type', $assessmentType);
+        }
+
+        // For overview, IKM, and SLOI tabs: only show approved submissions
+        if (in_array($detailType, ['overview', 'ikm', 'sloi'])) {
+            $query->where('submissions.status', 'approved');
         }
 
         $monthly = $query

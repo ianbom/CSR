@@ -30,7 +30,7 @@ export default function HeroSection() {
                             </div> */}
 
                 <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-xl sm:text-6xl">
-                    Evaluasi Dampak Program Keberlanjutan{' '}
+                    Evaluasi Dampak Program Keberlanjutan X{' '}
                     <br className="hidden sm:block" />
                     <span className="bg-gradient-to-r from-green-300 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg">
                         Secara Terukur & Profesional

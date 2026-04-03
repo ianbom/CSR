@@ -244,98 +244,202 @@ export default function HistorySurvey({
             />
 
             {/* ── Stats Row ── */}
-            <div className="mb-6 flex flex-wrap items-center gap-6 border-b border-slate-200 pb-6 pt-2">
-                <div>
-                    <span className="text-4xl font-bold tabular-nums text-slate-900">
-                        {stats.total}
-                    </span>
-                    <span className="ml-2 text-sm text-slate-500">
-                        Total Survei
-                    </span>
+            <div className="mb-6 border-b border-slate-200 pb-6 pt-2">
+                {/* Mobile: Stacked Layout */}
+                <div className="flex flex-col gap-4 lg:hidden">
+                    {/* Total */}
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-bold tabular-nums text-slate-900 sm:text-4xl">
+                            {stats.total}
+                        </span>
+                        <span className="text-sm text-slate-500">
+                            Total Survei
+                        </span>
+                    </div>
+                    
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        <div className="flex flex-col rounded-lg bg-slate-50 p-3">
+                            <span className="text-xl font-bold tabular-nums text-slate-800 sm:text-2xl">
+                                {stats.submitted}
+                            </span>
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                Submitted
+                            </span>
+                        </div>
+                        <div className="flex flex-col rounded-lg bg-slate-50 p-3">
+                            <span className="text-xl font-bold tabular-nums text-slate-800 sm:text-2xl">
+                                {stats.approved}
+                            </span>
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                Approved
+                            </span>
+                        </div>
+                        <div className="flex flex-col rounded-lg bg-slate-50 p-3">
+                            <span className="text-xl font-bold tabular-nums text-slate-800 sm:text-2xl">
+                                {stats.rejected}
+                            </span>
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                Revisi
+                            </span>
+                        </div>
+                        <div className="flex flex-col rounded-lg bg-slate-50 p-3">
+                            <span className="text-xl font-bold tabular-nums text-slate-800 sm:text-2xl">
+                                {stats.overallAvg.toFixed(2)}
+                            </span>
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                Rata-Rata
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <div className="h-8 w-px bg-slate-200" />
-                <div className="flex items-center gap-6 text-sm text-slate-600">
-                    <span className="flex flex-col">
+
+                {/* Desktop: Horizontal Layout */}
+                <div className="hidden items-center gap-6 lg:flex">
+                    <div>
+                        <span className="text-4xl font-bold tabular-nums text-slate-900">
+                            {stats.total}
+                        </span>
+                        <span className="ml-2 text-sm text-slate-500">
+                            Total Survei
+                        </span>
+                    </div>
+                    <div className="h-8 w-px bg-slate-200" />
+                    <div className="flex items-center gap-6 text-sm text-slate-600">
+                        <span className="flex flex-col">
+                            <span className="text-2xl font-bold tabular-nums text-slate-800">
+                                {stats.submitted}
+                            </span>
+                            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                Submitted
+                            </span>
+                        </span>
+                        <span className="flex flex-col">
+                            <span className="text-2xl font-bold tabular-nums text-slate-800">
+                                {stats.approved}
+                            </span>
+                            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                Approved
+                            </span>
+                        </span>
+                        <span className="flex flex-col">
+                            <span className="text-2xl font-bold tabular-nums text-slate-800">
+                                {stats.rejected}
+                            </span>
+                            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                Revisi
+                            </span>
+                        </span>
+                    </div>
+                    <div className="h-8 w-px bg-slate-200" />
+                    <div className="flex flex-col text-sm text-slate-600">
                         <span className="text-2xl font-bold tabular-nums text-slate-800">
-                            {stats.submitted}
+                            {stats.overallAvg.toFixed(2)}
                         </span>
                         <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            Submitted
+                            Rata-Rata Nilai
                         </span>
-                    </span>
-                    <span className="flex flex-col">
-                        <span className="text-2xl font-bold tabular-nums text-slate-800">
-                            {stats.approved}
-                        </span>
-                        <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            Approved
-                        </span>
-                    </span>
-                    <span className="flex flex-col">
-                        <span className="text-2xl font-bold tabular-nums text-slate-800">
-                            {stats.rejected}
-                        </span>
-                        <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            Revisi
-                        </span>
-                    </span>
-                </div>
-                <div className="h-8 w-px bg-slate-200" />
-                <div className="flex flex-col text-sm text-slate-600">
-                    <span className="text-2xl font-bold tabular-nums text-slate-800">
-                        {stats.overallAvg.toFixed(2)}
-                    </span>
-                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                        Rata-Rata Nilai
-                    </span>
+                    </div>
                 </div>
             </div>
 
             {/* ── Filters ── */}
-            <div className="flex flex-wrap items-end gap-3">
-                <select
-                    value={localFilters.project_id}
-                    onChange={(e) =>
-                        handleFilterChange('project_id', e.target.value)
-                    }
-                    className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 focus:border-slate-400 focus:outline-none focus:ring-0"
-                >
-                    <option value="">Semua Proyek</option>
-                    {projects.map((p) => (
-                        <option key={p.id} value={p.id}>
-                            {p.name}
-                        </option>
-                    ))}
-                </select>
+            <div className="mb-4 space-y-3">
+                {/* Mobile: Full Width Selects */}
+                <div className="flex flex-col gap-2 sm:hidden">
+                    <select
+                        value={localFilters.project_id}
+                        onChange={(e) =>
+                            handleFilterChange('project_id', e.target.value)
+                        }
+                        className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-600 focus:border-slate-400 focus:outline-none focus:ring-0"
+                    >
+                        <option value="">Semua Proyek</option>
+                        {projects.map((p) => (
+                            <option key={p.id} value={p.id}>
+                                {p.name}
+                            </option>
+                        ))}
+                    </select>
 
-                <select
-                    value={localFilters.status}
-                    onChange={(e) =>
-                        handleFilterChange('status', e.target.value)
-                    }
-                    className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 focus:border-slate-400 focus:outline-none focus:ring-0"
-                >
-                    <option value="">Semua Status</option>
-                    <option value="submitted">Submitted</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Revisi</option>
-                </select>
-
-                <div className="flex gap-1.5">
-                    <SortButton field="submitted_at">Tanggal</SortButton>
-                    <SortButton field="avg_score">Rerata</SortButton>
-                    <SortButton field="assessment_type">Tipe</SortButton>
+                    <select
+                        value={localFilters.status}
+                        onChange={(e) =>
+                            handleFilterChange('status', e.target.value)
+                        }
+                        className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-600 focus:border-slate-400 focus:outline-none focus:ring-0"
+                    >
+                        <option value="">Semua Status</option>
+                        <option value="submitted">Submitted</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Revisi</option>
+                    </select>
                 </div>
 
-                {hasActiveFilter && (
-                    <button
-                        onClick={clearFilters}
-                        className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-slate-400 transition-colors hover:text-slate-600"
+                {/* Desktop: Horizontal Layout */}
+                <div className="hidden items-end gap-3 sm:flex">
+                    <select
+                        value={localFilters.project_id}
+                        onChange={(e) =>
+                            handleFilterChange('project_id', e.target.value)
+                        }
+                        className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 focus:border-slate-400 focus:outline-none focus:ring-0"
                     >
-                        <X className="size-3" />
-                        Reset
-                    </button>
-                )}
+                        <option value="">Semua Proyek</option>
+                        {projects.map((p) => (
+                            <option key={p.id} value={p.id}>
+                                {p.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select
+                        value={localFilters.status}
+                        onChange={(e) =>
+                            handleFilterChange('status', e.target.value)
+                        }
+                        className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 focus:border-slate-400 focus:outline-none focus:ring-0"
+                    >
+                        <option value="">Semua Status</option>
+                        <option value="submitted">Submitted</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Revisi</option>
+                    </select>
+
+                    <div className="flex gap-1.5">
+                        <SortButton field="submitted_at">Tanggal</SortButton>
+                        <SortButton field="avg_score">Rerata</SortButton>
+                        <SortButton field="assessment_type">Tipe</SortButton>
+                    </div>
+
+                    {hasActiveFilter && (
+                        <button
+                            onClick={clearFilters}
+                            className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-slate-400 transition-colors hover:text-slate-600"
+                        >
+                            <X className="size-3" />
+                            Reset
+                        </button>
+                    )}
+                </div>
+
+                {/* Sort Buttons - Full Width on Mobile */}
+                <div className="flex items-center gap-2 sm:hidden">
+                    <div className="flex flex-1 gap-1.5">
+                        <SortButton field="submitted_at">Tanggal</SortButton>
+                        <SortButton field="avg_score">Rerata</SortButton>
+                        <SortButton field="assessment_type">Tipe</SortButton>
+                    </div>
+                    {hasActiveFilter && (
+                        <button
+                            onClick={clearFilters}
+                            className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-1.5 text-[11px] text-slate-400 transition-colors hover:border-slate-300 hover:text-slate-600"
+                        >
+                            <X className="size-3" />
+                            Reset
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* ── Submission Grid ── */}
@@ -347,11 +451,11 @@ export default function HistorySurvey({
                     </p>
                 </div>
             ) : (
-                <div className="grid grid-cols-2 gap-3 pb-4 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 pb-4 sm:grid-cols-2 lg:grid-cols-3">
                     {submissions.data.map((item) => (
                         <div
                             key={item.id}
-                            className="border-slate-150 group relative flex flex-col overflow-hidden rounded-lg border bg-white transition-shadow hover:shadow-md"
+                            className="group relative flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition-shadow hover:shadow-md"
                             style={{
                                 borderColor: 'rgb(226 232 240)',
                             }}
@@ -360,14 +464,14 @@ export default function HistorySurvey({
                             <div className="absolute left-0 top-0 h-1 w-full bg-primary" />
 
                             {/* Card top */}
-                            <div className="flex-1 p-4 pt-5">
+                            <div className="flex-1 p-5 pt-6">
                                 {/* Badges row */}
-                                <div className="mb-2 flex items-center gap-1.5">
-                                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                                <div className="mb-3 flex items-center gap-2">
+                                    <span className="rounded-md bg-slate-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                                         {item.assessmentType}
                                     </span>
                                     <span
-                                        className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                                        className={`rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${
                                             item.status === 'approved'
                                                 ? 'bg-emerald-700 text-white'
                                                 : item.status === 'rejected'
@@ -381,49 +485,57 @@ export default function HistorySurvey({
                                 </div>
 
                                 {/* Respondent */}
-                                <h3 className="truncate text-sm font-semibold text-slate-900">
+                                <h3 className="mb-1 text-base font-semibold leading-snug text-slate-900">
                                     {item.respondent?.name ?? '—'}
                                 </h3>
-                                <p className="mt-0.5 truncate text-[11px] text-slate-400">
+                                <p className="mb-4 text-xs text-slate-500">
                                     {item.project.name}
                                 </p>
 
                                 {/* Score */}
-                                <div className="mt-3">
+                                <div className="flex items-baseline gap-2">
                                     <span
-                                        className={`text-2xl font-bold tabular-nums leading-none ${scoreColor(item.avgScore)}`}
+                                        className={`text-3xl font-bold tabular-nums leading-none ${scoreColor(item.avgScore)}`}
                                     >
                                         {item.avgScore.toFixed(2)}
                                     </span>
-                                    <span className="ml-1 text-[10px] text-slate-400">
+                                    <span className="text-xs text-slate-400">
                                         Rerata
                                     </span>
                                 </div>
                             </div>
 
                             {/* Card footer */}
-                            <div className="flex items-center justify-between border-t border-slate-100 px-4 py-2.5 text-[11px] text-slate-400">
-                                <span>{formatDate(item.submittedAt)}</span>
-                                <div className="flex items-center gap-2">
+                            <div className="flex flex-col gap-2 border-t border-slate-100 bg-slate-50/50 p-4 text-xs">
+                                {/* Date & Details Row */}
+                                <div className="flex items-center justify-between text-slate-500">
+                                    <span className="font-medium">
+                                        {formatDate(item.submittedAt)}
+                                    </span>
                                     {item.respondent?.gender && (
-                                        <span>
+                                        <span className="text-slate-400">
                                             {formatGender(
                                                 item.respondent.gender,
                                             )}
                                             {item.respondent.age
-                                                ? `, ${item.respondent.age} Tahun`
+                                                ? `, ${item.respondent.age}th`
                                                 : ''}
                                         </span>
                                     )}
+                                </div>
+
+                                {/* Actions Row */}
+                                <div className="flex items-center gap-2">
                                     {item.latitude !== 0 &&
                                         item.longitude !== 0 && (
                                             <a
                                                 href={`https://maps.google.com/?q=${item.latitude},${item.longitude}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-red-500 transition-colors hover:text-red-600"
+                                                className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 transition-all hover:border-red-300 hover:bg-red-50 active:scale-95"
                                             >
-                                                <MapPin className="size-3" />
+                                                <MapPin className="size-3.5" />
+                                                <span>Lokasi</span>
                                             </a>
                                         )}
                                     {(item.status === 'submitted' ||
@@ -433,9 +545,22 @@ export default function HistorySurvey({
                                                 'enumerator.survey.edit',
                                                 { submissionId: item.id },
                                             )}
-                                            className="ml-1 font-medium text-primary transition-colors hover:text-primary/80"
+                                            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border-2 border-primary bg-primary px-4 py-2 text-xs font-bold text-white transition-all hover:bg-primary/90 active:scale-95"
                                         >
-                                            Edit
+                                            <svg
+                                                className="size-3.5"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                strokeWidth={2.5}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                />
+                                            </svg>
+                                            <span>Edit Survei</span>
                                         </a>
                                     )}
                                 </div>
@@ -447,8 +572,9 @@ export default function HistorySurvey({
 
             {/* ── Pagination ── */}
             {meta.last_page > 1 && (
-                <div className="flex items-center justify-between pb-6">
-                    <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-4 pb-6 sm:flex-row sm:items-center sm:justify-between">
+                    {/* Info & Per Page - Mobile Stacked, Desktop Horizontal */}
+                    <div className="flex items-center justify-between gap-3 sm:justify-start">
                         <span className="text-xs tabular-nums text-slate-400">
                             {meta.from}–{meta.to} / {meta.total}
                         </span>
@@ -462,63 +588,67 @@ export default function HistorySurvey({
                                 }));
                                 navigate({ per_page: val });
                             }}
-                            className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-500 focus:border-slate-400 focus:outline-none focus:ring-0"
+                            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-500 focus:border-slate-400 focus:outline-none focus:ring-0"
                         >
                             {[10, 25, 50].map((n) => (
                                 <option key={n} value={n}>
-                                    {n}
+                                    {n} per halaman
                                 </option>
                             ))}
                         </select>
                     </div>
 
-                    <div className="flex items-center gap-0.5">
+                    {/* Pagination Controls */}
+                    <div className="flex items-center justify-center gap-1">
                         <button
                             onClick={() =>
                                 handlePageChange(meta.current_page - 1)
                             }
                             disabled={meta.current_page <= 1}
-                            className="rounded-md p-1.5 text-slate-400 transition-colors hover:text-slate-600 disabled:opacity-30"
+                            className="rounded-lg border border-slate-200 p-2 text-slate-400 transition-colors hover:border-slate-300 hover:text-slate-600 disabled:opacity-30 disabled:hover:border-slate-200"
                         >
                             <ChevronLeft className="size-4" />
                         </button>
 
+                        {/* Show first page on mobile if not in range */}
                         {pageNumbers[0] > 1 && (
                             <>
                                 <button
                                     onClick={() => handlePageChange(1)}
-                                    className="min-w-[28px] rounded-md px-1.5 py-1 text-xs tabular-nums text-slate-500 hover:bg-slate-100"
+                                    className="hidden min-w-[32px] rounded-lg border border-slate-200 px-2 py-1.5 text-xs tabular-nums text-slate-500 transition-colors hover:border-slate-300 hover:bg-slate-50 sm:block"
                                 >
                                     1
                                 </button>
                                 {pageNumbers[0] > 2 && (
-                                    <span className="px-0.5 text-xs text-slate-300">
+                                    <span className="hidden px-1 text-xs text-slate-300 sm:inline">
                                         ···
                                     </span>
                                 )}
                             </>
                         )}
 
+                        {/* Page Numbers */}
                         {pageNumbers.map((p) => (
                             <button
                                 key={p}
                                 onClick={() => handlePageChange(p)}
-                                className={`min-w-[28px] rounded-md px-1.5 py-1 text-xs tabular-nums transition-colors ${
+                                className={`min-w-[32px] rounded-lg border px-2 py-1.5 text-xs tabular-nums transition-colors ${
                                     p === meta.current_page
-                                        ? 'bg-slate-800 font-semibold text-white'
-                                        : 'text-slate-500 hover:bg-slate-100'
+                                        ? 'border-slate-800 bg-slate-800 font-bold text-white'
+                                        : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50'
                                 }`}
                             >
                                 {p}
                             </button>
                         ))}
 
+                        {/* Show last page on mobile if not in range */}
                         {pageNumbers[pageNumbers.length - 1] <
                             meta.last_page && (
                             <>
                                 {pageNumbers[pageNumbers.length - 1] <
                                     meta.last_page - 1 && (
-                                    <span className="px-0.5 text-xs text-slate-300">
+                                    <span className="hidden px-1 text-xs text-slate-300 sm:inline">
                                         ···
                                     </span>
                                 )}
@@ -526,7 +656,7 @@ export default function HistorySurvey({
                                     onClick={() =>
                                         handlePageChange(meta.last_page)
                                     }
-                                    className="min-w-[28px] rounded-md px-1.5 py-1 text-xs tabular-nums text-slate-500 hover:bg-slate-100"
+                                    className="hidden min-w-[32px] rounded-lg border border-slate-200 px-2 py-1.5 text-xs tabular-nums text-slate-500 transition-colors hover:border-slate-300 hover:bg-slate-50 sm:block"
                                 >
                                     {meta.last_page}
                                 </button>
@@ -538,7 +668,7 @@ export default function HistorySurvey({
                                 handlePageChange(meta.current_page + 1)
                             }
                             disabled={meta.current_page >= meta.last_page}
-                            className="rounded-md p-1.5 text-slate-400 transition-colors hover:text-slate-600 disabled:opacity-30"
+                            className="rounded-lg border border-slate-200 p-2 text-slate-400 transition-colors hover:border-slate-300 hover:text-slate-600 disabled:opacity-30 disabled:hover:border-slate-200"
                         >
                             <ChevronRight className="size-4" />
                         </button>

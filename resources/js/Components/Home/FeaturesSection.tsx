@@ -34,15 +34,6 @@ const features: Feature[] = [
         href: '#features-section',
     },
     {
-        title: 'Laporan Keberlanjutan',
-        description:
-            'Buat laporan dampak Keberlanjutan yang terstruktur dan siap untuk stakeholder perusahaan.',
-        detailedDescription:
-            'Sistem pelaporan keberlanjutan kami menyederhanakan proses pembuatan laporan CSR dan ESG yang komprehensif. Dengan template yang dapat disesuaikan, visualisasi data otomatis, dan integrasi dengan standar pelaporan internasional (GRI, SASB, dll), Anda dapat menghasilkan laporan profesional yang memenuhi ekspektasi stakeholder, investor, dan regulator. Fitur kolaborasi tim memudahkan koordinasi antar departemen dalam menyusun narasi dampak sosial perusahaan.',
-        image: '/img/feature_laporan.png',
-        href: '#features-section',
-    },
-    {
         title: 'Analisis SROI',
         description:
             'Evaluasi dampak sosial dan lingkungan dengan metodologi Social Return on Investment (Coming Soon).',
@@ -84,6 +75,17 @@ function FeatureCard({
                         'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 35%, rgba(0,0,0,0.7) 70%, rgba(0,0,0,0.9) 100%)',
                 }}
             />
+
+            {/* Coming Soon Badge - Center */}
+            {feature.comingSoon && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="rounded-3xl border-2 border-white bg-white/95 px-4 py-1 shadow-xl backdrop-blur-sm">
+                        <span className="text-sm font-bold uppercase tracking-widest text-gray-900">
+                            Coming Soon
+                        </span>
+                    </div>
+                </div>
+            )}
 
             {/* Top bar */}
             <div className="absolute left-4 right-4 top-4 flex items-start justify-between">
@@ -191,16 +193,13 @@ export default function FeaturesSection() {
             {/* Cards horizontal scroll */}
             <div
                 ref={scrollRef}
-                className="flex gap-4 overflow-x-auto px-6 pb-4 lg:px-8"
+                className="flex gap-4 overflow-x-auto px-6 pb-4 lg:justify-center lg:px-8"
                 style={{
                     scrollSnapType: 'x mandatory',
                     msOverflowStyle: 'none',
                     scrollbarWidth: 'none',
                 }}
             >
-                {/* Left padding sentinel for max-width centering */}
-                <div className="flex-shrink-0 lg:w-[calc((100vw-80rem)/2)]" />
-
                 {features.map((feature) => (
                     <div
                         key={feature.title}
@@ -215,9 +214,6 @@ export default function FeaturesSection() {
                         />
                     </div>
                 ))}
-
-                {/* Right padding sentinel */}
-                <div className="flex-shrink-0 lg:w-[calc((100vw-80rem)/2)]" />
             </div>
 
             {/* Expanded Feature Modal */}
@@ -273,7 +269,7 @@ export default function FeaturesSection() {
                             </p>
 
                             <div className="prose prose-slate max-w-none">
-                                <p className="text-gray-600 leading-relaxed">
+                                <p className="leading-relaxed text-gray-600">
                                     {expandedFeature.detailedDescription}
                                 </p>
                             </div>

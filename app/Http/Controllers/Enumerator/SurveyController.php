@@ -112,6 +112,10 @@ class SurveyController extends Controller
 
         $data = $this->surveyService->getSubmissionForEdit($submissionId, $enumeratorId);
 
+        if ($data['submission']->status === 'approved') {
+            abort(403, 'Submission yang sudah disetujui tidak dapat diedit.');
+        }
+
         return Inertia::render('Enumerator/Survey/EditSurvey', [
             'submission'  => [
                 'id'              => $data['submission']->id,

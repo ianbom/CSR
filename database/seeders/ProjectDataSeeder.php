@@ -182,11 +182,19 @@ class ProjectDataSeeder extends Seeder
             // Create template answers
             foreach ($answerTypes as $type) {
                 foreach ($questions as $question) {
+                    // IKM: 1-4 points for both kepentingan and kinerja
+                    // SLOI: 1-6 points
+                    $value = match ($type) {
+                        'ikm-kepentingan', 'ikm-kinerja' => rand(1, 4),
+                        'sloi' => rand(1, 6),
+                        default => rand(1, 4),
+                    };
+
                     SubmissionTemplateAnswer::create([
                         'submission_id' => $submission->id,
                         'type'          => $type,
                         'question_id'   => $question->id,
-                        'value'         => rand(2, 5),
+                        'value'         => $value,
                     ]);
                 }
             }

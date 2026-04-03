@@ -258,6 +258,10 @@ class SurveyService
             $submission = Submission::where('enumerator_id', $enumeratorId)
                 ->findOrFail($submissionId);
 
+            if ($submission->status === 'approved') {
+                abort(403, 'Submission yang sudah disetujui tidak dapat diedit.');
+            }
+
             $respondent     = $submission->respondent;
             $respondentData = $data['respondent'];
             $submissionData = $data['submission'];

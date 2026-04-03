@@ -426,7 +426,8 @@ export default function HistorySurvey({
                                                 <MapPin className="size-3" />
                                             </a>
                                         )}
-                                    {item.status === 'submitted' && (
+                                    {(item.status === 'submitted' ||
+                                        item.status === 'rejected') && (
                                         <a
                                             href={route(
                                                 'enumerator.survey.edit',

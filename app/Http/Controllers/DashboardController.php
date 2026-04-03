@@ -26,7 +26,7 @@ class DashboardController extends Controller
         }
 
         if ($user->role == 'enumerator') {
-            return Inertia::render('Enumerator/Project/ListProject');
+            return redirect()->route('enumerator.list-survey');
         }
 
         return Inertia::render('Welcome');

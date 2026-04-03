@@ -5,7 +5,7 @@ import {
     SurveyHeader,
     SurveyProgressCard,
 } from '@/Components/Enumerator';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 // Question interface — sesuai kolom tabel template_questions
 interface Question {
@@ -238,7 +238,7 @@ export default function QuestionForm({
                                                             questionNumber={
                                                                 kinNumber
                                                             }
-                                                            question={`Apakah Kinerja ${formatQuestionText(question.question_text)}?`}
+                                                            question={`Bagaimana Kinerja ${formatQuestionText(question.question_text)}?`}
                                                             name={kinKey}
                                                             value={
                                                                 answers[kinKey]

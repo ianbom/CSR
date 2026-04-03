@@ -54,10 +54,9 @@ function FeatureCard({
 }) {
     return (
         <div
-            className={`feature-card group relative flex-shrink-0 overflow-hidden rounded-3xl ${
-                feature.featured ? 'w-72 sm:w-80' : 'w-56 sm:w-64'
-            } ${feature.comingSoon ? 'opacity-60' : ''}`}
-            style={{ height: '520px' }}
+            className={`feature-card group relative h-[480px] w-72 flex-shrink-0 overflow-hidden rounded-[2rem] transition-all duration-300 sm:h-[520px] sm:w-80 lg:h-[560px] lg:w-[320px] xl:h-[600px] xl:w-[400px] ${
+                feature.comingSoon ? 'opacity-60' : ''
+            }`}
         >
             {/* Background Image */}
             <img
@@ -133,7 +132,7 @@ function FeatureCard({
                 <button
                     onClick={onExpand}
                     disabled={feature.comingSoon}
-                    className="group/btn flex w-full items-center justify-between rounded-2xl bg-white/95 px-4 py-3 backdrop-blur-sm transition-all duration-300 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                    className="group/btn flex w-max items-center gap-3 rounded-2xl bg-white/95 px-5 py-3 backdrop-blur-sm transition-all duration-300 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     <span className="text-[10px] font-bold uppercase tracking-widest text-gray-900">
                         Jelajahi Fitur

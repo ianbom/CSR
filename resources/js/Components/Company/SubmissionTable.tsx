@@ -21,13 +21,13 @@ export default function SubmissionTable({
     const statusStyles = {
         verified: 'bg-green-50 text-green-600',
         pending: 'bg-amber-50 text-amber-600',
-        rejected: 'bg-red-50 text-red-600',
+        rejected: 'bg-orange-50 text-orange-600',
     };
 
     const statusLabels = {
         verified: 'TERVERIFIKASI',
         pending: 'TERTUNDA',
-        rejected: 'DITOLAK',
+        rejected: 'REVISI',
     };
 
     return (

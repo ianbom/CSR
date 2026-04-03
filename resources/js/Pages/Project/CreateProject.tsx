@@ -3,6 +3,7 @@ import ProjectForm from '@/Components/Company/ProjectForm';
 import { createProjectData } from '@/data';
 import CompanyLayout from '@/Layouts/AppLayout';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 
 import { PageProps } from '@/types';
 
@@ -17,6 +18,7 @@ const formSteps = createProjectData.formSteps;
 
 export default function CreateProject() {
     const { provinces } = usePage<PageProps<{ provinces: Province[] }>>().props;
+    const [targetError, setTargetError] = useState<string>('');
 
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
@@ -34,6 +36,15 @@ export default function CreateProject() {
     });
 
     const handleSubmit = () => {
+        // Validasi: minimal salah satu target harus > 0
+        if (data.target_ikm_count === 0 && data.target_sloi_count === 0) {
+            setTargetError(
+                'Target responden tidak boleh 0. Harap isi minimal salah satu target (IKM atau SLOI).',
+            );
+            return;
+        }
+
+        setTargetError('');
         post('/projects', {
             onSuccess: () => {
                 reset();
@@ -78,6 +89,8 @@ export default function CreateProject() {
                             setData={setData}
                             errors={errors}
                             provinces={provinces}
+                            targetError={targetError}
+                            setTargetError={setTargetError}
                         />
                     </div>
 

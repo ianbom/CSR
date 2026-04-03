@@ -73,6 +73,8 @@ interface ProjectFormProps {
     provinces: Province[];
     initialLocations?: LocationEntry[];
     showStatusField?: boolean;
+    targetError?: string;
+    setTargetError?: (error: string) => void;
 }
 
 // ─── Static Data ───────────────────────────────────────────
@@ -88,6 +90,8 @@ export default function ProjectForm({
     provinces,
     initialLocations = [],
     showStatusField = false,
+    targetError = '',
+    setTargetError,
 }: ProjectFormProps) {
     // Area selection state
     const [cities, setCities] = useState<City[]>([]);
@@ -165,9 +169,26 @@ export default function ProjectForm({
     }, [selectedLocations]);
 
     const handleAssessmentTypeChange = (typeId: string, checked: boolean) => {
-        if (typeId === 'ikm') setData('enable_ikm', checked);
-        else if (typeId === 'sloi') setData('enable_sloi', checked);
-        else if (typeId === 'sroi') setData('enable_sroi', checked);
+        if (typeId === 'ikm') {
+            setData('enable_ikm', checked);
+            // Reset target jika di-uncheck
+            if (!checked) {
+                setData('target_ikm_count', 0);
+            }
+        } else if (typeId === 'sloi') {
+            setData('enable_sloi', checked);
+            // Reset target jika di-uncheck
+            if (!checked) {
+                setData('target_sloi_count', 0);
+            }
+        } else if (typeId === 'sroi') {
+            setData('enable_sroi', checked);
+        }
+
+        // Clear error saat checkbox berubah
+        if (setTargetError) {
+            setTargetError('');
+        }
     };
 
     const handleProvinceChange = (provinceId: string) => {
@@ -275,31 +296,94 @@ export default function ProjectForm({
                 error={errors.description}
             />
 
+            {/* Tipe Penilaian */}
+            <div className="space-y-4">
+                <label className="block text-sm font-bold text-slate-900">
+                    Tipe Penilaian{' '}
+                    <span className="ml-1 font-normal text-slate-400">
+                        (Pilih satu atau lebih)
+                    </span>
+                </label>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    {assessmentTypes.map((type) => (
+                        <AssessmentTypeCard
+                            key={type.id}
+                            id={type.id}
+                            icon={type.icon}
+                            title={type.title}
+                            description={type.description}
+                            checked={
+                                type.id === 'ikm'
+                                    ? data.enable_ikm
+                                    : type.id === 'sloi'
+                                      ? data.enable_sloi
+                                      : data.enable_sroi
+                            }
+                            onChange={(checked) =>
+                                handleAssessmentTypeChange(type.id, checked)
+                            }
+                            disabled={type.id === 'sroi'}
+                            comingSoon={type.id === 'sroi'}
+                        />
+                    ))}
+                </div>
+            </div>
+
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 {/* Target Responden IKM */}
                 <FormInput
                     label="Target Responden IKM"
                     type="number"
+                    required
                     value={data.target_ikm_count.toString()}
-                    onChange={(value) =>
-                        setData('target_ikm_count', parseInt(value) || 0)
-                    }
+                    onChange={(value) => {
+                        const numValue = parseInt(value) || 0;
+                        setData('target_ikm_count', numValue);
+                        // Clear error saat user mulai mengisi
+                        if (setTargetError) {
+                            setTargetError('');
+                        }
+                    }}
                     helpText="Jumlah responden IKM yang diharapkan"
                     error={errors.target_ikm_count}
+                    disabled={!data.enable_ikm}
                 />
 
                 {/* Target Responden SLOI */}
                 <FormInput
                     label="Target Responden SLOI"
                     type="number"
+                    required
                     value={data.target_sloi_count.toString()}
-                    onChange={(value) =>
-                        setData('target_sloi_count', parseInt(value) || 0)
-                    }
+                    onChange={(value) => {
+                        const numValue = parseInt(value) || 0;
+                        setData('target_sloi_count', numValue);
+                        // Clear error saat user mulai mengisi
+                        if (setTargetError) {
+                            setTargetError('');
+                        }
+                    }}
                     helpText="Jumlah responden SLOI yang diharapkan"
                     error={errors.target_sloi_count}
+                    disabled={!data.enable_sloi}
                 />
             </div>
+
+            {/* Target Error Message */}
+            {targetError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                    <div className="flex items-start gap-3">
+                        <div className="flex size-5 items-center justify-center rounded-full bg-red-100 text-red-600">
+                            <Icon name="error" className="text-sm" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-sm font-medium text-red-800">
+                                {targetError}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 {/* Tanggal Mulai */}
@@ -449,37 +533,6 @@ export default function ProjectForm({
                         {errors.district_ids}
                     </p>
                 )}
-            </div>
-
-            {/* Tipe Penilaian */}
-            <div className="space-y-4">
-                <label className="block text-sm font-bold text-slate-900">
-                    Tipe Penilaian{' '}
-                    <span className="ml-1 font-normal text-slate-400">
-                        (Pilih satu atau lebih)
-                    </span>
-                </label>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    {assessmentTypes.map((type) => (
-                        <AssessmentTypeCard
-                            key={type.id}
-                            id={type.id}
-                            icon={type.icon}
-                            title={type.title}
-                            description={type.description}
-                            checked={
-                                type.id === 'ikm'
-                                    ? data.enable_ikm
-                                    : type.id === 'sloi'
-                                      ? data.enable_sloi
-                                      : data.enable_sroi
-                            }
-                            onChange={(checked) =>
-                                handleAssessmentTypeChange(type.id, checked)
-                            }
-                        />
-                    ))}
-                </div>
             </div>
         </div>
     );

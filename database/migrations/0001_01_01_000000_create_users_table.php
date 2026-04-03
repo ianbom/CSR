@@ -18,6 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->foreignId('company_id')->nullable()->constrained('companies')->nullOnDelete();
+            $table->string('position')->nullable();
             $table->enum('role', ['superadmin', 'admin', 'company', 'enumerator'])->default('company');
             $table->string('phone', 30)->nullable();
             $table->boolean('is_active')->default(true);

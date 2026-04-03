@@ -116,14 +116,12 @@ export default function ProjectSLOI({
                 targetResponses={stats.targetResponses}
             />
 
-            {/* Main Score & Trend Row */}
-            <div className="grid gap-6 lg:grid-cols-5">
-                <SLOIScoreGauge
-                    sloiScore={stats.score}
-                    trustLevel={stats.scoreLabel}
-                />
-                <SLOITrendChart questionScores={questionScores} />
-            </div>
+            {/* Main Score */}
+            <SLOIScoreGauge
+                sloiScore={stats.score}
+                trustLevel={stats.scoreLabel}
+            />
+            {/* <SLOITrendChart questionScores={questionScores} /> */}
 
             {/* Demographics Row */}
             <div className="grid gap-6 lg:grid-cols-2">

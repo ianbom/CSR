@@ -73,11 +73,11 @@ const ACTION_CONFIG: Record<
         border: 'border-emerald-200',
     },
     rejected: {
-        label: 'Ditolak',
+        label: 'Revisi',
         icon: <XCircle className="size-4" />,
-        color: 'text-red-600',
-        bg: 'bg-red-50',
-        border: 'border-red-200',
+        color: 'text-orange-600',
+        bg: 'bg-orange-50',
+        border: 'border-orange-200',
     },
     submitted: {
         label: 'Submitted',

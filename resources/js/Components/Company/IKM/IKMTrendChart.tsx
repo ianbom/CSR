@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useRef } from 'react';
 
 interface QuestionScoreItem {
     id: string;
@@ -44,6 +44,8 @@ function IPAScatterChart({
     chartTitle: string;
     compact?: boolean;
 }) {
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
+
     if (questionScores.length === 0) {
         return (
             <div className="flex h-48 items-center justify-center text-sm text-slate-400">
@@ -52,44 +54,44 @@ function IPAScatterChart({
         );
     }
 
-    // Calculate averages for quadrant lines
-    const avgImportance =
-        questionScores.reduce((s, q) => s + q.importance, 0) /
-        questionScores.length;
-    const avgPerformance =
-        questionScores.reduce((s, q) => s + q.performance, 0) /
-        questionScores.length;
+    // Fixed center point at 3.0 for both axes
+    const avgImportance = 3.0;
+    const avgPerformance = 3.0;
 
-    // Fixed axis range: 1.00 to 4.00 with 0.25 step
-    const xMin = 1;
-    const xMax = 4;
-    const yMin = 1;
-    const yMax = 4;
+    // Fixed axis range: 0 to 6 for both X and Y
+    const xMin = 0;
+    const xMax = 6;
+    const yMin = 0;
+    const yMax = 6;
     const xRange = xMax - xMin;
     const yRange = yMax - yMin;
 
-    // SVG dimensions
-    const width = compact ? 520 : 900;
-    const height = compact ? 320 : 550;
+    // SVG dimensions - make plot area horizontally elongated
     const marginLeft = compact ? 55 : 65;
     const marginRight = compact ? 30 : 40;
     const marginTop = compact ? 35 : 50;
     const marginBottom = compact ? 45 : 55;
-    const plotW = width - marginLeft - marginRight;
-    const plotH = height - marginTop - marginBottom;
+    
+    // Horizontally elongated plot area
+    const plotW = compact ? 600 : 1000;
+    const plotH = compact ? 300 : 500;
+    
+    const width = plotW + marginLeft + marginRight;
+    const height = plotH + marginTop + marginBottom;
 
     // Map data to SVG
     const toSvgX = (val: number) =>
         marginLeft + ((val - xMin) / xRange) * plotW;
     const toSvgY = (val: number) => marginTop + ((yMax - val) / yRange) * plotH;
 
-    // Generate ticks with fixed 0.25 step
-    const step = 0.25;
+    // Generate ticks
+    const xStep = 0.5; // 0.5 step for 0 to 6 range
+    const yStep = 0.5; // 0.5 step for 0 to 6 range
     const xTicks: number[] = [];
     const yTicks: number[] = [];
-    for (let v = xMin; v <= xMax + 0.001; v += step)
+    for (let v = xMin; v <= xMax + 0.001; v += xStep)
         xTicks.push(Math.round(v * 100) / 100);
-    for (let v = yMin; v <= yMax + 0.001; v += step)
+    for (let v = yMin; v <= yMax + 0.001; v += yStep)
         yTicks.push(Math.round(v * 100) / 100);
 
     const fontSize = compact ? 8 : 11;
@@ -239,6 +241,7 @@ function IPAScatterChart({
                     const color = DOT_COLORS[i % DOT_COLORS.length];
                     const shortId = q.id.replace(/^(IKM-|SLOI-)/, '');
                     const label = `${shortId}; ${q.performance.toFixed(2).replace('.', ',')}; ${q.importance.toFixed(2).replace('.', ',')}`;
+                    const isHovered = hoveredId === q.id;
 
                     // Offset overlapping points: count how many previous points share the same coords
                     const overlapIndex = questionScores
@@ -255,39 +258,51 @@ function IPAScatterChart({
                     const cy = baseCy + Math.sin(angle) * offsetDist;
 
                     return (
-                        <g key={q.id}>
+                        <g 
+                            key={q.id}
+                            onMouseEnter={() => setHoveredId(q.id)}
+                            onMouseLeave={() => setHoveredId(null)}
+                            style={{ cursor: 'pointer' }}
+                        >
                             {/* Dot */}
                             <circle
                                 cx={cx}
                                 cy={cy}
-                                r={dotR}
+                                r={isHovered ? dotR * 1.3 : dotR}
                                 fill={color}
                                 stroke="white"
-                                strokeWidth={1.5}
+                                strokeWidth={isHovered ? 2 : 1.5}
+                                style={{ transition: 'all 0.2s ease' }}
                             />
-                            {/* Label */}
-                            <rect
-                                x={cx + dotR + 3}
-                                y={cy - labelFontSize - 1}
-                                width={
-                                    label.length * (labelFontSize * 0.52) + 6
-                                }
-                                height={labelFontSize + 5}
-                                fill="white"
-                                fillOpacity={0.85}
-                                rx={2}
-                            />
-                            <text
-                                x={cx + dotR + 6}
-                                y={cy}
-                                className="fill-slate-600"
-                                style={{
-                                    fontSize: labelFontSize,
-                                    fontWeight: 500,
-                                }}
-                            >
-                                {label}
-                            </text>
+                            {/* Label - only visible on hover */}
+                            {isHovered && (
+                                <>
+                                    <rect
+                                        x={cx + dotR + 3}
+                                        y={cy - labelFontSize - 1}
+                                        width={
+                                            label.length * (labelFontSize * 0.52) + 6
+                                        }
+                                        height={labelFontSize + 5}
+                                        fill="white"
+                                        fillOpacity={0.95}
+                                        rx={2}
+                                        stroke={color}
+                                        strokeWidth={1}
+                                    />
+                                    <text
+                                        x={cx + dotR + 6}
+                                        y={cy}
+                                        className="fill-slate-600"
+                                        style={{
+                                            fontSize: labelFontSize,
+                                            fontWeight: 600,
+                                        }}
+                                    >
+                                        {label}
+                                    </text>
+                                </>
+                            )}
                         </g>
                     );
                 })}
@@ -365,7 +380,7 @@ export default function IKMTrendChart({
                             <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
                                 Keterangan Pertanyaan
                             </h4>
-                            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-2">
                                 {questionScores.map((q, i) => (
                                     <div
                                         key={q.id}

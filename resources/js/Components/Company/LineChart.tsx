@@ -1,16 +1,59 @@
 import { ReactNode } from 'react';
 
+interface TrendDataPoint {
+    date: string;
+    count: number;
+}
+
 interface LineChartProps {
     title: string;
     description: string;
     dateLabels: string[];
+    trendData: TrendDataPoint[];
+    projectList: { id: number; name: string }[];
+    selectedProjectId: number | null;
+    onProjectChange?: (projectId: number | null) => void;
 }
 
 export default function LineChart({
     title,
     description,
     dateLabels,
+    trendData,
+    projectList,
+    selectedProjectId,
+    onProjectChange,
 }: LineChartProps): ReactNode {
+    // Calculate max value for scaling
+    const maxCount = Math.max(...trendData.map((d) => d.count), 10);
+    const chartHeight = 180;
+    const chartWidth = 1000;
+    const pointSpacing = chartWidth / (trendData.length - 1);
+
+    // Generate path for line chart
+    const generatePath = () => {
+        return trendData
+            .map((point, index) => {
+                const x = index * pointSpacing;
+                const y = chartHeight - (point.count / maxCount) * chartHeight;
+                return index === 0 ? `M${x},${y}` : `L${x},${y}`;
+            })
+            .join(' ');
+    };
+
+    // Generate path for area fill
+    const generateAreaPath = () => {
+        const linePath = generatePath();
+        return `${linePath} L${chartWidth},${chartHeight} L0,${chartHeight} Z`;
+    };
+
+    const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value;
+        if (onProjectChange) {
+            onProjectChange(value === '' ? null : parseInt(value));
+        }
+    };
+
     return (
         <div className="rounded-xl border border-slate-200 bg-card-light p-8 shadow-sm lg:col-span-2">
             <div className="mb-8 flex items-center justify-between">
@@ -20,15 +63,23 @@ export default function LineChart({
                     </h2>
                     <p className="text-sm text-slate-500">{description}</p>
                 </div>
-                <select className="rounded-lg border-none bg-slate-100 px-3 py-1.5 text-xs font-bold focus:ring-0">
-                    <option>Last 30 Days</option>
-                    <option>Last 3 Months</option>
+                <select
+                    className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    value={selectedProjectId || ''}
+                    onChange={handleProjectChange}
+                >
+                    <option value="">Semua Proyek</option>
+                    {projectList.map((project) => (
+                        <option key={project.id} value={project.id}>
+                            {project.name}
+                        </option>
+                    ))}
                 </select>
             </div>
             <div className="group relative h-48 w-full">
                 <svg
                     className="h-full w-full overflow-visible"
-                    viewBox="0 0 1000 200"
+                    viewBox={`0 0 ${chartWidth} ${chartHeight + 40}`}
                 >
                     <defs>
                         <linearGradient
@@ -48,21 +99,56 @@ export default function LineChart({
                             />
                         </linearGradient>
                     </defs>
+
+                    {/* Area fill */}
                     <path
-                        d="M0,180 L100,160 L200,175 L300,120 L400,130 L500,60 L600,80 L700,40 L800,50 L900,20 L1000,30"
+                        d={generateAreaPath()}
+                        fill="url(#lineGradient)"
+                        fillOpacity="0.15"
+                    />
+
+                    {/* Line */}
+                    <path
+                        d={generatePath()}
                         fill="none"
                         stroke="#16a249"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth="4"
+                        strokeWidth="3"
                     />
-                    <path
-                        d="M0,180 L100,160 L200,175 L300,120 L400,130 L500,60 L600,80 L700,40 L800,50 L900,20 L1000,30 V200 H0 Z"
-                        fill="url(#lineGradient)"
-                        fillOpacity="0.1"
-                    />
+
+                    {/* Data points and labels */}
+                    {trendData.map((point, index) => {
+                        const x = index * pointSpacing;
+                        const y =
+                            chartHeight - (point.count / maxCount) * chartHeight;
+
+                        return (
+                            <g key={index}>
+                                {/* Point circle */}
+                                <circle
+                                    cx={x}
+                                    cy={y}
+                                    r="5"
+                                    fill="#16a249"
+                                    className="transition-all hover:r-7"
+                                />
+                                {/* Count label above point */}
+                                <text
+                                    x={x}
+                                    y={y - 12}
+                                    textAnchor="middle"
+                                    className="fill-slate-700 text-xs font-bold"
+                                >
+                                    {point.count}
+                                </text>
+                            </g>
+                        );
+                    })}
                 </svg>
-                <div className="mt-6 flex justify-between px-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+
+                {/* Date labels */}
+                <div className="mt-4 flex justify-between px-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     {dateLabels.map((label) => (
                         <span key={label}>{label}</span>
                     ))}

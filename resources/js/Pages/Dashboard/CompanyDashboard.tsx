@@ -6,7 +6,7 @@ import {
     StatCard,
 } from '@/Components/Company';
 import CompanyLayout from '@/Layouts/AppLayout';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 
 // Types
 interface DashboardStats {
@@ -49,12 +49,25 @@ interface ScoreDistributionData {
     scores: ScoreItem[];
 }
 
+interface TrendDataPoint {
+    date: string;
+    count: number;
+}
+
+interface ProjectListItem {
+    id: number;
+    name: string;
+}
+
 interface Props {
     stats: DashboardStats;
     projects: ProjectData[];
     scoreDistribution: ScoreDistributionData;
     activities: ActivityData[];
     dateLabels: string[];
+    trendData: TrendDataPoint[];
+    projectList: ProjectListItem[];
+    selectedProjectId: number | null;
 }
 
 const chartLegend = [
@@ -69,7 +82,17 @@ export default function CompanyDashboard({
     scoreDistribution,
     activities,
     dateLabels,
+    trendData,
+    projectList,
+    selectedProjectId,
 }: Props) {
+    const handleProjectChange = (projectId: number | null) => {
+        router.get(
+            route('dashboard'),
+            { project_id: projectId },
+            { preserveState: true, preserveScroll: true },
+        );
+    };
     return (
         <CompanyLayout
             breadcrumb={{ parent: 'Dashboard', current: 'Perusahaan' }}
@@ -149,9 +172,13 @@ export default function CompanyDashboard({
                 {/* Baris Bawah */}
                 <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     <LineChart
-                        title="Tren Respons"
-                        description="Volume pengiriman selama 30 hari terakhir."
+                        title="Tren Respons per Proyek"
+                        description="Volume respons yang sudah disetujui."
                         dateLabels={dateLabels}
+                        trendData={trendData}
+                        projectList={projectList}
+                        selectedProjectId={selectedProjectId}
+                        onProjectChange={handleProjectChange}
                     />
                     <ActivityFeed
                         title="Aktivitas Terbaru"

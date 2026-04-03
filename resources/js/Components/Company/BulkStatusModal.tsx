@@ -43,13 +43,13 @@ const STATUS_OPTIONS: {
     },
     {
         value: 'rejected',
-        label: 'Tolak',
-        description: 'Data tidak memenuhi kriteria',
+        label: 'Revisi',
+        description: 'Data memerlukan revisi dari enumerator',
         icon: <XCircle className="size-5" />,
-        color: 'text-red-700',
-        bg: 'bg-red-50',
-        border: 'border-red-200',
-        ring: 'ring-red-500/20',
+        color: 'text-orange-700',
+        bg: 'bg-orange-50',
+        border: 'border-orange-200',
+        ring: 'ring-orange-500/20',
     },
     {
         value: 'submitted',
@@ -206,12 +206,12 @@ export default function BulkStatusModal({
 
                     {/* Warning */}
                     {status === 'rejected' && (
-                        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
-                            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-500" />
-                            <p className="text-xs leading-relaxed text-amber-700">
-                                Submission yang ditolak akan ditandai sebagai{' '}
-                                <strong>rejected</strong>. Pastikan catatan
-                                sudah diisi agar enumerator tahu alasannya.
+                        <div className="flex items-start gap-3 rounded-xl border border-orange-200 bg-orange-50 p-3">
+                            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-orange-500" />
+                            <p className="text-xs leading-relaxed text-orange-700">
+                                Submission yang direvisi akan ditandai sebagai{' '}
+                                <strong>revisi</strong>. Pastikan catatan sudah
+                                diisi agar enumerator tahu alasannya.
                             </p>
                         </div>
                     )}
@@ -233,7 +233,7 @@ export default function BulkStatusModal({
                             status === 'approved'
                                 ? 'bg-emerald-600 hover:bg-emerald-700'
                                 : status === 'rejected'
-                                  ? 'bg-red-600 hover:bg-red-700'
+                                  ? 'bg-orange-600 hover:bg-orange-700'
                                   : 'bg-amber-600 hover:bg-amber-700'
                         } ${!status ? 'bg-slate-400' : ''}`}
                     >

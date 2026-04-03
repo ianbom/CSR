@@ -531,10 +531,14 @@ export default function IKMRespondentTable({
                                                     ? 'bg-green-100 text-green-700'
                                                     : row.status === 'submitted'
                                                       ? 'bg-amber-100 text-amber-700'
-                                                      : 'bg-red-100 text-red-700'
+                                                      : 'bg-orange-100 text-orange-700'
                                             }`}
                                         >
-                                            {row.status}
+                                            {row.status === 'rejected'
+                                                ? 'Revisi'
+                                                : row.status === 'approved'
+                                                  ? 'Approved'
+                                                  : 'Submitted'}
                                         </span>
                                     </td>
                                 </tr>

@@ -1,13 +1,15 @@
-import { ArrowUpRight } from 'lucide-react';
-import { useRef } from 'react';
+import { ArrowUpRight, X } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 interface Feature {
     title: string;
     description: string;
+    detailedDescription?: string;
     tags?: string[];
     image: string;
     href: string;
     featured?: boolean;
+    comingSoon?: boolean;
 }
 
 const features: Feature[] = [
@@ -15,6 +17,8 @@ const features: Feature[] = [
         title: 'IKM Survey',
         description:
             'Ukur kepuasan masyarakat terhadap program Keberlanjutan secara real-time dan komprehensif.',
+        detailedDescription:
+            'Platform IKM (Indeks Kepuasan Masyarakat) kami memungkinkan Anda untuk mengukur dan menganalisis tingkat kepuasan masyarakat terhadap program keberlanjutan perusahaan secara menyeluruh. Dengan metodologi yang terstandarisasi dan antarmuka yang user-friendly, Anda dapat mengumpulkan feedback real-time dari stakeholder, mengidentifikasi area perbaikan, dan membuat keputusan berbasis data untuk meningkatkan dampak sosial program Anda.',
         tags: ['Kepuasan Masyarakat', 'Keberlanjutan Survey'],
         image: '/img/feature_ikm.png',
         href: '#features-section',
@@ -24,6 +28,8 @@ const features: Feature[] = [
         title: 'Indeks SLOI',
         description:
             'Pantau tingkat penerimaan masyarakat terhadap operasional perusahaan Anda.',
+        detailedDescription:
+            'SLOI (Social License to Operate Index) adalah alat penting untuk memantau dan mengukur tingkat penerimaan masyarakat terhadap kehadiran dan operasional perusahaan Anda. Sistem ini membantu mengidentifikasi potensi konflik, mengukur persepsi publik, dan memastikan operasional perusahaan berjalan harmonis dengan masyarakat sekitar. Dashboard interaktif memberikan insight mendalam tentang dinamika hubungan perusahaan dengan komunitas lokal.',
         image: '/img/feature_sloi.png',
         href: '#features-section',
     },
@@ -31,24 +37,35 @@ const features: Feature[] = [
         title: 'Laporan Keberlanjutan',
         description:
             'Buat laporan dampak Keberlanjutan yang terstruktur dan siap untuk stakeholder perusahaan.',
+        detailedDescription:
+            'Sistem pelaporan keberlanjutan kami menyederhanakan proses pembuatan laporan CSR dan ESG yang komprehensif. Dengan template yang dapat disesuaikan, visualisasi data otomatis, dan integrasi dengan standar pelaporan internasional (GRI, SASB, dll), Anda dapat menghasilkan laporan profesional yang memenuhi ekspektasi stakeholder, investor, dan regulator. Fitur kolaborasi tim memudahkan koordinasi antar departemen dalam menyusun narasi dampak sosial perusahaan.',
         image: '/img/feature_laporan.png',
         href: '#features-section',
     },
-     {
+    {
         title: 'Analisis SROI',
         description:
             'Evaluasi dampak sosial dan lingkungan dengan metodologi Social Return on Investment (Coming Soon).',
+        detailedDescription:
+            'SROI (Social Return on Investment) adalah metodologi canggih untuk mengukur nilai sosial, lingkungan, dan ekonomi yang dihasilkan dari investasi program keberlanjutan Anda. Fitur ini akan segera hadir untuk membantu Anda menghitung ROI sosial, mengidentifikasi dampak yang paling signifikan, dan mengkomunikasikan nilai program CSR Anda dalam bahasa yang dipahami oleh stakeholder bisnis.',
         image: '/img/feature_sroi.png',
         href: '#features-section',
+        comingSoon: true,
     },
 ];
 
-function FeatureCard({ feature }: { feature: Feature }) {
+function FeatureCard({
+    feature,
+    onExpand,
+}: {
+    feature: Feature;
+    onExpand: () => void;
+}) {
     return (
         <div
             className={`feature-card group relative flex-shrink-0 overflow-hidden rounded-3xl ${
                 feature.featured ? 'w-72 sm:w-80' : 'w-56 sm:w-64'
-            }`}
+            } ${feature.comingSoon ? 'opacity-60' : ''}`}
             style={{ height: '520px' }}
         >
             {/* Background Image */}
@@ -86,12 +103,12 @@ function FeatureCard({ feature }: { feature: Feature }) {
                 )}
 
                 {/* Arrow button */}
-                <a
-                    href={feature.href}
+                <button
+                    onClick={onExpand}
                     className="ml-auto flex size-10 flex-shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/90 text-gray-900 shadow-md transition-all duration-300 hover:bg-white hover:shadow-lg group-hover:rotate-12"
                 >
                     <ArrowUpRight className="size-4" strokeWidth={2.5} />
-                </a>
+                </button>
             </div>
 
             {/* Bottom content */}
@@ -111,9 +128,10 @@ function FeatureCard({ feature }: { feature: Feature }) {
                 </p>
 
                 {/* CTA Button */}
-                <a
-                    href={feature.href}
-                    className="group/btn flex w-full items-center justify-between rounded-2xl bg-white/95 px-4 py-3 backdrop-blur-sm transition-all duration-300 hover:bg-white"
+                <button
+                    onClick={onExpand}
+                    disabled={feature.comingSoon}
+                    className="group/btn flex w-full items-center justify-between rounded-2xl bg-white/95 px-4 py-3 backdrop-blur-sm transition-all duration-300 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     <span className="text-[10px] font-bold uppercase tracking-widest text-gray-900">
                         Jelajahi Fitur
@@ -131,7 +149,7 @@ function FeatureCard({ feature }: { feature: Feature }) {
                             d="M9 5l7 7-7 7"
                         />
                     </svg>
-                </a>
+                </button>
             </div>
         </div>
     );
@@ -139,6 +157,9 @@ function FeatureCard({ feature }: { feature: Feature }) {
 
 export default function FeaturesSection() {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const [expandedFeature, setExpandedFeature] = useState<Feature | null>(
+        null,
+    );
 
     return (
         <section
@@ -155,7 +176,9 @@ export default function FeaturesSection() {
                         <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                             Solusi Lengkap
                             <br />
-                            <span className="text-green-600">Evaluasi Keberlanjutan</span>
+                            <span className="text-green-600">
+                                Evaluasi Keberlanjutan
+                            </span>
                         </h2>
                     </div>
                     <p className="max-w-xs text-sm leading-relaxed text-gray-500 sm:text-right">
@@ -183,7 +206,13 @@ export default function FeaturesSection() {
                         key={feature.title}
                         style={{ scrollSnapAlign: 'start' }}
                     >
-                        <FeatureCard feature={feature} />
+                        <FeatureCard
+                            feature={feature}
+                            onExpand={() =>
+                                !feature.comingSoon &&
+                                setExpandedFeature(feature)
+                            }
+                        />
                     </div>
                 ))}
 
@@ -191,31 +220,76 @@ export default function FeaturesSection() {
                 <div className="flex-shrink-0 lg:w-[calc((100vw-80rem)/2)]" />
             </div>
 
-            {/* Scroll indicator dots */}
-            {/* <div className="mt-8 flex justify-center gap-2">
-                {features.map((f, i) => (
-                    <button
-                        key={f.title}
-                        onClick={() => {
-                            const cards =
-                                scrollRef.current?.querySelectorAll(
-                                    '[style*="scroll-snap-align"]',
-                                );
-                            cards?.[i]?.scrollIntoView({
-                                behavior: 'smooth',
-                                inline: 'start',
-                                block: 'nearest',
-                            });
-                        }}
-                        className={`h-1.5 rounded-full transition-all duration-300 ${
-                            i === 0
-                                ? 'w-6 bg-gray-900'
-                                : 'w-1.5 bg-gray-300 hover:bg-gray-500'
-                        }`}
-                        aria-label={`Go to ${f.title}`}
-                    />
-                ))}
-            </div> */}
+            {/* Expanded Feature Modal */}
+            {expandedFeature && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+                    onClick={() => setExpandedFeature(null)}
+                >
+                    <div
+                        className="relative flex w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Close button */}
+                        <button
+                            onClick={() => setExpandedFeature(null)}
+                            className="absolute right-4 top-4 z-10 flex size-10 items-center justify-center rounded-full bg-black/10 text-white backdrop-blur-sm transition-all hover:bg-black/20"
+                        >
+                            <X className="size-5" />
+                        </button>
+
+                        {/* Image Section */}
+                        <div className="relative hidden w-2/5 flex-shrink-0 md:block">
+                            <img
+                                src={expandedFeature.image}
+                                alt={expandedFeature.title}
+                                className="h-full w-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/20" />
+                        </div>
+
+                        {/* Content Section */}
+                        <div className="flex-1 overflow-y-auto p-8 md:p-12">
+                            {expandedFeature.tags && (
+                                <div className="mb-4 flex flex-wrap gap-2">
+                                    {expandedFeature.tags.map((tag) => (
+                                        <span
+                                            key={tag}
+                                            className="inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-semibold text-green-700"
+                                        >
+                                            <span className="size-1.5 rounded-full bg-green-500" />
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+
+                            <h2 className="mb-4 font-serif text-4xl font-bold text-gray-900">
+                                {expandedFeature.title}
+                            </h2>
+
+                            <p className="mb-6 text-lg font-medium text-gray-700">
+                                {expandedFeature.description}
+                            </p>
+
+                            <div className="prose prose-slate max-w-none">
+                                <p className="text-gray-600 leading-relaxed">
+                                    {expandedFeature.detailedDescription}
+                                </p>
+                            </div>
+
+                            {/* Mobile Image */}
+                            <div className="mt-6 md:hidden">
+                                <img
+                                    src={expandedFeature.image}
+                                    alt={expandedFeature.title}
+                                    className="w-full rounded-2xl object-cover"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Scrollbar hide for webkit */}
             <style>{`

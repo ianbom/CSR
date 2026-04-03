@@ -29,6 +29,8 @@ class User extends Authenticatable
         'phone',
         'position',
         'email_verified_at',
+        'company_id',
+        'is_active',
     ];
 
     /**
@@ -114,11 +116,13 @@ class User extends Authenticatable
 
     /**
      * Get the submissions reviewed by this user.
+     * Note: 'reviewed_by' column currently not in submissions table migration
+     * TODO: Add migration if needed: $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
      */
-    public function reviewedSubmissions(): HasMany
-    {
-        return $this->hasMany(Submission::class, 'reviewed_by');
-    }
+    // public function reviewedSubmissions(): HasMany
+    // {
+    //     return $this->hasMany(Submission::class, 'reviewed_by');
+    // }
 
     /**
      * Check if user is superadmin.

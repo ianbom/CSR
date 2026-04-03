@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Submission extends Model
 {
+    use SoftDeletes;
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -30,6 +33,9 @@ class Submission extends Model
         return [
             'submitted_at' => 'datetime',
             'created_at' => 'datetime',
+            'latitude' => 'decimal:10',
+            'longitude' => 'decimal:10',
+            'photo_size_bytes' => 'integer',
         ];
     }
 

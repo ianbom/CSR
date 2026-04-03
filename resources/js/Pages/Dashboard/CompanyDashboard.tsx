@@ -43,10 +43,16 @@ interface ScoreItem {
     value: string;
 }
 
-interface ScoreDistributionData {
+interface ScoreDistributionTypeData {
     percentage: number;
     percentageLabel: string;
+    totalSubmissions: number;
     scores: ScoreItem[];
+}
+
+interface ScoreDistributionData {
+    ikm: ScoreDistributionTypeData;
+    sloi: ScoreDistributionTypeData;
 }
 
 interface TrendDataPoint {
@@ -162,10 +168,8 @@ export default function CompanyDashboard({
                     />
                     <ScoreDistribution
                         title="Distribusi Skor"
-                        description="Sentimen agregat di seluruh proyek."
-                        percentage={scoreDistribution.percentage}
-                        percentageLabel={scoreDistribution.percentageLabel}
-                        scores={scoreDistribution.scores}
+                        ikm={scoreDistribution.ikm}
+                        sloi={scoreDistribution.sloi}
                     />
                 </section>
 

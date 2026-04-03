@@ -29,6 +29,9 @@ Route::prefix('enumerator')->name('enumerator.')->group(function () {
     Route::get('/list', [EnumeratorProjectController::class, 'listProjectPage'])->name('list-survey');
     Route::get('/survey/respondent/{projectId}', [EnumeratorSurveyController::class, 'surveyRespondentPage'])->name('survey.respondent');
     Route::post('/survey/respondent/{projectId}/store', [EnumeratorSurveyController::class, 'storeDataSurvey'])->name('survey.store');
+    Route::get('/survey/history', [EnumeratorSurveyController::class, 'historyPage'])->name('survey.history');
+    Route::get('/survey/{submissionId}/edit', [EnumeratorSurveyController::class, 'editPage'])->name('survey.edit');
+    Route::put('/survey/{submissionId}', [EnumeratorSurveyController::class, 'updateDataSurvey'])->name('survey.update');
 
     Route::get('/survey/questions', function () {
         return Inertia::render('Enumerator/Survey/QuestionSurvey');

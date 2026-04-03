@@ -19,7 +19,7 @@ class DashboardService
         return [
             'stats' => $this->getStats($companyId),
             'projects' => $this->getProjectPerformance($companyId),
-            'scoreDistribution' => $this->getScoreDistribution($companyId),
+            'scoreDistribution' => $this->getScoreDistributionSeparate($companyId),
             'activities' => $this->getRecentActivities($companyId),
             'dateLabels' => $this->getDateLabels(),
             'trendData' => $this->getTrendData($companyId, $selectedProjectId),
@@ -136,6 +136,93 @@ class DashboardService
     }
 
     /**
+     * @return array{ikm: array, sloi: array}
+     */
+    protected function getScoreDistributionSeparate(int $companyId): array
+    {
+        $projectIds = Project::where('company_id', $companyId)->pluck('id');
+
+        return [
+            'ikm' => $this->getScoreDistributionByType($projectIds, 'IKM'),
+            'sloi' => $this->getScoreDistributionByType($projectIds, 'SLOI'),
+        ];
+    }
+
+    /**
+     * @return array{percentage: int, percentageLabel: string, scores: array, totalSubmissions: int}
+     */
+    protected function getScoreDistributionByType($projectIds, string $type): array
+    {
+        $submissions = Submission::whereIn('project_id', $projectIds)
+            ->where('assessment_type', $type)
+            ->get();
+
+        if ($submissions->isEmpty()) {
+            return $this->emptyScoreDistributionByType($type);
+        }
+
+        $submissionIds = $submissions->pluck('id');
+
+        // avg score per submission
+        $submissionScores = SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+            ->select('submission_id', DB::raw('AVG(value) as avg_score'))
+            ->groupBy('submission_id')
+            ->get();
+
+        $total = $submissionScores->count();
+
+        if ($total === 0) {
+            return $this->emptyScoreDistributionByType($type);
+        }
+
+        if ($type === 'IKM') {
+            // IKM uses 1-4 scale
+            $sangatBaik = $submissionScores->where('avg_score', '>=', 3.5)->count();
+            $baik = $submissionScores->whereBetween('avg_score', [2.5, 3.4999])->count();
+            $cukup = $submissionScores->whereBetween('avg_score', [1.5, 2.4999])->count();
+            $kurang = $submissionScores->where('avg_score', '<', 1.5)->count();
+
+            $positivePercentage = round((($sangatBaik + $baik) / $total) * 100);
+
+            return [
+                'percentage' => $positivePercentage,
+                'percentageLabel' => 'Positif',
+                'totalSubmissions' => $submissions->count(),
+                'scores' => [
+                    ['label' => 'Sangat Baik (≥3.5)', 'value' => round(($sangatBaik / $total) * 100) . '%'],
+                    ['label' => 'Baik (2.5-3.49)', 'value' => round(($baik / $total) * 100) . '%'],
+                    ['label' => 'Cukup (1.5-2.49)', 'value' => round(($cukup / $total) * 100) . '%'],
+                    ['label' => 'Kurang (<1.5)', 'value' => round(($kurang / $total) * 100) . '%'],
+                ],
+            ];
+        } else {
+            // SLOI uses 1-6 scale
+            $sangatBaik = $submissionScores->where('avg_score', '>=', 5)->count();
+            $baik = $submissionScores->whereBetween('avg_score', [4, 4.9999])->count();
+            $cukup = $submissionScores->whereBetween('avg_score', [3, 3.9999])->count();
+            $kurangBaik = $submissionScores->whereBetween('avg_score', [2, 2.9999])->count();
+            $kurang = $submissionScores->whereBetween('avg_score', [1, 1.9999])->count();
+            $sangatKurang = $submissionScores->where('avg_score', '<', 1)->count();
+
+            $positivePercentage = round((($sangatBaik + $baik) / $total) * 100);
+
+            return [
+                'percentage' => $positivePercentage,
+                'percentageLabel' => 'Positif',
+                'totalSubmissions' => $submissions->count(),
+                'scores' => [
+                    ['label' => 'Sangat Baik (≥5)', 'value' => round(($sangatBaik / $total) * 100) . '%'],
+                    ['label' => 'Baik (4-4.99)', 'value' => round(($baik / $total) * 100) . '%'],
+                    ['label' => 'Cukup (3-3.99)', 'value' => round(($cukup / $total) * 100) . '%'],
+                    ['label' => 'Kurang Baik (2-2.99)', 'value' => round(($kurangBaik / $total) * 100) . '%'],
+                    ['label' => 'Kurang (1-1.99)', 'value' => round(($kurang / $total) * 100) . '%'],
+                    ['label' => 'Sangat Kurang (<1)', 'value' => round(($sangatKurang / $total) * 100) . '%'],
+                ],
+            ];
+        }
+    }
+
+    /**
      * @return array{percentage: int, percentageLabel: string, scores: array}
      */
     protected function getScoreDistribution(int $companyId): array
@@ -177,6 +264,40 @@ class DashboardService
                 ['label' => 'Kurang', 'value' => round(($kurang / $total) * 100) . '%'],
             ],
         ];
+    }
+
+    /**
+     * @return array{percentage: int, percentageLabel: string, scores: array, totalSubmissions: int}
+     */
+    protected function emptyScoreDistributionByType(string $type): array
+    {
+        if ($type === 'IKM') {
+            return [
+                'percentage' => 0,
+                'percentageLabel' => 'Positif',
+                'totalSubmissions' => 0,
+                'scores' => [
+                    ['label' => 'Sangat Baik (≥3.5)', 'value' => '0%'],
+                    ['label' => 'Baik (2.5-3.49)', 'value' => '0%'],
+                    ['label' => 'Cukup (1.5-2.49)', 'value' => '0%'],
+                    ['label' => 'Kurang (<1.5)', 'value' => '0%'],
+                ],
+            ];
+        } else {
+            return [
+                'percentage' => 0,
+                'percentageLabel' => 'Positif',
+                'totalSubmissions' => 0,
+                'scores' => [
+                    ['label' => 'Sangat Baik (≥5)', 'value' => '0%'],
+                    ['label' => 'Baik (4-4.99)', 'value' => '0%'],
+                    ['label' => 'Cukup (3-3.99)', 'value' => '0%'],
+                    ['label' => 'Kurang Baik (2-2.99)', 'value' => '0%'],
+                    ['label' => 'Kurang (1-1.99)', 'value' => '0%'],
+                    ['label' => 'Sangat Kurang (<1)', 'value' => '0%'],
+                ],
+            ];
+        }
     }
 
     /**

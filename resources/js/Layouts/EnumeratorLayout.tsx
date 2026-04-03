@@ -24,19 +24,13 @@ export default function EnumeratorLayout({
         {
             label: 'Dashboard',
             icon: 'dashboard',
-            href: '#',
+            href: route('enumerator.list-survey'),
             active: activeNav === 'dashboard',
-        },
-        {
-            label: 'Tugasku',
-            icon: 'assignment',
-            href: '#',
-            active: activeNav === 'tugasku',
         },
         {
             label: 'Riwayat',
             icon: 'history',
-            href: '#',
+            href: route('enumerator.survey.history'),
             active: activeNav === 'riwayat',
         },
         {

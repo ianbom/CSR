@@ -91,48 +91,31 @@ class DashboardService
     }
 
     /**
-     * @return array<int, array{name: string, ikmHeight: string, sloiHeight: string, sroiHeight: string}>
+     * @return array<int, array{name: string, ikmKepentingan: float, ikmKinerja: float, sloi: float}>
      */
     protected function getProjectPerformance(int $companyId): array
     {
         $projects = Project::where('company_id', $companyId)
             ->active()
             ->with('submissions.templateAnswers')
-            ->limit(5)
+            ->latest()
+            ->limit(3)
             ->get();
 
-        $maxScore = 4.0;
+        return $projects->map(function (Project $project) {
+            $allAnswers = $project->submissions->flatMap->templateAnswers;
 
-        return $projects->map(function (Project $project) use ($maxScore) {
-            $submissions = $project->submissions;
-
-            $ikmAvg = $this->avgScoreForType($submissions, 'IKM');
-            $sloiAvg = $this->avgScoreForType($submissions, 'SLOI');
-            $sroiAvg = $this->avgScoreForType($submissions, 'SROI');
+            $ikmKepentinganAvg = $allAnswers->where('type', 'ikm-kepentingan')->avg('value') ?? 0;
+            $ikmKinerjaAvg = $allAnswers->where('type', 'ikm-kinerja')->avg('value') ?? 0;
+            $sloiAvg = $allAnswers->where('type', 'sloi')->avg('value') ?? 0;
 
             return [
                 'name' => $project->name,
-                'ikmHeight' => round(($ikmAvg / $maxScore) * 100) . '%',
-                'sloiHeight' => round(($sloiAvg / $maxScore) * 100) . '%',
-                'sroiHeight' => round(($sroiAvg / $maxScore) * 100) . '%',
+                'ikmKepentingan' => round($ikmKepentinganAvg, 2),
+                'ikmKinerja' => round($ikmKinerjaAvg, 2),
+                'sloi' => round($sloiAvg, 2),
             ];
         })->values()->toArray();
-    }
-
-    protected function avgScoreForType($submissions, string $type): float
-    {
-        $filtered = $submissions->where('assessment_type', $type);
-
-        if ($filtered->isEmpty()) {
-            return 0;
-        }
-
-        $submissionIds = $filtered->pluck('id');
-
-        return round(
-            SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)->avg('value') ?? 0,
-            2
-        );
     }
 
     /**

@@ -1,9 +1,4 @@
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/Components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { LayoutGrid } from 'lucide-react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import type { ChartDataItem } from './types';
@@ -39,7 +34,7 @@ export function ProjectStatusChart({ data }: ProjectStatusChartProps) {
                                 >
                                     {data.map((_, index) => (
                                         <Cell
-                                            key={'cell-'+{index}}
+                                            key={'cell-' + { index }}
                                             fill={
                                                 pieColors[
                                                     index % pieColors.length
@@ -69,7 +64,9 @@ export function ProjectStatusChart({ data }: ProjectStatusChartProps) {
                                     />
                                     {item.status}
                                 </span>
-                                <span className="font-medium">{item.count}</span>
+                                <span className="font-medium">
+                                    {item.count}
+                                </span>
                             </div>
                         ))}
                     </div>

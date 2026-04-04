@@ -51,6 +51,16 @@ interface StatsData {
     scoreLabel: string;
 }
 
+interface IkmStatsData {
+    totalResponses: number;
+    targetResponses: number;
+    progress: number;
+    scoreKepentingan: number;
+    scoreKinerja: number;
+    scoreLabelKepentingan: string;
+    scoreLabelKinerja: string;
+}
+
 interface GenderItem {
     gender: string;
     count: number;
@@ -182,7 +192,7 @@ interface Props {
     project: ProjectData;
     detailType: string;
     stats: StatsData;
-    ikmStats: StatsData | null;
+    ikmStats: IkmStatsData | null;
     sloiStats: StatsData | null;
     demographics: DemographicsData;
     questionScores: QuestionScoreItem[];

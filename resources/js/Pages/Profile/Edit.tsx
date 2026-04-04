@@ -4,6 +4,7 @@ import { Head, usePage } from '@inertiajs/react';
 import {
     BadgeCheck,
     Briefcase,
+    Building2,
     Phone,
     ShieldAlert,
     User,
@@ -12,13 +13,26 @@ import {
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+import UpdateCompanyInformationForm from './Partials/UpdateCompanyInformationForm';
+
+type CompanyProps = {
+    id: number;
+    name: string;
+    legal_name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    status: string;
+};
 
 export default function Edit({
     mustVerifyEmail,
     status,
+    company,
 }: PageProps<{
     mustVerifyEmail: boolean;
     status?: string;
+    company?: CompanyProps;
 }>) {
     const user = usePage().props.auth.user as {
         name: string;
@@ -63,7 +77,7 @@ export default function Edit({
             <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
                     {/* Hero Card */}
-                    <div className="relative mb-8 overflow-hidden bg-primary rounded-2xl p-8 text-white shadow-xl">
+                    <div className="relative mb-8 overflow-hidden rounded-2xl bg-primary p-8 text-white shadow-xl">
                         {/* Dot pattern overlay */}
                         <div
                             className="absolute inset-0 opacity-10"
@@ -78,22 +92,26 @@ export default function Edit({
                             {/* Info */}
                             <div className="flex-1">
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <h1 className="text-2xl font-bold">{user.name}</h1>
+                                    <h1 className="text-2xl font-bold">
+                                        {user.name}
+                                    </h1>
                                     <span
                                         className={`rounded-full px-3 py-1 text-xs font-semibold ${roleInfo.color}`}
                                     >
                                         {roleInfo.label}
                                     </span>
                                 </div>
-                                <p className="mt-1 text-blue-200 text-sm">{user.email}</p>
+                                <p className="mt-1 text-sm text-blue-200">
+                                    {user.email}
+                                </p>
                                 {user.position && (
-                                    <p className="mt-1 flex items-center gap-1 text-blue-100 text-sm">
+                                    <p className="mt-1 flex items-center gap-1 text-sm text-blue-100">
                                         <Briefcase className="h-3.5 w-3.5" />
                                         {user.position}
                                     </p>
                                 )}
                                 {user.phone && (
-                                    <p className="mt-0.5 flex items-center gap-1 text-blue-100 text-sm">
+                                    <p className="mt-0.5 flex items-center gap-1 text-sm text-blue-100">
                                         <Phone className="h-3.5 w-3.5" />
                                         {user.phone}
                                     </p>
@@ -105,6 +123,28 @@ export default function Edit({
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         {/* Left - forms */}
                         <div className="space-y-6 lg:col-span-2">
+                            {/* Company Info - Only for company role users */}
+                            {user.role === 'company' && company && (
+                                <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                                    <div className="mb-6 flex items-center gap-3">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50">
+                                            <Building2 className="h-5 w-5 text-green-600" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-base font-semibold text-slate-800">
+                                                Informasi Perusahaan
+                                            </h2>
+                                            <p className="text-xs text-slate-500">
+                                                Perbarui data perusahaan Anda
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <UpdateCompanyInformationForm
+                                        company={company}
+                                    />
+                                </div>
+                            )}
+
                             {/* Profile Info */}
                             <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
                                 <div className="mb-6 flex items-center gap-3">
@@ -137,7 +177,8 @@ export default function Edit({
                                             Kata Sandi
                                         </h2>
                                         <p className="text-xs text-slate-500">
-                                            Gunakan kata sandi yang kuat dan unik
+                                            Gunakan kata sandi yang kuat dan
+                                            unik
                                         </p>
                                     </div>
                                 </div>

@@ -266,7 +266,7 @@ class ProjectService
                 ->where('assessment_type', 'SLOI')
                 ->approved()
                 ->get();
-            $ikmStats = $this->computeStats($project, $ikmSubmissions, 'IKM');
+            $ikmStats = $this->computeIkmStats($project, $ikmSubmissions);
             $sloiStats = $this->computeStats($project, $sloiSubmissions, 'SLOI');
         }
 
@@ -394,6 +394,50 @@ class ProjectService
         }
 
         return 'Belum Ada Data';
+    }
+
+    protected function computeIkmStats(Project $project, $submissions): array
+    {
+        $totalResponses = $submissions->count();
+        $targetResponses = $project->target_ikm_count;
+
+        $progress = $targetResponses > 0
+            ? round(($totalResponses / $targetResponses) * 100, 1)
+            : 0;
+
+        $submissionIds = $submissions->pluck('id');
+
+        // Calculate average for kepentingan
+        $avgScoreKepentingan = 0;
+        if ($submissionIds->isNotEmpty()) {
+            $avgScoreKepentingan = round(
+                \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+                    ->where('type', 'ikm-kepentingan')
+                    ->avg('value') ?? 0,
+                2
+            );
+        }
+
+        // Calculate average for kinerja
+        $avgScoreKinerja = 0;
+        if ($submissionIds->isNotEmpty()) {
+            $avgScoreKinerja = round(
+                \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+                    ->where('type', 'ikm-kinerja')
+                    ->avg('value') ?? 0,
+                2
+            );
+        }
+
+        return [
+            'totalResponses' => $totalResponses,
+            'targetResponses' => $targetResponses ?: 0,
+            'progress' => $progress,
+            'scoreKepentingan' => $avgScoreKepentingan,
+            'scoreKinerja' => $avgScoreKinerja,
+            'scoreLabelKepentingan' => $this->getScoreLabel($avgScoreKepentingan),
+            'scoreLabelKinerja' => $this->getScoreLabel($avgScoreKinerja),
+        ];
     }
 
     protected function computeDemographics($respondentIds): array

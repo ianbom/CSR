@@ -50,7 +50,8 @@ export default function ScoreDistribution({
                     Sentimen agregat {activeType} ({scaleInfo})
                 </p>
                 <p className="mt-1 text-xs font-semibold text-slate-600">
-                    Total Submission: {activeData.totalSubmissions.toLocaleString()}
+                    Total Submission:{' '}
+                    {activeData.totalSubmissions.toLocaleString()}
                 </p>
             </div>
 

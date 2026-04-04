@@ -12,12 +12,19 @@ export default function UpdatePasswordForm({
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
-    const { data, setData, errors, put, reset, processing, recentlySuccessful } =
-        useForm({
-            current_password: '',
-            password: '',
-            password_confirmation: '',
-        });
+    const {
+        data,
+        setData,
+        errors,
+        put,
+        reset,
+        processing,
+        recentlySuccessful,
+    } = useForm({
+        current_password: '',
+        password: '',
+        password_confirmation: '',
+    });
 
     const updatePassword: FormEventHandler = (e) => {
         e.preventDefault();
@@ -43,7 +50,10 @@ export default function UpdatePasswordForm({
     return (
         <form onSubmit={updatePassword} className={`space-y-5 ${className}`}>
             <div>
-                <label htmlFor="current_password" className="block text-sm font-medium text-slate-700">
+                <label
+                    htmlFor="current_password"
+                    className="block text-sm font-medium text-slate-700"
+                >
                     Kata Sandi Saat Ini <span className="text-red-500">*</span>
                 </label>
                 <div className="relative mt-1">
@@ -53,18 +63,26 @@ export default function UpdatePasswordForm({
                         ref={currentPasswordInput}
                         type="password"
                         value={data.current_password}
-                        onChange={(e) => setData('current_password', e.target.value)}
+                        onChange={(e) =>
+                            setData('current_password', e.target.value)
+                        }
                         autoComplete="current-password"
                         placeholder="Masukkan kata sandi saat ini"
                         className={inputClass}
                     />
                 </div>
-                <InputError message={errors.current_password} className="mt-1.5" />
+                <InputError
+                    message={errors.current_password}
+                    className="mt-1.5"
+                />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+                    <label
+                        htmlFor="password"
+                        className="block text-sm font-medium text-slate-700"
+                    >
                         Kata Sandi Baru <span className="text-red-500">*</span>
                     </label>
                     <div className="relative mt-1">
@@ -74,7 +92,9 @@ export default function UpdatePasswordForm({
                             ref={passwordInput}
                             type="password"
                             value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
+                            onChange={(e) =>
+                                setData('password', e.target.value)
+                            }
                             autoComplete="new-password"
                             placeholder="Minimal 8 karakter"
                             className={inputClass}
@@ -84,8 +104,12 @@ export default function UpdatePasswordForm({
                 </div>
 
                 <div>
-                    <label htmlFor="password_confirmation" className="block text-sm font-medium text-slate-700">
-                        Konfirmasi Kata Sandi <span className="text-red-500">*</span>
+                    <label
+                        htmlFor="password_confirmation"
+                        className="block text-sm font-medium text-slate-700"
+                    >
+                        Konfirmasi Kata Sandi{' '}
+                        <span className="text-red-500">*</span>
                     </label>
                     <div className="relative mt-1">
                         <ShieldCheck className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -93,13 +117,18 @@ export default function UpdatePasswordForm({
                             id="password_confirmation"
                             type="password"
                             value={data.password_confirmation}
-                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                            onChange={(e) =>
+                                setData('password_confirmation', e.target.value)
+                            }
                             autoComplete="new-password"
                             placeholder="Ulangi kata sandi baru"
                             className={inputClass}
                         />
                     </div>
-                    <InputError message={errors.password_confirmation} className="mt-1.5" />
+                    <InputError
+                        message={errors.password_confirmation}
+                        className="mt-1.5"
+                    />
                 </div>
             </div>
 
@@ -110,9 +139,24 @@ export default function UpdatePasswordForm({
                     className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 disabled:opacity-60"
                 >
                     {processing && (
-                        <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        <svg
+                            className="h-4 w-4 animate-spin"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                        >
+                            <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                            />
+                            <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                            />
                         </svg>
                     )}
                     Perbarui Kata Sandi

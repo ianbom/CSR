@@ -19,10 +19,17 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
-        return Inertia::render('Profile/Edit', [
+        $data = [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
-        ]);
+        ];
+
+        // Load company data if user is a company role
+        if ($request->user()->role === 'company' && $request->user()->company_id) {
+            $data['company'] = $request->user()->company;
+        }
+
+        return Inertia::render('Profile/Edit', $data);
     }
 
     /**

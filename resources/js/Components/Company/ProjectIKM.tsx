@@ -106,6 +106,18 @@ export default function ProjectIKM({
         };
     })();
 
+    // Compute dimension averages from questionScores
+    const avgKepentingan =
+        questionScores.length > 0
+            ? questionScores.reduce((sum, q) => sum + q.importance, 0) /
+              questionScores.length
+            : 0;
+    const avgKinerja =
+        questionScores.length > 0
+            ? questionScores.reduce((sum, q) => sum + q.performance, 0) /
+              questionScores.length
+            : 0;
+
     return (
         <div className="space-y-6">
             {/* Header Section */}
@@ -118,8 +130,8 @@ export default function ProjectIKM({
             {/* Main Score & Trend Row */}
             <div className="grid gap-6 lg:grid-cols-5">
                 <IKMScoreGauge
-                    IKMScore={stats.score}
-                    trustLevel={stats.scoreLabel}
+                    avgKepentingan={avgKepentingan}
+                    avgKinerja={avgKinerja}
                 />
                 <IKMTrendChart questionScores={questionScores} />
             </div>

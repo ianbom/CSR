@@ -422,7 +422,9 @@ export default function SLOIRespondentTable({
                                         {canEdit && (
                                             <button
                                                 onClick={() =>
-                                                    toggleSelect(row.submissionId)
+                                                    toggleSelect(
+                                                        row.submissionId,
+                                                    )
                                                 }
                                                 className="text-slate-400 transition-colors hover:text-primary"
                                             >

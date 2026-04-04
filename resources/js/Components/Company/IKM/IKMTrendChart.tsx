@@ -1,4 +1,4 @@
-import { ReactNode, useState, useRef } from 'react';
+import { ReactNode, useState } from 'react';
 
 interface QuestionScoreItem {
     id: string;
@@ -71,11 +71,11 @@ function IPAScatterChart({
     const marginRight = compact ? 30 : 40;
     const marginTop = compact ? 35 : 50;
     const marginBottom = compact ? 45 : 55;
-    
+
     // Horizontally elongated plot area
     const plotW = compact ? 600 : 1000;
     const plotH = compact ? 300 : 500;
-    
+
     const width = plotW + marginLeft + marginRight;
     const height = plotH + marginTop + marginBottom;
 
@@ -258,7 +258,7 @@ function IPAScatterChart({
                     const cy = baseCy + Math.sin(angle) * offsetDist;
 
                     return (
-                        <g 
+                        <g
                             key={q.id}
                             onMouseEnter={() => setHoveredId(q.id)}
                             onMouseLeave={() => setHoveredId(null)}
@@ -281,7 +281,9 @@ function IPAScatterChart({
                                         x={cx + dotR + 3}
                                         y={cy - labelFontSize - 1}
                                         width={
-                                            label.length * (labelFontSize * 0.52) + 6
+                                            label.length *
+                                                (labelFontSize * 0.52) +
+                                            6
                                         }
                                         height={labelFontSize + 5}
                                         fill="white"

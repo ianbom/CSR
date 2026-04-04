@@ -251,10 +251,12 @@ export default function QuestionForm({
                                                             }
                                                             scaleSize={4}
                                                             minLabel={
-                                                                IKM_LABELS.kinerja.min
+                                                                IKM_LABELS
+                                                                    .kinerja.min
                                                             }
                                                             maxLabel={
-                                                                IKM_LABELS.kinerja.max
+                                                                IKM_LABELS
+                                                                    .kinerja.max
                                                             }
                                                             isAnswered={
                                                                 answers[

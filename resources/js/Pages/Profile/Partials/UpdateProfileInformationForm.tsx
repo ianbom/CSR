@@ -1,7 +1,7 @@
 import InputError from '@/Components/InputError';
 import { Transition } from '@headlessui/react';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { CheckCircle, Mail, Phone, User, Briefcase } from 'lucide-react';
+import { Briefcase, CheckCircle, Mail, Phone, User } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 type UserProps = {
@@ -42,7 +42,10 @@ export default function UpdateProfileInformation({
             {/* Name & Position */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-slate-700">
+                    <label
+                        htmlFor="name"
+                        className="block text-sm font-medium text-slate-700"
+                    >
                         Nama Lengkap <span className="text-red-500">*</span>
                     </label>
                     <div className="relative mt-1">
@@ -62,7 +65,10 @@ export default function UpdateProfileInformation({
                 </div>
 
                 <div>
-                    <label htmlFor="position" className="block text-sm font-medium text-slate-700">
+                    <label
+                        htmlFor="position"
+                        className="block text-sm font-medium text-slate-700"
+                    >
                         Jabatan / Posisi
                     </label>
                     <div className="relative mt-1">
@@ -71,7 +77,9 @@ export default function UpdateProfileInformation({
                             id="position"
                             type="text"
                             value={data.position}
-                            onChange={(e) => setData('position', e.target.value)}
+                            onChange={(e) =>
+                                setData('position', e.target.value)
+                            }
                             autoComplete="organization-title"
                             placeholder="Contoh: Manager CSR"
                             className={inputClass}
@@ -83,7 +91,10 @@ export default function UpdateProfileInformation({
 
             {/* Email */}
             <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+                <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-slate-700"
+                >
                     Alamat Email <span className="text-red-500">*</span>
                 </label>
                 <div className="relative mt-1">
@@ -104,7 +115,10 @@ export default function UpdateProfileInformation({
 
             {/* Phone */}
             <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-slate-700">
+                <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-slate-700"
+                >
                     Nomor Telepon
                 </label>
                 <div className="relative mt-1">
@@ -152,9 +166,24 @@ export default function UpdateProfileInformation({
                     className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 disabled:opacity-60"
                 >
                     {processing && (
-                        <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        <svg
+                            className="h-4 w-4 animate-spin"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                        >
+                            <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                            />
+                            <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                            />
                         </svg>
                     )}
                     Simpan Perubahan

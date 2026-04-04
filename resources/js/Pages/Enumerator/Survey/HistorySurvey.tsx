@@ -256,7 +256,7 @@ export default function HistorySurvey({
                             Total Survei
                         </span>
                     </div>
-                    
+
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <div className="flex flex-col rounded-lg bg-slate-50 p-3">
@@ -545,7 +545,7 @@ export default function HistorySurvey({
                                                 'enumerator.survey.edit',
                                                 { submissionId: item.id },
                                             )}
-                                            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border-2 border-primary bg-primary px-4 py-2 text-xs font-bold text-white transition-all hover:bg-primary/90 active:scale-95"
+                                            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border-2 border-primary bg-primary px-4 py-2 text-xs font-bold text-white transition-all hover:bg-primary/90 active:scale-95"
                                         >
                                             <svg
                                                 className="size-3.5"

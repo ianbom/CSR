@@ -431,7 +431,7 @@ export default function ReviewForm({
                                 ref={videoRef}
                                 autoPlay
                                 playsInline
-                                    className="aspect-[3/4] w-full object-cover md:aspect-[4/3]"
+                                className="aspect-[3/4] w-full object-cover md:aspect-[4/3]"
                             />
                             <div className="flex items-center justify-between p-3">
                                 <button

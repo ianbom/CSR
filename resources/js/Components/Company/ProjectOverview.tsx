@@ -41,6 +41,16 @@ interface StatsData {
     scoreLabel: string;
 }
 
+interface IkmStatsData {
+    totalResponses: number;
+    targetResponses: number;
+    progress: number;
+    scoreKepentingan: number;
+    scoreKinerja: number;
+    scoreLabelKepentingan: string;
+    scoreLabelKinerja: string;
+}
+
 interface AuditLogItem {
     id: string;
     respondentName: string;
@@ -54,7 +64,7 @@ interface AuditLogItem {
 interface ProjectOverviewProps {
     project: ProjectData;
     stats: StatsData;
-    ikmStats: StatsData | null;
+    ikmStats: IkmStatsData | null;
     sloiStats: StatsData | null;
     auditLog: AuditLogItem[];
 }
@@ -98,7 +108,6 @@ export default function ProjectOverview({
     sloiStats,
     auditLog,
 }: ProjectOverviewProps): ReactNode {
-    const effectiveIkmStats = ikmStats ?? stats;
     const effectiveSloiStats = sloiStats ?? stats;
     const assessmentTypes = [
         {
@@ -117,44 +126,61 @@ export default function ProjectOverview({
             color: 'text-amber-600',
             bg: 'bg-amber-50',
         },
-        {
-            key: 'sroi',
-            enabled: project.enableSroi,
-            label: 'SROI',
-            icon: 'payments',
-            color: 'text-primary',
-            bg: 'bg-primary/10',
-        },
     ];
 
     return (
         <>
             {/* ─── Metric Cards ─────────────────────────────── */}
             <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-                {project.enableIkm && (
-                    <MetricCard
-                        icon="sentiment_satisfied"
-                        iconBgColor="bg-blue-50"
-                        iconColor="text-blue-600"
-                        label="IKM Score"
-                        value={effectiveIkmStats.score}
-                        unit="/ 4.0"
-                        badge={{
-                            text: effectiveIkmStats.scoreLabel,
-                            type:
-                                effectiveIkmStats.score >= 4
-                                    ? 'positive'
-                                    : 'stable',
-                        }}
-                        footer={
-                            <p className="text-xs text-slate-500">
-                                Kualitas layanan dinilai{' '}
-                                <span className="font-bold text-blue-600">
-                                    {effectiveIkmStats.scoreLabel}
-                                </span>
-                            </p>
-                        }
-                    />
+                {project.enableIkm && ikmStats && (
+                    <>
+                        <MetricCard
+                            icon="star"
+                            iconBgColor="bg-blue-50"
+                            iconColor="text-blue-600"
+                            label="IKM Kepentingan"
+                            value={ikmStats.scoreKepentingan}
+                            unit="/ 4.0"
+                            badge={{
+                                text: ikmStats.scoreLabelKepentingan,
+                                type:
+                                    ikmStats.scoreKepentingan >= 4
+                                        ? 'positive'
+                                        : 'stable',
+                            }}
+                            footer={
+                                <p className="text-xs text-slate-500">
+                                    Tingkat kepentingan dinilai{' '}
+                                    <span className="font-bold text-blue-600">
+                                        {ikmStats.scoreLabelKepentingan}
+                                    </span>
+                                </p>
+                            }
+                        />
+                        <MetricCard
+                            icon="sentiment_satisfied"
+                            iconBgColor="bg-indigo-50"
+                            iconColor="text-indigo-600"
+                            label="IKM Kinerja"
+                            value={ikmStats.scoreKinerja}
+                            unit="/ 4.0"
+                            badge={{
+                                text: ikmStats.scoreLabelKinerja,
+                                type:
+                                    ikmStats.scoreKinerja >= 4
+                                        ? 'positive'
+                                        : 'stable',
+                            }}
+                            footer={
+                                <p className="text-xs text-slate-500">
+                                    Kualitas kinerja dinilai{' '}
+                                    <span className="font-bold text-indigo-600">
+                                        {ikmStats.scoreLabelKinerja}
+                                    </span>
+                                </p>
+                            }
+                        />
+                    </>
                 )}
                 {project.enableSloi && (
                     <MetricCard
@@ -178,20 +204,6 @@ export default function ProjectOverview({
                                     />
                                 ))}
                             </div>
-                        }
-                    />
-                )}
-                {project.enableSroi && (
-                    <MetricCard
-                        icon="payments"
-                        iconBgColor="bg-primary/10"
-                        iconColor="text-primary"
-                        label="SROI Ratio"
-                        value="-"
-                        footer={
-                            <p className="text-xs text-slate-500">
-                                Data SROI belum tersedia
-                            </p>
                         }
                     />
                 )}
@@ -251,13 +263,13 @@ export default function ProjectOverview({
                             Jadwal & Target
                         </h3>
                     </div>
-                    <div className="space-y-4 p-6">
+                    <div className="space-y-4 p-6 font-bold">
                         <InfoRow
-                            label="Tanggal Mulai"
+                            label="Tanggal Mulai Project"
                             value={formatDate(project.startDate)}
                         />
                         <InfoRow
-                            label="Tanggal Selesai"
+                            label="Tanggal Selesai Project"
                             value={formatDate(project.endDate)}
                         />
                         <InfoRow
@@ -276,10 +288,10 @@ export default function ProjectOverview({
                                     : '-'
                             }
                         />
-                        <InfoRow
+                        {/* <InfoRow
                             label="Total Responden"
                             value={`${stats.totalResponses.toLocaleString()} / ${stats.targetResponses.toLocaleString()}`}
-                        />
+                        /> */}
                     </div>
                 </div>
             </div>

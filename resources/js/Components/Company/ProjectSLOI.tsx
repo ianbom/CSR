@@ -7,7 +7,6 @@ import {
     SLOIHeader,
     SLOIQuestionScores,
     SLOIScoreGauge,
-    SLOITrendChart,
 } from './SLOI';
 
 // ─── Types ─────────────────────────────────────────────────

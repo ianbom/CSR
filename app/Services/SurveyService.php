@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Project;
 use App\Models\Respondent;
 use App\Models\Submission;
+use App\Models\SubmissionDescriptiveAnswer;
 use App\Models\SubmissionTemplateAnswer;
 use App\Models\TemplateQuestion;
 use Illuminate\Http\UploadedFile;
@@ -121,6 +122,18 @@ class SurveyService
             ], $answers);
 
             SubmissionTemplateAnswer::insert($answerRecords);
+
+            // 4. Submission descriptive answers (optional)
+            $descriptiveAnswers = $data['descriptive_answers'] ?? [];
+            if (!empty($descriptiveAnswers)) {
+                $descriptiveRecords = array_map(fn($da) => [
+                    'submission_id'                   => $submission->id,
+                    'project_descriptive_question_id' => $da['question_id'],
+                    'answer'                          => $da['answer'],
+                    'created_at'                      => now(),
+                ], $descriptiveAnswers);
+                SubmissionDescriptiveAnswer::insert($descriptiveRecords);
+            }
 
             return [
                 'respondent' => $respondent,
@@ -242,10 +255,21 @@ class SurveyService
             $answersMap[$key] = $a->value;
         }
 
+        // Load existing descriptive answers as questionId → answer map
+        $descriptiveAnswersRaw = SubmissionDescriptiveAnswer::where('submission_id', $submissionId)
+            ->whereNull('deleted_at')
+            ->get(['project_descriptive_question_id', 'answer']);
+
+        $descriptiveAnswersMap = [];
+        foreach ($descriptiveAnswersRaw as $da) {
+            $descriptiveAnswersMap[$da->project_descriptive_question_id] = $da->answer;
+        }
+
         return [
-            'submission' => $submission,
-            'questions'  => $questions,
-            'answersMap' => $answersMap,
+            'submission'           => $submission,
+            'questions'            => $questions,
+            'answersMap'           => $answersMap,
+            'descriptiveAnswersMap'=> $descriptiveAnswersMap,
         ];
     }
 
@@ -311,6 +335,20 @@ class SurveyService
             ], $answers);
 
             SubmissionTemplateAnswer::insert($answerRecords);
+
+            // 4. Replace descriptive answers: soft-delete old, insert new
+            SubmissionDescriptiveAnswer::where('submission_id', $submissionId)->delete();
+
+            $descriptiveAnswers = $data['descriptive_answers'] ?? [];
+            if (!empty($descriptiveAnswers)) {
+                $descriptiveRecords = array_map(fn($da) => [
+                    'submission_id'                   => $submissionId,
+                    'project_descriptive_question_id' => $da['question_id'],
+                    'answer'                          => $da['answer'],
+                    'created_at'                      => now(),
+                ], $descriptiveAnswers);
+                SubmissionDescriptiveAnswer::insert($descriptiveRecords);
+            }
         });
     }
 

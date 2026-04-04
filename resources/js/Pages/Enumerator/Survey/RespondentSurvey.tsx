@@ -2,7 +2,10 @@ import { MaterialIcon } from '@/Components/Enumerator';
 import EnumeratorLayout from '@/Layouts/EnumeratorLayout';
 import { Head, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import QuestionForm, { QuestionAnswers } from './components/QuestionForm';
+import QuestionForm, {
+    DescriptiveAnswers,
+    QuestionAnswers,
+} from './components/QuestionForm';
 import RespondentForm, { RespondentData } from './components/RespondentForm';
 import ReviewForm, { GpsLocation } from './components/ReviewForm';
 
@@ -12,6 +15,11 @@ interface Question {
     code: string;
     question_text: string;
     order_no: number;
+}
+
+interface DescriptiveQuestion {
+    id: number;
+    title: string;
 }
 
 interface Project {
@@ -28,6 +36,7 @@ interface Props {
     project: Project;
     surveyType: string;
     questions: Question[];
+    descriptiveQuestions: DescriptiveQuestion[];
 }
 
 const steps = [
@@ -40,6 +49,7 @@ export default function RespondentSurvey({
     project,
     surveyType,
     questions,
+    descriptiveQuestions,
 }: Props) {
     const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,6 +68,10 @@ export default function RespondentSurvey({
     });
 
     const [answers, setAnswers] = useState<QuestionAnswers>({});
+
+    // Descriptive answers state
+    const [descriptiveAnswers, setDescriptiveAnswers] =
+        useState<DescriptiveAnswers>({});
 
     // GPS state
     const [gpsLocation, setGpsLocation] = useState<GpsLocation>({
@@ -169,6 +183,20 @@ export default function RespondentSurvey({
             formData.append(`answers[${index}][value]`, String(value));
         });
 
+        // Descriptive answers: [{question_id, answer}, ...]
+        Object.entries(descriptiveAnswers).forEach(([qId, answer], index) => {
+            if (answer.trim()) {
+                formData.append(
+                    `descriptive_answers[${index}][question_id]`,
+                    qId,
+                );
+                formData.append(
+                    `descriptive_answers[${index}][answer]`,
+                    answer,
+                );
+            }
+        });
+
         return formData;
     };
 
@@ -194,6 +222,7 @@ export default function RespondentSurvey({
                             monthly_income: '',
                         });
                         setAnswers({});
+                        setDescriptiveAnswers({});
                         setCurrentStep(1);
                     }
                 },
@@ -289,6 +318,9 @@ export default function RespondentSurvey({
                     answers={answers}
                     surveyType={surveyType}
                     onChange={setAnswers}
+                    descriptiveQuestions={descriptiveQuestions}
+                    descriptiveAnswers={descriptiveAnswers}
+                    onDescriptiveChange={setDescriptiveAnswers}
                     onBack={() => goToStep(1)}
                     onNext={() => goToStep(3)}
                     onClose={handleCloseQuestionnaire}

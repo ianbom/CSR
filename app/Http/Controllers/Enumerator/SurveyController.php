@@ -33,10 +33,14 @@ class SurveyController extends Controller
             // Load questions berdasarkan surveyType (IKM / SLOI)
             $questions = $this->surveyService->getQuestionsBySurveyType($project, $surveyType);
 
+            // Load descriptive questions for this project
+            $descriptiveQuestions = $project->descriptiveQuestions()->select('id', 'title')->get();
+
             return Inertia::render('Enumerator/Survey/RespondentSurvey', [
-                'project' => $project,
-                'surveyType' => $surveyType,
-                'questions' => $questions,
+                'project'             => $project,
+                'surveyType'          => $surveyType,
+                'questions'           => $questions,
+                'descriptiveQuestions'=> $descriptiveQuestions,
             ]);
         } else {
             return redirect()->back()->with('error', 'Kode yang dimasukkan salah');
@@ -116,8 +120,14 @@ class SurveyController extends Controller
             abort(403, 'Submission yang sudah disetujui tidak dapat diedit.');
         }
 
+        // Descriptive questions for the project
+        $descriptiveQuestions = $data['submission']->project
+            ->descriptiveQuestions()
+            ->select('id', 'title')
+            ->get();
+
         return Inertia::render('Enumerator/Survey/EditSurvey', [
-            'submission'  => [
+            'submission'           => [
                 'id'              => $data['submission']->id,
                 'assessment_type' => $data['submission']->assessment_type,
                 'photo_url'       => $data['submission']->photo_path
@@ -127,10 +137,12 @@ class SurveyController extends Controller
                 'longitude'       => $data['submission']->longitude,
                 'status'          => $data['submission']->status,
             ],
-            'project'     => $data['submission']->project,
-            'respondent'  => $data['submission']->respondent,
-            'questions'   => $data['questions'],
-            'answersMap'  => $data['answersMap'],
+            'project'              => $data['submission']->project,
+            'respondent'           => $data['submission']->respondent,
+            'questions'            => $data['questions'],
+            'answersMap'           => $data['answersMap'],
+            'descriptiveQuestions' => $descriptiveQuestions,
+            'descriptiveAnswersMap'=> $data['descriptiveAnswersMap'],
         ]);
     }
 

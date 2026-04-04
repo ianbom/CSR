@@ -20,12 +20,23 @@ interface Question {
 // Key format: `${questionId}-ikm-kepentingan` | `${questionId}-ikm-kinerja` | `${questionId}-sloi`
 export type QuestionAnswers = Record<string, number>;
 
+// Descriptive answers: questionId (number) -> answer text
+export type DescriptiveAnswers = Record<number, string>;
+
+interface DescriptiveQuestion {
+    id: number;
+    title: string;
+}
+
 interface QuestionFormProps {
     questions: Question[];
     companyName?: string;
     answers: QuestionAnswers;
     surveyType: string; // 'IKM' | 'SLOI'
     onChange: (answers: QuestionAnswers) => void;
+    descriptiveQuestions?: DescriptiveQuestion[];
+    descriptiveAnswers?: DescriptiveAnswers;
+    onDescriptiveChange?: (answers: DescriptiveAnswers) => void;
     onBack: () => void;
     onNext: () => void;
     onClose: () => void;
@@ -47,6 +58,9 @@ export default function QuestionForm({
     answers,
     surveyType,
     onChange,
+    descriptiveQuestions = [],
+    descriptiveAnswers = {},
+    onDescriptiveChange,
     onBack,
     onNext,
     onClose,
@@ -300,6 +314,55 @@ export default function QuestionForm({
                             </div>
                         ),
                     )}
+                </div>
+            )}
+
+            {/* ── Pertanyaan Deskriptif ── */}
+            {descriptiveQuestions.length > 0 && (
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-2">
+                        <div className="h-px flex-1 bg-gray-200" />
+                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            Pertanyaan Deskriptif
+                        </span>
+                        <div className="h-px flex-1 bg-gray-200" />
+                    </div>
+
+                    {descriptiveQuestions.map((dq, idx) => (
+                        <div
+                            key={dq.id}
+                            className="rounded-xl border border-violet-100 bg-white shadow-sm"
+                        >
+                            <div className="flex items-center gap-2 rounded-t-xl border-b border-violet-100 bg-violet-50 px-4 py-2.5">
+                                <span className="inline-flex size-5 items-center justify-center rounded-full bg-violet-500 text-[10px] font-bold text-white">
+                                    {idx + 1}
+                                </span>
+                                <span className="text-xs font-bold uppercase tracking-wider text-violet-600">
+                                    Pertanyaan Deskriptif
+                                </span>
+                            </div>
+                            <div className="p-4">
+                                <p className="mb-3 text-sm font-medium text-gray-800">
+                                    {dq.title}
+                                </p>
+                                <textarea
+                                    id={`descriptive-${dq.id}`}
+                                    rows={4}
+                                    placeholder="Tuliskan jawaban Anda di sini..."
+                                    value={descriptiveAnswers[dq.id] ?? ''}
+                                    onChange={(e) => {
+                                        if (onDescriptiveChange) {
+                                            onDescriptiveChange({
+                                                ...descriptiveAnswers,
+                                                [dq.id]: e.target.value,
+                                            });
+                                        }
+                                    }}
+                                    className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-800 outline-none transition-all placeholder:text-gray-400 focus:border-violet-400 focus:bg-white focus:ring-2 focus:ring-violet-100"
+                                />
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
 

@@ -152,7 +152,7 @@ export default function IKMScoreGauge({
                 </div>
 
                 {/* Legend */}
-                <div className="mt-4 flex justify-center gap-4 text-[14px] font-lg">
+                <div className="font-lg mt-4 flex justify-center gap-4 text-[14px]">
                     <div className="flex items-center gap-1.5">
                         <div className="size-2 rounded-full bg-red-500" />
                         <span className="text-slate-400">&lt;2.5</span>

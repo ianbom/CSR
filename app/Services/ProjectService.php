@@ -269,6 +269,7 @@ class ProjectService
             'enumeratorAssignments.enumerator',
             'ikmTemplate',
             'sloiTemplate',
+            'descriptiveQuestions',
         ])->findOrFail($projectId);
 
         $assessmentType = $this->resolveAssessmentType($detailType);
@@ -375,6 +376,10 @@ class ProjectService
             'endDate' => $project->end_date?->format('Y-m-d'),
             'locations' => $locations,
             'enumerators' => $enumerators,
+            'descriptiveQuestions' => $project->descriptiveQuestions->map(fn($q) => [
+                'id' => $q->id,
+                'title' => $q->title,
+            ])->toArray(),
         ];
     }
 

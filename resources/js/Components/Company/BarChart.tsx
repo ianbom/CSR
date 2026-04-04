@@ -20,7 +20,6 @@ import {
     ChartLegend,
     ChartLegendContent,
     ChartTooltip,
-    ChartTooltipContent,
     type ChartConfig,
 } from '@/Components/ui/chart';
 import { ReactNode, useState } from 'react';
@@ -66,14 +65,21 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             <p className="mb-2 font-semibold text-gray-900">{label}</p>
             <div className="space-y-1.5">
                 {payload.map((entry: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between gap-4">
+                    <div
+                        key={index}
+                        className="flex items-center justify-between gap-4"
+                    >
                         <div className="flex items-center gap-2">
                             <div
                                 className="h-3 w-3 rounded-sm"
                                 style={{ backgroundColor: entry.color }}
                             />
                             <span className="text-sm text-gray-700">
-                                {chartConfig[entry.dataKey as keyof typeof chartConfig]?.label}
+                                {
+                                    chartConfig[
+                                        entry.dataKey as keyof typeof chartConfig
+                                    ]?.label
+                                }
                             </span>
                         </div>
                         <span className="font-semibold text-gray-900">
@@ -103,7 +109,7 @@ export default function BarChart({
     const getMaxValue = () => {
         if (filter === 'IKM') {
             const maxIkm = Math.max(
-                ...projects.flatMap((p) => [p.ikmKepentingan, p.ikmKinerja])
+                ...projects.flatMap((p) => [p.ikmKepentingan, p.ikmKinerja]),
             );
             return Math.min(Math.ceil(maxIkm) + 0.5, 4);
         } else {
@@ -126,7 +132,9 @@ export default function BarChart({
                         <select
                             id="score-filter"
                             value={filter}
-                            onChange={(e) => setFilter(e.target.value as FilterType)}
+                            onChange={(e) =>
+                                setFilter(e.target.value as FilterType)
+                            }
                             className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
                         >
                             <option value="IKM">IKM</option>

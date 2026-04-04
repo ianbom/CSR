@@ -31,6 +31,10 @@ interface ProjectData {
     endDate: string | null;
     locations: LocationItem[];
     enumerators: EnumeratorItem[];
+    descriptiveQuestions: {
+        id: number;
+        title: string;
+    }[];
 }
 
 interface StatsData {
@@ -341,6 +345,45 @@ export default function ProjectOverview({
                             )}
                         </div>
                     ))}
+                </div>
+            </div>
+
+            {/* ─── Pertanyaan Deskriptif ───────────────────────── */}
+            <div className="mb-8 rounded-xl border border-slate-100 bg-white shadow-sm">
+                <div className="border-b border-slate-100 px-6 py-4">
+                    <h3 className="flex items-center gap-2 text-base font-bold text-slate-900">
+                        <Icon
+                            name="help_outline"
+                            className="text-lg text-primary"
+                        />
+                        Pertanyaan Deskriptif
+                        <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+                            {project.descriptiveQuestions.length}
+                        </span>
+                    </h3>
+                </div>
+                <div className="p-6">
+                    {project.descriptiveQuestions.length === 0 ? (
+                        <p className="text-center text-sm text-slate-400">
+                            Belum ada pertanyaan deskriptif.
+                        </p>
+                    ) : (
+                        <div className="flex flex-col gap-3">
+                            {project.descriptiveQuestions.map((q, i) => (
+                                <div
+                                    key={q.id}
+                                    className="flex items-start gap-4 rounded-lg border border-slate-100 bg-slate-50/50 p-4"
+                                >
+                                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                                        {i + 1}
+                                    </div>
+                                    <p className="text-sm font-medium leading-relaxed text-slate-800">
+                                        {q.title}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 

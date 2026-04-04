@@ -42,6 +42,11 @@ class StoreSurveyRequest extends FormRequest
             'answers.*.question_id' => ['required', 'integer', 'exists:template_questions,id'],
             'answers.*.type' => ['required', 'string', 'in:ikm-kepentingan,ikm-kinerja,sloi'],
             'answers.*.value' => ['required', 'integer', 'min:1', 'max:6'],
+
+            // Descriptive answers (optional, array of { question_id, answer })
+            'descriptive_answers'              => ['nullable', 'array'],
+            'descriptive_answers.*.question_id'=> ['required', 'integer', 'exists:project_descriptive_questions,id'],
+            'descriptive_answers.*.answer'     => ['required', 'string', 'max:2000'],
         ];
     }
 

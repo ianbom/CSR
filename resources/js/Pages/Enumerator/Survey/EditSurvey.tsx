@@ -3,7 +3,10 @@ import EnumeratorLayout from '@/Layouts/EnumeratorLayout';
 import { Head, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import EditReviewForm from './components/EditReviewForm';
-import QuestionForm, { QuestionAnswers } from './components/QuestionForm';
+import QuestionForm, {
+    DescriptiveAnswers,
+    QuestionAnswers,
+} from './components/QuestionForm';
 import RespondentForm, { RespondentData } from './components/RespondentForm';
 import { GpsLocation } from './components/ReviewForm';
 
@@ -55,6 +58,9 @@ interface Props {
     questions: Question[];
     /** key → value map: e.g. { "3-ikm-kepentingan": 3, "3-ikm-kinerja": 2 } */
     answersMap: Record<string, number>;
+    descriptiveQuestions: { id: number; title: string }[];
+    /** questionId → answer text */
+    descriptiveAnswersMap: Record<number, string>;
 }
 
 // ─────────────────────────────────────────────────────────
@@ -77,6 +83,8 @@ export default function EditSurvey({
     respondent,
     questions,
     answersMap,
+    descriptiveQuestions,
+    descriptiveAnswersMap,
 }: Props) {
     const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -99,6 +107,10 @@ export default function EditSurvey({
 
     // ── Answers state — seeded from existing data ──
     const [answers, setAnswers] = useState<QuestionAnswers>(answersMap);
+
+    // ── Descriptive answers — seeded from existing data ──
+    const [descriptiveAnswers, setDescriptiveAnswers] =
+        useState<DescriptiveAnswers>(descriptiveAnswersMap);
 
     // ── GPS ──
     const [gpsLocation, setGpsLocation] = useState<GpsLocation>({
@@ -198,6 +210,17 @@ export default function EditSurvey({
             fd.append(`answers[${index}][question_id]`, questionId);
             fd.append(`answers[${index}][type]`, type);
             fd.append(`answers[${index}][value]`, String(value));
+        });
+
+        // Descriptive answers
+        Object.entries(descriptiveAnswers).forEach(([qId, answer], index) => {
+            if (String(answer).trim()) {
+                fd.append(`descriptive_answers[${index}][question_id]`, qId);
+                fd.append(
+                    `descriptive_answers[${index}][answer]`,
+                    String(answer),
+                );
+            }
         });
 
         // Method spoofing for PUT
@@ -341,6 +364,9 @@ export default function EditSurvey({
                     answers={answers}
                     surveyType={submission.assessment_type}
                     onChange={setAnswers}
+                    descriptiveQuestions={descriptiveQuestions}
+                    descriptiveAnswers={descriptiveAnswers}
+                    onDescriptiveChange={setDescriptiveAnswers}
                     onBack={() => goToStep(1)}
                     onNext={() => goToStep(3)}
                     onClose={handleCloseQuestionnaire}

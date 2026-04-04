@@ -41,6 +41,10 @@ interface ProjectData {
     endDate: string | null;
     locations: LocationItem[];
     enumerators: EnumeratorItem[];
+    descriptiveQuestions: {
+        id: number;
+        title: string;
+    }[];
 }
 
 interface StatsData {

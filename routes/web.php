@@ -49,6 +49,7 @@ Route::prefix('api/area')->name('api.area.')->group(function () {
 });
 Route::prefix('api/projects')->name('api.projects.')->group(function () {
     Route::get('/{id}/enumerators', [ProjectController::class, 'getProjectEnumerators'])->name('enumerators');
+    Route::get('/{id}/edit-data', [ProjectController::class, 'getProjectForEdit'])->name('edit-data');
 });
 
 // Company Routes

@@ -50,6 +50,9 @@ class UpdateProjectRequest extends FormRequest
             'enable_sroi' => ['boolean'],
             'district_ids' => ['sometimes', 'array'],
             'district_ids.*' => ['integer', 'exists:districts,id'],
+            'descriptive_questions' => ['nullable', 'array'],
+            'descriptive_questions.*.id' => ['nullable', 'integer'],
+            'descriptive_questions.*.title' => ['required', 'string', 'max:500'],
         ];
     }
 

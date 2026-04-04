@@ -126,6 +126,14 @@ class Project extends Model
     }
 
     /**
+     * Get the descriptive questions for the project.
+     */
+    public function descriptiveQuestions(): HasMany
+    {
+        return $this->hasMany(ProjectDescriptiveQuestion::class);
+    }
+
+    /**
      * Get the submissions for the project.
      */
     public function submissions(): HasMany

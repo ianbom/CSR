@@ -381,11 +381,21 @@ export default function ListProject({
                             onEdit={canEdit ? handleEdit : undefined}
                             onEditProject={
                                 canEdit
-                                    ? (project) => {
-                                          setEditProject(
-                                              project as unknown as EditProjectData,
-                                          );
-                                          setIsEditModalOpen(true);
+                                    ? async (project) => {
+                                          try {
+                                              const res = await fetch(
+                                                  `/api/projects/${project.id}/edit-data`,
+                                              );
+                                              const data: EditProjectData =
+                                                  await res.json();
+                                              setEditProject(data);
+                                              setIsEditModalOpen(true);
+                                          } catch {
+                                              setEditProject(
+                                                  project as unknown as EditProjectData,
+                                              );
+                                              setIsEditModalOpen(true);
+                                          }
                                       }
                                     : undefined
                             }

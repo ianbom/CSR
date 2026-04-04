@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\InstrumentTemplate;
 use App\Models\Project;
+use App\Models\ProjectDescriptiveQuestion;
 use App\Models\ProjectEnumeratorAssignment;
 use App\Models\ProjectLocation;
 use App\Models\Respondent;
@@ -143,6 +144,7 @@ class ProjectService
         return DB::transaction(function () use ($data, $companyId, $userId) {
             $project = $this->storeProject($data, $companyId, $userId);
             $this->storeProjectLocations($data['district_ids'] ?? [], $project->id, $companyId);
+            $this->syncDescriptiveQuestions($project->id, $data['descriptive_questions'] ?? []);
 
             return $project->load('locations.district.city.province');
         });
@@ -178,6 +180,9 @@ class ProjectService
                 $this->storeProjectLocations($data['district_ids'], $projectId, $companyId);
             }
 
+            // Sync descriptive questions
+            $this->syncDescriptiveQuestions($projectId, $data['descriptive_questions'] ?? null);
+
             return $project->load('locations.district.city.province');
         });
     }
@@ -186,7 +191,7 @@ class ProjectService
     {
         $project = Project::where('id', $projectId)
             ->where('company_id', $companyId)
-            ->with('locations.district.city.province')
+            ->with(['locations.district.city.province', 'descriptiveQuestions'])
             ->firstOrFail();
 
         $locations = $project->locations->map(function ($loc) {
@@ -213,7 +218,45 @@ class ProjectService
             'ikm_template_id' => $project->ikm_template_id,
             'sloi_template_id' => $project->sloi_template_id,
             'locations' => $locations,
+            'descriptive_questions' => $project->descriptiveQuestions
+                ->map(fn ($q) => ['id' => $q->id, 'title' => $q->title])
+                ->values()
+                ->toArray(),
         ];
+    }
+
+    /**
+     * Sync descriptive questions for a project.
+     * Handles create, update, and delete.
+     */
+    protected function syncDescriptiveQuestions(int $projectId, ?array $questions): void
+    {
+        if ($questions === null) {
+            return;
+        }
+
+        $incoming = collect($questions);
+        $incomingIds = $incoming->pluck('id')->filter()->values();
+
+        // Delete removed ones
+        ProjectDescriptiveQuestion::where('project_id', $projectId)
+            ->whereNotIn('id', $incomingIds)
+            ->delete();
+
+        foreach ($questions as $q) {
+            if (!empty($q['id'])) {
+                // Update existing
+                ProjectDescriptiveQuestion::where('id', $q['id'])
+                    ->where('project_id', $projectId)
+                    ->update(['title' => $q['title']]);
+            } else {
+                // Create new
+                ProjectDescriptiveQuestion::create([
+                    'project_id' => $projectId,
+                    'title' => $q['title'],
+                ]);
+            }
+        }
     }
 
     // ─── PROJECT DETAIL ───────────────────────────────────────────

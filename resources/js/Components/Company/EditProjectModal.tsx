@@ -1,5 +1,6 @@
 import { Icon } from '@/Components/Company';
 import ProjectForm, {
+    type DescriptiveQuestion,
     type LocationEntry,
     type ProjectFormData,
     type Province,
@@ -22,6 +23,7 @@ export interface EditProjectData {
     ikm_template_id: number | null;
     sloi_template_id: number | null;
     locations: LocationEntry[];
+    descriptive_questions: DescriptiveQuestion[];
 }
 
 interface EditProjectModalProps {
@@ -56,6 +58,7 @@ export default function EditProjectModal({
         ikm_template_id: null,
         sloi_template_id: null,
         district_ids: [],
+        descriptive_questions: [],
     });
 
     // Populate form when project data changes
@@ -76,6 +79,7 @@ export default function EditProjectModal({
                 ikm_template_id: project.ikm_template_id,
                 sloi_template_id: project.sloi_template_id,
                 district_ids: project.locations.map((l) => l.district.id),
+                descriptive_questions: project.descriptive_questions ?? [],
             });
             setInitialLocations(project.locations);
         }
@@ -93,17 +97,21 @@ export default function EditProjectModal({
         setSubmitting(true);
         setErrors({});
 
-        router.put(`/projects/${project.id}`, data as any, {
-            preserveScroll: true,
-            onSuccess: () => {
-                setSubmitting(false);
-                onClose();
+        router.put(
+            `/projects/${project.id}`,
+            data as unknown as Parameters<typeof router.put>[1],
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setSubmitting(false);
+                    onClose();
+                },
+                onError: (errs) => {
+                    setErrors(errs as Record<string, string>);
+                    setSubmitting(false);
+                },
             },
-            onError: (errs) => {
-                setErrors(errs as Record<string, string>);
-                setSubmitting(false);
-            },
-        });
+        );
     };
 
     if (!isOpen) return null;

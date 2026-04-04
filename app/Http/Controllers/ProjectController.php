@@ -158,13 +158,13 @@ class ProjectController extends Controller
         }
     }
 
-    // public function getProjectForEdit(int $id)
-    // {
-    //     $user = Auth::user();
-    //     $data = $this->projectService->getProjectForEdit($id, $user->company_id);
+    public function getProjectForEdit(int $id)
+    {
+        $user = Auth::user();
+        $data = $this->projectService->getProjectForEdit($id, $user->company_id);
 
-    //     return response()->json($data);
-    // }
+        return response()->json($data);
+    }
 
     public function getProjectEnumerators(int $projectId)
     {

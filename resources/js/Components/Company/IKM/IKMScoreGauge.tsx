@@ -9,15 +9,14 @@ import {
 } from 'recharts';
 
 interface IKMScoreGaugeProps {
-    avgKepentingan: number; // 0–5
-    avgKinerja: number; // 0–5
+    avgKepentingan: number; // 1–4
+    avgKinerja: number; // 1–4
     IKMScore?: number; // kept for backward compat but not rendered
     trustLevel?: string;
 }
 
-// Map score 0-5 to an endAngle so the arc fills proportionally.
-// Full circle = 360°, so 5 → 360°.
-function scoreToAngle(score: number, max = 5): number {
+// Map score 1-4 to an endAngle so the arc fills proportionally.
+function scoreToAngle(score: number, max = 4): number {
     return Math.round((score / max) * 360);
 }
 
@@ -40,7 +39,7 @@ interface RadialGaugeProps {
     max?: number;
 }
 
-function RadialGauge({ value, label, max = 5 }: RadialGaugeProps): ReactNode {
+function RadialGauge({ value, label, max = 4 }: RadialGaugeProps): ReactNode {
     const color = scoreColor(value);
     const endAngle = scoreToAngle(value, max);
 
@@ -52,7 +51,7 @@ function RadialGauge({ value, label, max = 5 }: RadialGaugeProps): ReactNode {
 
     return (
         <div className="flex flex-col items-center">
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-black">
                 {label}
             </p>
             <ChartContainer
@@ -97,7 +96,7 @@ function RadialGauge({ value, label, max = 5 }: RadialGaugeProps): ReactNode {
                                                 x={viewBox.cx}
                                                 y={viewBox.cy}
                                                 style={{
-                                                    fill: color,
+                                                    fill: '#0f172a',
                                                     fontSize: 22,
                                                     fontWeight: 700,
                                                 }}
@@ -153,7 +152,7 @@ export default function IKMScoreGauge({
                 </div>
 
                 {/* Legend */}
-                <div className="mt-4 flex justify-center gap-4 text-[10px] font-medium">
+                <div className="mt-4 flex justify-center gap-4 text-[14px] font-lg">
                     <div className="flex items-center gap-1.5">
                         <div className="size-2 rounded-full bg-red-500" />
                         <span className="text-slate-400">&lt;2.5</span>
@@ -164,7 +163,7 @@ export default function IKMScoreGauge({
                     </div>
                     <div className="flex items-center gap-1.5">
                         <div className="size-2 rounded-full bg-green-500" />
-                        <span className="text-slate-400">3.5–5.0</span>
+                        <span className="text-slate-400">3.5–4.0</span>
                     </div>
                 </div>
             </div>

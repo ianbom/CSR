@@ -124,7 +124,7 @@ function FeatureCard({
                         </span>
                     ))}
                 </h3>
-                <p className="mb-4 text-xs leading-relaxed text-white/80">
+                <p className="mb-4 text-md leading-relaxed text-white/80">
                     {feature.description}
                 </p>
 
@@ -182,7 +182,7 @@ export default function FeaturesSection() {
                             </span>
                         </h2>
                     </div>
-                    <p className="max-w-xs text-sm leading-relaxed text-gray-500 sm:text-right">
+                    <p className="max-w-xs text-lg leading-relaxed text-gray-500 sm:text-right">
                         Semua alat yang Anda butuhkan untuk mengukur dan
                         melaporkan dampak sosial perusahaan.
                     </p>

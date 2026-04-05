@@ -325,6 +325,7 @@ class ProjectService
             'sloiStats' => $sloiStats,
             'demographics' => $this->computeDemographics($respondentIds),
             'questionScores' => $this->computeQuestionScores($submissionIds, $templateId),
+            'allQuestions' => $this->getAllQuestions($templateId, $project->name),
             'auditLog' => $this->computeAuditLog($projectId, $assessmentType, $detailType),
             'trendData' => $this->computeTrendData($projectId, $assessmentType, $detailType),
             'respondents' => $this->computeRespondents($projectId, $assessmentType, $templateId, $respondentParams),
@@ -663,6 +664,34 @@ class ProjectService
 
             return $result;
         }
+    }
+
+    /**
+     * Get all questions for a template with {project} replaced by project name (bold)
+     */
+    protected function getAllQuestions(?int $templateId, string $projectName): array
+    {
+        if (!$templateId) {
+            return [];
+        }
+
+        $questions = TemplateQuestion::where('template_id', $templateId)
+            ->orderBy('order_no')
+            ->get(['id', 'code', 'category', 'question_text', 'order_no']);
+
+        return $questions->map(function ($question) use ($projectName) {
+            return [
+                'id' => $question->code,
+                'code' => $question->code,
+                'category' => $question->category,
+                'question' => str_replace(
+                    '{project}',
+                    "<strong>{$projectName}</strong>",
+                    $question->question_text
+                ),
+                'order_no' => $question->order_no,
+            ];
+        })->toArray();
     }
 
     protected function computeAuditLog(int $projectId, ?string $assessmentType, string $detailType = 'overview'): array

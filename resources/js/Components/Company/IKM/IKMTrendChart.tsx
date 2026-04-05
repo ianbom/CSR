@@ -8,8 +8,17 @@ interface QuestionScoreItem {
     performance: number;
 }
 
+interface AllQuestionItem {
+    id: string;
+    code: string;
+    category: string;
+    question: string;
+    order_no: number;
+}
+
 interface IKMTrendChartProps {
     questionScores: QuestionScoreItem[];
+    allQuestions?: AllQuestionItem[];
     title?: string;
 }
 
@@ -53,8 +62,6 @@ function IPAScatterChart({
             </div>
         );
     }
-
-    console.log(questionScores);
 
     // Fixed center point at 3.0 for both axes
     const avgImportance = 3.0;
@@ -317,6 +324,7 @@ function IPAScatterChart({
 
 export default function IKMTrendChart({
     questionScores,
+    allQuestions = [],
     title,
 }: IKMTrendChartProps): ReactNode {
     const [showModal, setShowModal] = useState(false);
@@ -382,31 +390,161 @@ export default function IKMTrendChart({
                         {/* Question Legend */}
                         <div className="mt-6 border-t border-slate-100 pt-4">
                             <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                Keterangan Pertanyaan
+                                Semua Pertanyaan IKM
                             </h4>
-                            <div className="grid grid-cols-1 gap-2">
-                                {questionScores.map((q, i) => (
-                                    <div
-                                        key={q.id}
-                                        className="flex items-start gap-2 text-sm"
-                                    >
-                                        <span
-                                            className="mt-1 inline-block h-3 w-3 flex-shrink-0 rounded-full"
-                                            style={{
-                                                backgroundColor:
-                                                    DOT_COLORS[
-                                                        i % DOT_COLORS.length
-                                                    ],
-                                            }}
-                                        />
-                                        <span className="font-bold text-slate-500">
-                                            {q.id}
-                                        </span>
-                                        <span className="text-slate-600">
-                                            {q.question}
-                                        </span>
-                                    </div>
-                                ))}
+                            <div className="grid grid-cols-1 gap-4">
+                                {allQuestions.length > 0 ? (
+                                    <>
+                                        {/* IKM Kepentingan Section */}
+                                        <div>
+                                            <h5 className="mb-2 text-xs font-semibold text-blue-600">
+                                                IKM Kepentingan
+                                            </h5>
+                                            <div className="grid grid-cols-1 gap-2">
+                                                {allQuestions
+                                                    .filter(
+                                                        (q) =>
+                                                            q.category ===
+                                                            'ikm-kepentingan',
+                                                    )
+                                                    .map((q, i) => {
+                                                        // Find matching score data if available
+                                                        const scoreData =
+                                                            questionScores.find(
+                                                                (sq) =>
+                                                                    sq.id ===
+                                                                    q.code,
+                                                            );
+                                                        const colorIndex =
+                                                            questionScores.findIndex(
+                                                                (sq) =>
+                                                                    sq.id ===
+                                                                    q.code,
+                                                            );
+
+                                                        return (
+                                                            <div
+                                                                key={q.id}
+                                                                className="flex items-start gap-2 text-sm"
+                                                            >
+                                                                {scoreData &&
+                                                                colorIndex >=
+                                                                    0 ? (
+                                                                    <span
+                                                                        className="mt-1 inline-block h-3 w-3 flex-shrink-0 rounded-full"
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                DOT_COLORS[
+                                                                                    colorIndex %
+                                                                                        DOT_COLORS.length
+                                                                                ],
+                                                                        }}
+                                                                    />
+                                                                ) : (
+                                                                    <span className="mt-1 inline-block h-3 w-3 flex-shrink-0 rounded-full bg-slate-300" />
+                                                                )}
+                                                                <span className="font-bold text-slate-500">
+                                                                    {q.code}
+                                                                </span>
+                                                                <span
+                                                                    className="text-slate-600"
+                                                                    dangerouslySetInnerHTML={{
+                                                                        __html: q.question,
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        );
+                                                    })}
+                                            </div>
+                                        </div>
+
+                                        {/* IKM Kinerja Section */}
+                                        <div>
+                                            <h5 className="mb-2 text-xs font-semibold text-emerald-600">
+                                                IKM Kinerja
+                                            </h5>
+                                            <div className="grid grid-cols-1 gap-2">
+                                                {allQuestions
+                                                    .filter(
+                                                        (q) =>
+                                                            q.category ===
+                                                            'ikm-kinerja',
+                                                    )
+                                                    .map((q, i) => {
+                                                        // Find matching score data if available
+                                                        const scoreData =
+                                                            questionScores.find(
+                                                                (sq) =>
+                                                                    sq.id ===
+                                                                    q.code,
+                                                            );
+                                                        const colorIndex =
+                                                            questionScores.findIndex(
+                                                                (sq) =>
+                                                                    sq.id ===
+                                                                    q.code,
+                                                            );
+
+                                                        return (
+                                                            <div
+                                                                key={q.id}
+                                                                className="flex items-start gap-2 text-sm"
+                                                            >
+                                                                {scoreData &&
+                                                                colorIndex >=
+                                                                    0 ? (
+                                                                    <span
+                                                                        className="mt-1 inline-block h-3 w-3 flex-shrink-0 rounded-full"
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                DOT_COLORS[
+                                                                                    colorIndex %
+                                                                                        DOT_COLORS.length
+                                                                                ],
+                                                                        }}
+                                                                    />
+                                                                ) : (
+                                                                    <span className="mt-1 inline-block h-3 w-3 flex-shrink-0 rounded-full bg-slate-300" />
+                                                                )}
+                                                                <span className="font-bold text-slate-500">
+                                                                    {q.code}
+                                                                </span>
+                                                                <span
+                                                                    className="text-slate-600"
+                                                                    dangerouslySetInnerHTML={{
+                                                                        __html: q.question,
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        );
+                                                    })}
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    questionScores.map((q, i) => (
+                                        <div
+                                            key={q.id}
+                                            className="flex items-start gap-2 text-sm"
+                                        >
+                                            <span
+                                                className="mt-1 inline-block h-3 w-3 flex-shrink-0 rounded-full"
+                                                style={{
+                                                    backgroundColor:
+                                                        DOT_COLORS[
+                                                            i % DOT_COLORS.length
+                                                        ],
+                                                }}
+                                            />
+                                            <span className="font-bold text-slate-500">
+                                                {q.id}
+                                            </span>
+                                            <span className="text-slate-600">
+                                                {q.question}
+                                            </span>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>

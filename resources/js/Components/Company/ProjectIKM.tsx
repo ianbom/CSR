@@ -51,6 +51,14 @@ interface QuestionScoreItem {
     performance: number;
 }
 
+interface AllQuestionItem {
+    id: string;
+    code: string;
+    category: string;
+    question: string;
+    order_no: number;
+}
+
 interface AuditLogItem {
     id: string;
     respondentName: string;
@@ -82,6 +90,7 @@ interface ProjectIKMProps {
     ikmStats: IkmStatsData | null;
     demographics: DemographicsData;
     questionScores: QuestionScoreItem[];
+    allQuestions?: AllQuestionItem[];
     auditLog: AuditLogItem[];
     trendData: TrendDataItem[];
 }
@@ -91,6 +100,7 @@ export default function ProjectIKM({
     ikmStats,
     demographics,
     questionScores,
+    allQuestions = [],
 }: ProjectIKMProps): ReactNode {
     // Transform gender data for GenderPieChart
     const genderData = (() => {
@@ -138,7 +148,10 @@ export default function ProjectIKM({
                     avgKepentingan={avgKepentingan}
                     avgKinerja={avgKinerja}
                 />
-                <IKMTrendChart questionScores={questionScores} />
+                <IKMTrendChart
+                    questionScores={questionScores}
+                    allQuestions={allQuestions}
+                />
             </div>
 
             {/* Demographics Row */}

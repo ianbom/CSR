@@ -93,6 +93,7 @@ class ProjectController extends Controller
             'sloiStats' => $data['sloiStats'],
             'demographics' => $data['demographics'],
             'questionScores' => $data['questionScores'],
+            'allQuestions' => $data['allQuestions'],
             'auditLog' => $data['auditLog'],
             'trendData' => $data['trendData'],
             'respondents' => $data['respondents'],

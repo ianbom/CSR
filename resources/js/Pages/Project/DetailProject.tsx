@@ -97,6 +97,14 @@ interface QuestionScoreItem {
     performance: number;
 }
 
+interface AllQuestionItem {
+    id: string;
+    code: string;
+    category: string;
+    question: string;
+    order_no: number;
+}
+
 interface AuditLogItem {
     id: string;
     respondentName: string;
@@ -200,6 +208,7 @@ interface Props {
     sloiStats: StatsData | null;
     demographics: DemographicsData;
     questionScores: QuestionScoreItem[];
+    allQuestions: AllQuestionItem[];
     auditLog: AuditLogItem[];
     trendData: TrendDataItem[];
     respondents: RespondentsData;
@@ -248,6 +257,7 @@ export default function DetailProject({
     sloiStats,
     demographics,
     questionScores,
+    allQuestions,
     auditLog,
     trendData,
     respondents,
@@ -293,6 +303,7 @@ export default function DetailProject({
                         ikmStats={ikmStats}
                         demographics={demographics}
                         questionScores={questionScores}
+                        allQuestions={allQuestions}
                         auditLog={auditLog}
                         trendData={trendData}
                     />

@@ -527,6 +527,7 @@ class ProjectService
 
         // Score label
         $scoreLabel = $this->getScoreLabel($avgScore);
+        // dd($avgScore);
 
         return [
             'totalResponses' => $totalResponses,
@@ -774,6 +775,37 @@ class ProjectService
 
             return $result;
         }
+
+        // ── SLOI or other single-category mode: just compute average per question ──
+        if ($questions->isNotEmpty()) {
+            $questionIds = $questions->pluck('id');
+
+            // Get average score per question
+            $averageScores = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+                ->whereIn('question_id', $questionIds)
+                ->groupBy('question_id')
+                ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
+                ->pluck('avg_score', 'question_id');
+
+            // Build result with all questions
+            $result = [];
+            foreach ($questions as $question) {
+                $avgScore = (float) ($averageScores[$question->id] ?? 0);
+
+                $result[] = [
+                    'id'          => $question->code,
+                    'question'    => $question->question_text,
+                    'score'       => $avgScore,
+                    'importance'  => $avgScore,  // For SLOI, use same value
+                    'performance' => $avgScore,  // For SLOI, use same value
+                ];
+            }
+
+            return $result;
+        }
+
+        // If we don't have any questions, return empty array
+        return [];
     }
 
     /**

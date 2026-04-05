@@ -47,7 +47,7 @@ export default function SLOIScoreGauge({
 
                 <div className="text-right">
                     <p className="text-4xl font-bold leading-none tracking-tight text-slate-900">
-                        {sloiScore > 0 ? sloiScore.toFixed(1) : '–'}
+                        {sloiScore > 0 ? sloiScore : '–'}
                         <span className="ml-1 text-base font-normal text-slate-400">
                             /6
                         </span>

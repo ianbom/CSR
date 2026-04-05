@@ -532,7 +532,8 @@ export default function IKMTrendChart({
                                                 style={{
                                                     backgroundColor:
                                                         DOT_COLORS[
-                                                            i % DOT_COLORS.length
+                                                            i %
+                                                                DOT_COLORS.length
                                                         ],
                                                 }}
                                             />

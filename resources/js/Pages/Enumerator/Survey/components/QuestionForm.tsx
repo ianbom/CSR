@@ -142,7 +142,7 @@ export default function QuestionForm({
             )}
 
             {/* IKM legend */}
-            {isIKM && (
+            {/* {isIKM && (
                 <div className="flex flex-wrap gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4 text-sm">
                     <div className="flex items-center gap-2">
                         <span className="inline-flex size-5 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-700">
@@ -164,7 +164,7 @@ export default function QuestionForm({
                         <span className="text-gray-400">— skala 1–4</span>
                     </div>
                 </div>
-            )}
+            )} */}
 
             {/* Questions */}
             {questions.length === 0 ? (
@@ -205,28 +205,7 @@ export default function QuestionForm({
                                                 type === 'ikm-kepentingan';
                                             const qNum = ++questionNumber;
                                             return (
-                                                <div
-                                                    key={question.id}
-                                                    className={`rounded-xl border ${isKepentingan ? 'border-blue-100' : 'border-emerald-100'} bg-white shadow-sm`}
-                                                >
-                                                    <div
-                                                        className={`flex items-center gap-2 rounded-t-xl border-b px-4 py-2.5 ${isKepentingan ? 'border-blue-100 bg-blue-50' : 'border-emerald-100 bg-emerald-50'}`}
-                                                    >
-                                                        <span
-                                                            className={`inline-flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-white ${isKepentingan ? 'bg-blue-500' : 'bg-emerald-500'}`}
-                                                        >
-                                                            {isKepentingan
-                                                                ? 'K'
-                                                                : 'P'}
-                                                        </span>
-                                                        <span
-                                                            className={`text-xs font-bold uppercase tracking-wider ${isKepentingan ? 'text-blue-600' : 'text-emerald-600'}`}
-                                                        >
-                                                            {isKepentingan
-                                                                ? 'IKM Kepentingan'
-                                                                : 'IKM Kinerja'}
-                                                        </span>
-                                                    </div>
+                                                <div key={question.id}>
                                                     <div className="p-4">
                                                         <LikertScaleQuestion
                                                             questionNumber={
@@ -419,11 +398,11 @@ export default function QuestionForm({
                             key={dq.id}
                             className="rounded-xl border border-violet-100 bg-white shadow-sm"
                         >
-                            <div className="flex items-center gap-2 rounded-t-xl border-b border-violet-100 bg-violet-50 px-4 py-2.5">
-                                <span className="inline-flex size-5 items-center justify-center rounded-full bg-violet-500 text-[10px] font-bold text-white">
+                            <div className="flex items-center gap-2 rounded-t-xl border-b border-primary bg-primary/10 px-4 py-2.5">
+                                <span className="inline-flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
                                     {idx + 1}
                                 </span>
-                                <span className="text-xs font-bold uppercase tracking-wider text-violet-600">
+                                <span className="text-xs font-bold uppercase tracking-wider text-primary">
                                     Pertanyaan Deskriptif
                                 </span>
                             </div>

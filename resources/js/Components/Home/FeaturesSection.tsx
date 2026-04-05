@@ -124,7 +124,7 @@ function FeatureCard({
                         </span>
                     ))}
                 </h3>
-                <p className="mb-4 text-md leading-relaxed text-white/80">
+                <p className="text-md mb-4 leading-relaxed text-white/80">
                     {feature.description}
                 </p>
 

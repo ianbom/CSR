@@ -137,18 +137,22 @@ export default function IKMScoreGauge({
                     Rerata Skor IKM
                 </h3>
 
-                <div className="flex flex-1 flex-col justify-center gap-2">
+                <div className="flex flex-1 flex-row items-center justify-center gap-4">
                     {/* Chart 1 — Kepentingan */}
-                    <RadialGauge
-                        value={avgKepentingan}
-                        label="IKM Kepentingan"
-                    />
+                    <div className="flex-1">
+                        <RadialGauge
+                            value={avgKepentingan}
+                            label="Kepentingan"
+                        />
+                    </div>
 
                     {/* Divider */}
-                    <div className="mx-auto h-px w-3/4 bg-slate-100" />
+                    <div className="hidden h-24 w-px bg-slate-100 sm:block" />
 
                     {/* Chart 2 — Kinerja */}
-                    <RadialGauge value={avgKinerja} label="IKM Kinerja" />
+                    <div className="flex-1">
+                        <RadialGauge value={avgKinerja} label="Kinerja" />
+                    </div>
                 </div>
 
                 {/* Legend */}

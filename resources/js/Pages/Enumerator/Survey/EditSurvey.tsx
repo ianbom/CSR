@@ -248,7 +248,17 @@ export default function EditSurvey({
 
         // Frontend guard: all questions must be answered
         const isIKM = submission.assessment_type.toUpperCase() === 'IKM';
-        const totalRequired = isIKM ? questions.length * 2 : questions.length;
+        const totalRequired = isIKM
+            ? questions.reduce(
+                  (acc, q) =>
+                      acc +
+                      (q.category === 'ikm-kepentingan' ||
+                      q.category === 'ikm-kinerja'
+                          ? 1
+                          : 2),
+                  0,
+              )
+            : questions.length;
         if (Object.keys(answers).length < totalRequired) {
             alert('Semua pertanyaan harus dijawab sebelum menyimpan.');
             goToStep(2);

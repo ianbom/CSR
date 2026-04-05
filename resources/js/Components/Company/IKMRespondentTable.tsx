@@ -18,6 +18,7 @@ import SubmissionDetailModal from './SubmissionDetailModal';
 export interface QuestionHeader {
     code: string;
     question: string;
+    category?: string | null;
 }
 
 export interface RespondentData {
@@ -393,15 +394,32 @@ export default function IKMRespondentTable({
                                 <th className="min-w-[70px] px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-emerald-500">
                                     Rerata Kin.
                                 </th>
-                                {questions.map((q) => (
-                                    <th
-                                        key={q.code}
-                                        className="min-w-[60px] px-3 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400"
-                                        title={q.question}
-                                    >
-                                        {q.code}
-                                    </th>
-                                ))}
+                                {questions.map((q) => {
+                                    const isKep =
+                                        q.category === 'ikm-kepentingan';
+                                    const isKin = q.category === 'ikm-kinerja';
+                                    return (
+                                        <th
+                                            key={q.code}
+                                            className={`min-w-[55px] px-2 py-3 text-center text-[10px] font-semibold uppercase tracking-wider ${
+                                                isKep
+                                                    ? 'text-blue-400'
+                                                    : isKin
+                                                      ? 'text-emerald-500'
+                                                      : 'text-slate-400'
+                                            }`}
+                                            title={`[${
+                                                isKep
+                                                    ? 'Kepentingan'
+                                                    : isKin
+                                                      ? 'Kinerja'
+                                                      : ''
+                                            }] ${q.question}`}
+                                        >
+                                            {q.code}
+                                        </th>
+                                    );
+                                })}
                                 <th className="min-w-[80px] px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                     Lihat
                                 </th>
@@ -493,27 +511,45 @@ export default function IKMRespondentTable({
                                     </td>
                                     {questions.map((q) => {
                                         const ans = row.answers[q.code];
-                                        const kep = ans?.kepentingan;
-                                        const kin = ans?.kinerja;
+                                        const isKep =
+                                            q.category === 'ikm-kepentingan';
+                                        const isKin =
+                                            q.category === 'ikm-kinerja';
+                                        // Use kepentingan value for kep questions,
+                                        // kinerja value for kin questions,
+                                        // fallback to whichever is set for legacy
+                                        const val = isKep
+                                            ? ans?.kepentingan
+                                            : isKin
+                                              ? ans?.kinerja
+                                              : (ans?.kepentingan ??
+                                                ans?.kinerja);
+                                        const colorClass = isKep
+                                            ? val != null && val >= 4
+                                                ? 'text-blue-700'
+                                                : val != null && val >= 3
+                                                  ? 'text-blue-500'
+                                                  : 'text-blue-400'
+                                            : isKin
+                                              ? val != null && val >= 4
+                                                  ? 'text-emerald-700'
+                                                  : val != null && val >= 3
+                                                    ? 'text-emerald-500'
+                                                    : 'text-emerald-400'
+                                              : 'text-slate-600';
                                         return (
                                             <td
                                                 key={q.code}
-                                                className="px-3 py-3 text-center"
+                                                className="px-2 py-3 text-center"
                                             >
-                                                {kep != null || kin != null ? (
-                                                    <span className="inline-flex items-center gap-0.5 font-semibold">
-                                                        <span className="text-blue-600">
-                                                            {kep ?? '-'}
-                                                        </span>
-                                                        <span className="text-slate-300">
-                                                            /
-                                                        </span>
-                                                        <span className="text-emerald-600">
-                                                            {kin ?? '-'}
-                                                        </span>
+                                                {val != null ? (
+                                                    <span
+                                                        className={`font-semibold ${colorClass}`}
+                                                    >
+                                                        {val}
                                                     </span>
                                                 ) : (
-                                                    <span className="text-slate-400">
+                                                    <span className="text-slate-300">
                                                         -
                                                     </span>
                                                 )}

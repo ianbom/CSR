@@ -67,8 +67,19 @@ interface TrendDataItem {
     height: number;
 }
 
+interface IkmStatsData {
+    scoreKepentingan: number;
+    scoreKinerja: number;
+    scoreLabelKepentingan: string;
+    scoreLabelKinerja: string;
+    totalResponses: number;
+    targetResponses: number;
+    progress: number;
+}
+
 interface ProjectIKMProps {
     stats: StatsData;
+    ikmStats: IkmStatsData | null;
     demographics: DemographicsData;
     questionScores: QuestionScoreItem[];
     auditLog: AuditLogItem[];
@@ -77,6 +88,7 @@ interface ProjectIKMProps {
 
 export default function ProjectIKM({
     stats,
+    ikmStats,
     demographics,
     questionScores,
 }: ProjectIKMProps): ReactNode {
@@ -106,17 +118,10 @@ export default function ProjectIKM({
         };
     })();
 
-    // Compute dimension averages from questionScores
-    const avgKepentingan =
-        questionScores.length > 0
-            ? questionScores.reduce((sum, q) => sum + q.importance, 0) /
-              questionScores.length
-            : 0;
-    const avgKinerja =
-        questionScores.length > 0
-            ? questionScores.reduce((sum, q) => sum + q.performance, 0) /
-              questionScores.length
-            : 0;
+    // Use backend-computed averages when available (correct per-type averages).
+    // Fallback to 0 if ikmStats not passed (e.g. non-IKM context).
+    const avgKepentingan = ikmStats?.scoreKepentingan ?? 0;
+    const avgKinerja = ikmStats?.scoreKinerja ?? 0;
 
     return (
         <div className="space-y-6">

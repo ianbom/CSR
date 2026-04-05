@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('order_no')->default(1);
             $table->timestamp('created_at')->useCurrent();
             $table->softDeletes();
-            $table->unique(['template_id', 'code']);
+            // $table->unique(['template_id', 'code']);
             $table->index(['template_id', 'order_no']);
         });
     }

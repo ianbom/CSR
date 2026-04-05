@@ -290,6 +290,7 @@ export default function DetailProject({
                 return (
                     <ProjectIKM
                         stats={stats}
+                        ikmStats={ikmStats}
                         demographics={demographics}
                         questionScores={questionScores}
                         auditLog={auditLog}

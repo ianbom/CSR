@@ -67,8 +67,18 @@ export default function QuestionForm({
 }: QuestionFormProps) {
     const isIKM = surveyType.toUpperCase() === 'IKM';
 
-    // For IKM: need 2 answers per question; for SLOI: 1 per question
-    const totalRequired = isIKM ? questions.length * 2 : questions.length;
+    const totalRequired = useMemo(() => {
+        if (!isIKM) return questions.length;
+        return questions.reduce(
+            (acc, q) =>
+                acc +
+                (q.category === 'ikm-kepentingan' ||
+                q.category === 'ikm-kinerja'
+                    ? 1
+                    : 2),
+            0,
+        );
+    }, [questions, isIKM]);
 
     const progressPercentage = useMemo(() => {
         if (totalRequired === 0) return 0;
@@ -177,7 +187,11 @@ export default function QuestionForm({
                                     <div className="flex items-center gap-2">
                                         <div className="h-px flex-1 bg-gray-200" />
                                         <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                            {category}
+                                            {category === 'ikm-kepentingan'
+                                                ? 'IKM Kepentingan'
+                                                : category === 'ikm-kinerja'
+                                                  ? 'IKM Kinerja'
+                                                  : category}
                                         </span>
                                         <div className="h-px flex-1 bg-gray-200" />
                                     </div>
@@ -185,6 +199,85 @@ export default function QuestionForm({
 
                                 {catQuestions.map((question) => {
                                     if (isIKM) {
+                                        const type = question.category;
+
+                                        if (
+                                            type === 'ikm-kepentingan' ||
+                                            type === 'ikm-kinerja'
+                                        ) {
+                                            const key = `${question.id}-${type}`;
+                                            const isKepentingan =
+                                                type === 'ikm-kepentingan';
+                                            const qNum = ++questionNumber;
+                                            return (
+                                                <div
+                                                    key={question.id}
+                                                    className={`rounded-xl border ${isKepentingan ? 'border-blue-100' : 'border-emerald-100'} bg-white shadow-sm`}
+                                                >
+                                                    <div
+                                                        className={`flex items-center gap-2 rounded-t-xl border-b px-4 py-2.5 ${isKepentingan ? 'border-blue-100 bg-blue-50' : 'border-emerald-100 bg-emerald-50'}`}
+                                                    >
+                                                        <span
+                                                            className={`inline-flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-white ${isKepentingan ? 'bg-blue-500' : 'bg-emerald-500'}`}
+                                                        >
+                                                            {isKepentingan
+                                                                ? 'K'
+                                                                : 'P'}
+                                                        </span>
+                                                        <span
+                                                            className={`text-xs font-bold uppercase tracking-wider ${isKepentingan ? 'text-blue-600' : 'text-emerald-600'}`}
+                                                        >
+                                                            {isKepentingan
+                                                                ? 'IKM Kepentingan'
+                                                                : 'IKM Kinerja'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="p-4">
+                                                        <LikertScaleQuestion
+                                                            questionNumber={
+                                                                qNum
+                                                            }
+                                                            question={
+                                                                question.question_text
+                                                            }
+                                                            name={key}
+                                                            value={answers[key]}
+                                                            onChange={(v) =>
+                                                                handleAnswerChange(
+                                                                    key,
+                                                                    v,
+                                                                )
+                                                            }
+                                                            scaleSize={4}
+                                                            minLabel={
+                                                                isKepentingan
+                                                                    ? IKM_LABELS
+                                                                          .kepentingan
+                                                                          .min
+                                                                    : IKM_LABELS
+                                                                          .kinerja
+                                                                          .min
+                                                            }
+                                                            maxLabel={
+                                                                isKepentingan
+                                                                    ? IKM_LABELS
+                                                                          .kepentingan
+                                                                          .max
+                                                                    : IKM_LABELS
+                                                                          .kinerja
+                                                                          .max
+                                                            }
+                                                            isAnswered={
+                                                                answers[key] !==
+                                                                undefined
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+
+                                        // Fallback for legacy database templates
                                         const kepKey = `${question.id}-ikm-kepentingan`;
                                         const kinKey = `${question.id}-ikm-kinerja`;
                                         const kepNumber = ++questionNumber;

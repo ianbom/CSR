@@ -297,7 +297,7 @@ class ProjectService
             $templateId = $project->sloi_template_id;
         }
 
-        // Compute per-type stats for overview metric cards
+        // Compute per-type stats for overview metric cards AND for the IKM tab gauge
         $ikmStats = null;
         $sloiStats = null;
         if ($assessmentType === null) {
@@ -312,6 +312,9 @@ class ProjectService
                 ->get();
             $ikmStats = $this->computeIkmStats($project, $ikmSubmissions);
             $sloiStats = $this->computeStats($project, $sloiSubmissions, 'SLOI');
+        } elseif ($assessmentType === 'IKM') {
+            // For IKM tab: compute per-type averages from already-filtered submissions
+            $ikmStats = $this->computeIkmStats($project, $submissions);
         }
 
         return [
@@ -807,8 +810,9 @@ class ProjectService
                 ->orderBy('order_no')
                 ->get()
                 ->map(fn ($q) => [
-                    'code' => $q->code,
+                    'code'     => $q->code,
                     'question' => $q->question_text,
+                    'category' => $q->category ?? null,
                 ])
                 ->toArray();
         }

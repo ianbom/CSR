@@ -1,5 +1,6 @@
-import { Link } from '@inertiajs/react';
-import { ReactNode } from 'react';
+import Modal from '@/Components/Modal';
+import { Link, router } from '@inertiajs/react';
+import { ReactNode, useState } from 'react';
 import Icon from './Icon';
 
 interface NavItemProps {
@@ -73,8 +74,14 @@ export default function Sidebar({
     currentRoute,
     user,
 }: SidebarProps): ReactNode {
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+    const handleLogout = () => {
+        router.post(route('logout'));
+    };
+
     return (
-        <aside className="flex w-72 flex-shrink-0 flex-col bg-primary text-white transition-all duration-300">
+        <aside className="relative z-10 flex w-72 flex-shrink-0 flex-col bg-primary text-white transition-all duration-300">
             {/* Logo */}
             <div className="flex items-center gap-3 p-8">
                 <a href="/">
@@ -129,14 +136,57 @@ export default function Sidebar({
                             {user.email ?? 'admin@gmail.com'}
                         </p>
                     </div>
-                    <Link href={route('logout')} method="post" as="button">
+                    <button
+                        type="button"
+                        onClick={() => setShowLogoutModal(true)}
+                        className="group flex size-10 items-center justify-center rounded-lg bg-white/5 transition-all hover:bg-white/20"
+                        title="Logout"
+                    >
                         <Icon
                             name="logout"
-                            className="text-sm opacity-60 transition-opacity hover:opacity-100"
+                            className="text-[20px] text-white/60 transition-colors group-hover:text-white"
                         />
-                    </Link>
+                    </button>
                 </div>
             </div>
+
+            {/* Logout Confirmation Modal */}
+            <Modal
+                show={showLogoutModal}
+                onClose={() => setShowLogoutModal(false)}
+                maxWidth="sm"
+            >
+                <div className="p-6">
+                    <div className="mb-4 flex items-center justify-center">
+                        <div className="flex size-14 items-center justify-center rounded-full bg-red-100 text-red-600">
+                            <Icon name="logout" className="text-3xl" />
+                        </div>
+                    </div>
+                    <h3 className="mb-2 text-center text-lg font-bold text-gray-900">
+                        Konfirmasi Logout
+                    </h3>
+                    <p className="mb-6 text-center text-sm text-gray-600">
+                        Apakah Anda yakin ingin keluar dari aplikasi? Anda harus
+                        login kembali untuk mengakses sistem.
+                    </p>
+                    <div className="flex gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setShowLogoutModal(false)}
+                            className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-gray-100"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-red-700 focus:ring-2 focus:ring-red-200"
+                        >
+                            Ya, Keluar
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </aside>
     );
 }

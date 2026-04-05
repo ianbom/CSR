@@ -9,6 +9,7 @@ use App\Models\ProjectEnumeratorAssignment;
 use App\Models\ProjectLocation;
 use App\Models\Respondent;
 use App\Models\Submission;
+use App\Models\TemplateQuestion;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -599,44 +600,69 @@ class ProjectService
         }
 
         // Get all questions for this template
-        $questions = \App\Models\TemplateQuestion::where('template_id', $templateId)
+        $questions = TemplateQuestion::where('template_id', $templateId)
             ->orderBy('order_no')
             ->get();
 
-        $questionIds = $questions->pluck('id');
+        // Split by category
+        $importanceQuestions  = $questions->where('category', 'ikm-kepentingan')->keyBy('code');
+        $performanceQuestions = $questions->where('category', 'ikm-kinerja')->keyBy('code');
 
-        // Average score per question — overall
-        $avgAll = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
-            ->whereIn('question_id', $questionIds)
-            ->groupBy('question_id')
-            ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
-            ->pluck('avg_score', 'question_id');
+        // ── IKM Paired mode: kepentingan (Y) ↔ kinerja (X) by shared code ──
+        if ($importanceQuestions->isNotEmpty() && $performanceQuestions->isNotEmpty()) {
 
-        // Average score per question — type ikm-kepentingan
-        $avgKepentingan = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
-            ->whereIn('question_id', $questionIds)
-            ->where('type', 'ikm-kepentingan')
-            ->groupBy('question_id')
-            ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
-            ->pluck('avg_score', 'question_id');
+            // Find codes that exist in BOTH categories
+            $commonCodes = $importanceQuestions->keys()
+                ->intersect($performanceQuestions->keys())
+                ->values()
+                ->toArray(); // plain array required by ->only()
 
-        // Average score per question — type ikm-kinerja
-        $avgKinerja = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
-            ->whereIn('question_id', $questionIds)
-            ->where('type', 'ikm-kinerja')
-            ->groupBy('question_id')
-            ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
-            ->pluck('avg_score', 'question_id');
+            // dd($commonCodes);
 
-        return $questions->map(function ($q) use ($avgAll, $avgKepentingan, $avgKinerja) {
-            return [
-                'id' => $q->code,
-                'question' => $q->question_text,
-                'score' => (float) ($avgAll[$q->id] ?? 0),
-                'importance' => (float) ($avgKepentingan[$q->id] ?? 0),
-                'performance' => (float) ($avgKinerja[$q->id] ?? 0),
-            ];
-        })->toArray();
+            $importanceQuestionIds  = $importanceQuestions->whereIn('code', $commonCodes)->pluck('id');
+            $performanceQuestionIds = $performanceQuestions->whereIn('code', $commonCodes)->pluck('id');
+
+            // dd($importanceQuestionIds, $performanceQuestionIds);
+
+            // Avg per question_id — kepentingan → Y-axis (importance)
+            $importanceAnswers = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+                ->whereIn('question_id', $importanceQuestionIds)
+                ->groupBy('question_id')
+                ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
+                ->pluck('avg_score', 'question_id');
+
+            // Avg per question_id — kinerja → X-axis (performance)
+            $performanceAnswers = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+                ->whereIn('question_id', $performanceQuestionIds)
+                ->groupBy('question_id')
+                ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
+                ->pluck('avg_score', 'question_id');
+
+            // Build one data point per shared code
+            $result = [];
+            foreach ($commonCodes as $code) {
+                $kepQ = $importanceQuestions[$code];   // kepentingan question
+                $kinQ = $performanceQuestions[$code];  // kinerja question (same code)
+
+                $imp  = (float) ($importanceAnswers[$kepQ->id] ?? 0);   // Y-axis
+                $perf = (float) ($performanceAnswers[$kinQ->id] ?? 0);  // X-axis
+
+                $result[] = [
+                    'id'          => $code,
+                    'question'    => $kepQ->question_text,
+                    'score'       => round(($imp + $perf) / 2, 2),
+                    'importance'  => $imp,   // Y-axis (kepentingan)
+                    'performance' => $perf,  // X-axis (kinerja)
+                ];
+            }
+
+            // Sort by order_no of the kepentingan question
+            usort($result, fn ($a, $b) =>
+                $importanceQuestions[$a['id']]->order_no <=> $importanceQuestions[$b['id']]->order_no
+            );
+
+            return $result;
+        }
     }
 
     protected function computeAuditLog(int $projectId, ?string $assessmentType, string $detailType = 'overview'): array

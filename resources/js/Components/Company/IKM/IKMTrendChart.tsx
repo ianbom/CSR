@@ -54,6 +54,8 @@ function IPAScatterChart({
         );
     }
 
+    console.log(questionScores);
+
     // Fixed center point at 3.0 for both axes
     const avgImportance = 3.0;
     const avgPerformance = 3.0;

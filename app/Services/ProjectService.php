@@ -177,14 +177,124 @@ class ProjectService
 
             // Sync locations if provided
             if (isset($data['district_ids'])) {
-                ProjectLocation::where('project_id', $projectId)->delete();
-                $this->storeProjectLocations($data['district_ids'], $projectId, $companyId);
+                DB::table('project_locations')
+                    ->where('project_id', $projectId)
+                    ->delete();
+                
+                if (!empty($data['district_ids'])) {
+                    $uniqueDistrictIds = array_unique($data['district_ids']);
+                    $this->storeProjectLocations($uniqueDistrictIds, $projectId, $companyId);
+                }
             }
 
             // Sync descriptive questions
             $this->syncDescriptiveQuestions($projectId, $data['descriptive_questions'] ?? null);
 
             return $project->load('locations.district.city.province');
+        });
+    }
+
+    public function patchProject(int $projectId, array $data, int $companyId): Project
+    {
+        return DB::transaction(function () use ($projectId, $data, $companyId) {
+            $project = Project::where('id', $projectId)
+                ->where('company_id', $companyId)
+                ->firstOrFail();
+
+            // Build update array only with provided fields
+            $updateData = [];
+
+            // Basic fields
+            if (array_key_exists('name', $data)) {
+                $updateData['name'] = $data['name'];
+            }
+            if (array_key_exists('description', $data)) {
+                $updateData['description'] = $data['description'];
+            }
+            if (array_key_exists('status', $data)) {
+                $updateData['status'] = $data['status'];
+            }
+            if (array_key_exists('target_ikm_count', $data)) {
+                $updateData['target_ikm_count'] = $data['target_ikm_count'] ?? 0;
+            }
+            if (array_key_exists('target_sloi_count', $data)) {
+                $updateData['target_sloi_count'] = $data['target_sloi_count'] ?? 0;
+            }
+            if (array_key_exists('enable_ikm', $data)) {
+                $updateData['enable_ikm'] = $data['enable_ikm'];
+            }
+            if (array_key_exists('enable_sloi', $data)) {
+                $updateData['enable_sloi'] = $data['enable_sloi'];
+            }
+            if (array_key_exists('enable_sroi', $data)) {
+                $updateData['enable_sroi'] = $data['enable_sroi'];
+            }
+            if (array_key_exists('start_date', $data)) {
+                $updateData['start_date'] = $data['start_date'];
+            }
+            if (array_key_exists('end_date', $data)) {
+                $updateData['end_date'] = $data['end_date'];
+            }
+
+            // Handle template IDs
+            if (array_key_exists('ikm_template_id', $data) || array_key_exists('sloi_template_id', $data)) {
+                $templateIds = $this->resolveTemplateIds($data, $project);
+                if (array_key_exists('ikm_template_id', $data)) {
+                    $updateData['ikm_template_id'] = $templateIds['ikm'];
+                }
+                if (array_key_exists('sloi_template_id', $data)) {
+                    $updateData['sloi_template_id'] = $templateIds['sloi'];
+                }
+            }
+
+            // Update project if there are changes
+            if (!empty($updateData)) {
+                $project->update($updateData);
+            }
+
+            // Sync locations if provided
+            if (array_key_exists('district_ids', $data)) {
+                // Ensure unique district IDs
+                $uniqueDistrictIds = array_unique(array_filter($data['district_ids']));
+                
+                // Get current district IDs
+                $currentDistrictIds = DB::table('project_locations')
+                    ->where('project_id', $projectId)
+                    ->pluck('district_id')
+                    ->toArray();
+                
+                // Find what to delete and what to add
+                $toDelete = array_diff($currentDistrictIds, $uniqueDistrictIds);
+                $toAdd = array_diff($uniqueDistrictIds, $currentDistrictIds);
+                
+                // Delete locations that are not in the new list
+                if (!empty($toDelete)) {
+                    DB::table('project_locations')
+                        ->where('project_id', $projectId)
+                        ->whereIn('district_id', $toDelete)
+                        ->delete();
+                }
+                
+                // Insert new locations
+                if (!empty($toAdd)) {
+                    $locations = collect($toAdd)->map(fn ($districtId) => [
+                        'company_id' => $companyId,
+                        'project_id' => $projectId,
+                        'district_id' => $districtId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ])->toArray();
+                    
+                    DB::table('project_locations')->insert($locations);
+                }
+            }
+
+            // Sync descriptive questions if provided
+            if (array_key_exists('descriptive_questions', $data)) {
+                $this->syncDescriptiveQuestions($projectId, $data['descriptive_questions']);
+            }
+
+            return $project->fresh()->load('locations.district.city.province');
         });
     }
 
@@ -211,8 +321,8 @@ class ProjectService
             'status' => $project->status ?? 'draft',
             'target_ikm_count' => $project->target_ikm_count,
             'target_sloi_count' => $project->target_sloi_count,
-            'start_date' => $project->start_date?->format('Y-m-d') ?? '',
-            'end_date' => $project->end_date?->format('Y-m-d') ?? '',
+            'startDate' => $project->start_date?->format('Y-m-d') ?? '',
+            'endDate' => $project->end_date?->format('Y-m-d') ?? '',
             'enable_ikm' => $project->enable_ikm,
             'enable_sloi' => $project->enable_sloi,
             'enable_sroi' => $project->enable_sroi,
@@ -1167,21 +1277,31 @@ class ProjectService
         ]);
     }
 
-    protected function resolveTemplateIds(array $data): array
+    protected function resolveTemplateIds(array $data, ?Project $existingProject = null): array
     {
-        $ikmTemplateId = null;
-        $sloiTemplateId = null;
+        $ikmTemplateId = $existingProject?->ikm_template_id ?? null;
+        $sloiTemplateId = $existingProject?->sloi_template_id ?? null;
 
-        if (! empty($data['enable_ikm'])) {
-            $ikmTemplateId = InstrumentTemplate::where('type', 'IKM')
-                ->where('is_active', true)
-                ->value('id');
+        // Only update if enable_ikm is explicitly set
+        if (array_key_exists('enable_ikm', $data)) {
+            if (! empty($data['enable_ikm'])) {
+                $ikmTemplateId = InstrumentTemplate::where('type', 'IKM')
+                    ->where('is_active', true)
+                    ->value('id');
+            } else {
+                $ikmTemplateId = null;
+            }
         }
 
-        if (! empty($data['enable_sloi'])) {
-            $sloiTemplateId = InstrumentTemplate::where('type', 'SLOI')
-                ->where('is_active', true)
-                ->value('id');
+        // Only update if enable_sloi is explicitly set
+        if (array_key_exists('enable_sloi', $data)) {
+            if (! empty($data['enable_sloi'])) {
+                $sloiTemplateId = InstrumentTemplate::where('type', 'SLOI')
+                    ->where('is_active', true)
+                    ->value('id');
+            } else {
+                $sloiTemplateId = null;
+            }
         }
 
         return [
@@ -1196,7 +1316,10 @@ class ProjectService
             return;
         }
 
-        $locations = collect($districtIds)->map(fn ($districtId) => [
+        // Ensure unique district IDs
+        $uniqueDistrictIds = array_unique($districtIds);
+
+        $locations = collect($uniqueDistrictIds)->map(fn ($districtId) => [
             'company_id' => $companyId,
             'project_id' => $projectId,
             'district_id' => $districtId,

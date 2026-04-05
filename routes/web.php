@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects', [ProjectController::class, 'storeProject'])->name('projects.store');
     Route::post('/projects/{id}/assign-enumerators', [ProjectController::class, 'assignEnumerators'])->name('projects.assign-enumerators');
     Route::put('/projects/{id}', [ProjectController::class, 'updateProject'])->name('projects.update');
+    Route::patch('/projects/{id}', [ProjectController::class, 'patchProject'])->name('projects.patch');
     Route::patch('/projects/{id}/status', [ProjectController::class, 'updateStatus'])->name('projects.update-status');
     Route::patch('/submissions/bulk-status', [SubmissionController::class, 'bulkUpdateStatus'])->name('submissions.bulk-status');
     Route::get('/projects/{id}/export-respondents', [ExcelController::class, 'exportRespondents'])->name('projects.export-respondents');

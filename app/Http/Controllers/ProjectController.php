@@ -159,6 +159,59 @@ class ProjectController extends Controller
         }
     }
 
+    public function patchProject(Request $request, int $id)
+    {
+        try {
+            $user = Auth::user();
+            $companyId = $user->company_id;
+
+            // Validate only fields that are present
+            $validated = $request->validate([
+                'name' => ['sometimes', 'string', 'max:200'],
+                'description' => ['sometimes', 'nullable', 'string'],
+                'status' => ['sometimes', 'string', 'in:draft,active'],
+                'start_date' => ['sometimes', 'nullable', 'date'],
+                'end_date' => ['sometimes', 'nullable', 'date', 'after_or_equal:start_date'],
+                'target_ikm_count' => ['sometimes', 'nullable', 'integer', 'min:0'],
+                'target_sloi_count' => ['sometimes', 'nullable', 'integer', 'min:0'],
+                'enable_ikm' => ['sometimes', 'boolean'],
+                'enable_sloi' => ['sometimes', 'boolean'],
+                'enable_sroi' => ['sometimes', 'boolean'],
+                'ikm_template_id' => ['sometimes', 'nullable', 'integer', 'exists:instrument_templates,id'],
+                'sloi_template_id' => ['sometimes', 'nullable', 'integer', 'exists:instrument_templates,id'],
+                'district_ids' => ['sometimes', 'array'],
+                'district_ids.*' => ['integer', 'exists:districts,id'],
+                'descriptive_questions' => ['sometimes', 'nullable', 'array'],
+                'descriptive_questions.*.id' => ['nullable', 'integer'],
+                'descriptive_questions.*.title' => ['required', 'string', 'max:500'],
+            ], [
+                'name.max' => 'Nama proyek maksimal 200 karakter.',
+                'end_date.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai.',
+                'district_ids.*.exists' => 'Kecamatan yang dipilih tidak valid.',
+            ]);
+
+            // Clean up empty values
+            $cleanData = [];
+            foreach ($validated as $key => $value) {
+                if ($value === '' && in_array($key, ['description', 'start_date', 'end_date', 'ikm_template_id', 'sloi_template_id'])) {
+                    $cleanData[$key] = null;
+                } else {
+                    $cleanData[$key] = $value;
+                }
+            }
+
+            $this->projectService->patchProject(
+                $id,
+                $cleanData,
+                $companyId
+            );
+
+            return redirect()->back()->with('success', 'Proyek berhasil diperbarui.');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: '.$th->getMessage());
+        }
+    }
+
     public function getProjectForEdit(int $id)
     {
         $user = Auth::user();

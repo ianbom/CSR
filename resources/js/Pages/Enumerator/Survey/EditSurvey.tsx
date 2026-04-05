@@ -370,7 +370,7 @@ export default function EditSurvey({
             {currentStep === 2 && (
                 <QuestionForm
                     questions={questions}
-                    companyName={project.company?.name ?? ''}
+                    projectName={project.name}
                     answers={answers}
                     surveyType={submission.assessment_type}
                     onChange={setAnswers}

@@ -30,7 +30,7 @@ interface DescriptiveQuestion {
 
 interface QuestionFormProps {
     questions: Question[];
-    companyName?: string;
+    projectName?: string;
     answers: QuestionAnswers;
     surveyType: string; // 'IKM' | 'SLOI'
     onChange: (answers: QuestionAnswers) => void;
@@ -54,7 +54,7 @@ const SLOI_LABELS = { min: 'Sangat Tidak Setuju', max: 'Sangat Setuju' };
 
 export default function QuestionForm({
     questions,
-    companyName,
+    projectName,
     answers,
     surveyType,
     onChange,
@@ -102,11 +102,6 @@ export default function QuestionForm({
         return groups;
     }, [questions]);
 
-    const formatQuestionText = (text: string) => {
-        if (!companyName) return text;
-        return `${companyName} ${text}`;
-    };
-
     let questionNumber = 0;
 
     return (
@@ -129,18 +124,18 @@ export default function QuestionForm({
                 }
             />
 
-            {/* Company Name */}
-            {companyName && (
+            {/* Project Name */}
+            {projectName && (
                 <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                         <MaterialIcon name="apartment" className="text-xl" />
                     </div>
                     <div>
                         <p className="text-xs font-medium text-gray-500">
-                            Perusahaan
+                            Nama Project
                         </p>
                         <p className="text-base font-bold text-gray-900">
-                            {companyName}
+                            {projectName}
                         </p>
                     </div>
                 </div>
@@ -299,7 +294,7 @@ export default function QuestionForm({
                                                             questionNumber={
                                                                 kepNumber
                                                             }
-                                                            question={`Bagaimana Kepentingan ${formatQuestionText(question.question_text)}?`}
+                                                            question={`Bagaimana Kepentingan ${question.question_text}?`}
                                                             name={kepKey}
                                                             value={
                                                                 answers[kepKey]
@@ -345,7 +340,7 @@ export default function QuestionForm({
                                                             questionNumber={
                                                                 kinNumber
                                                             }
-                                                            question={`Bagaimana Kinerja ${formatQuestionText(question.question_text)}?`}
+                                                            question={`Bagaimana Kinerja ${question.question_text}?`}
                                                             name={kinKey}
                                                             value={
                                                                 answers[kinKey]
@@ -384,9 +379,7 @@ export default function QuestionForm({
                                         <LikertScaleQuestion
                                             key={question.id}
                                             questionNumber={questionNumber}
-                                            question={formatQuestionText(
-                                                question.question_text,
-                                            )}
+                                            question={question.question_text}
                                             name={sloiKey}
                                             value={answers[sloiKey]}
                                             onChange={(value) =>

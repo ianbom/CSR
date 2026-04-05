@@ -43,9 +43,21 @@ class SurveyService
             return collect([]);
         }
 
-        return TemplateQuestion::where('template_id', $templateId)
+        $questions = TemplateQuestion::where('template_id', $templateId)
             ->orderBy('order_no')
             ->get(['id', 'category', 'code', 'question_text', 'order_no']);
+
+        // Replace {project} placeholder with actual project name (bold)
+        $projectName = $project->name;
+        $questions->each(function ($question) use ($projectName) {
+            $question->question_text = str_replace(
+                '{project}',
+                "<strong>{$projectName}</strong>",
+                $question->question_text
+            );
+        });
+
+        return $questions;
     }
 
     /**

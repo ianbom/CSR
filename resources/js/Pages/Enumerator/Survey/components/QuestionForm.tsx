@@ -398,7 +398,7 @@ export default function QuestionForm({
                             key={dq.id}
                             className="rounded-xl border border-violet-100 bg-white shadow-sm"
                         >
-                            <div className="flex items-center gap-2 rounded-t-xl border-b border-primary bg-primary/10 px-4 py-2.5">
+                            <div className="flex items-center gap-2 rounded-t-xl border-b border-gray-400 bg-gray-400/10 px-4 py-2.5">
                                 <span className="inline-flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
                                     {idx + 1}
                                 </span>

@@ -1,7 +1,7 @@
-import { MobileHeader, Sidebar, TopBar } from '@/Components/Enumerator';
+import { MobileBottomNav, Sidebar, TopBar } from '@/Components/Enumerator';
 import { Toaster } from '@/Components/ui/toaster';
 import { router } from '@inertiajs/react';
-import { PropsWithChildren, useState } from 'react';
+import { PropsWithChildren } from 'react';
 
 interface NavItem {
     label: string;
@@ -18,8 +18,6 @@ export default function EnumeratorLayout({
     children,
     activeNav = 'dashboard',
 }: EnumeratorLayoutProps) {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
     const navItems: NavItem[] = [
         {
             label: 'Dashboard',
@@ -45,29 +43,18 @@ export default function EnumeratorLayout({
         router.post(route('logout'));
     };
 
-    const closeMobileMenu = () => setMobileMenuOpen(false);
-    const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
-
     return (
-        <div className="flex h-screen overflow-hidden bg-gray-50">
-            {/* Sidebar (Desktop & Mobile) */}
+        <div className="flex h-screen overflow-hidden bg-gray-50 pb-16 md:pb-0">
+            {/* Desktop Sidebar */}
             <Sidebar
                 navItems={navItems}
                 userName="Enumerator"
                 isOnline={true}
                 onLogout={handleLogout}
-                isMobileOpen={mobileMenuOpen}
-                onMobileClose={closeMobileMenu}
             />
 
             {/* Main Content Wrapper */}
             <main className="relative flex h-full flex-1 flex-col overflow-hidden">
-                {/* Mobile Header */}
-                <MobileHeader
-                    onMenuClick={toggleMobileMenu}
-                    isMenuOpen={mobileMenuOpen}
-                />
-
                 {/* Desktop Top Bar */}
                 <TopBar profileImage="https://lh3.googleusercontent.com/aida-public/AB6AXuA3Akw0BRi5rbwckYP1b0uFE48O5Kzcz4Bqnw6dYEHhksrtKrnxqDUvLhiCjVIY7Z1jIJ_S4OnL6Rg5qNiHaJlgDgATV9AHam64rZXvmdsdbdBXFf2qlLGgqvQ6ssrei7iAZkbkFQOLO3i9Dkiw5R46Nag0bicWMRkdcNMTvuspmiTCKQKXlIqP04fy5p0PwdHkN0C1aMKZQFa93c85fQ7SeWSWW9iK2hHfLho4cD_STDyGBJdAV1DTqAOuw2sULydiuMSB3-COyAU" />
 
@@ -78,6 +65,8 @@ export default function EnumeratorLayout({
                     </div>
                 </div>
             </main>
+            {/* Mobile Bottom Navigation */}
+            <MobileBottomNav navItems={navItems} />
             <Toaster />
         </div>
     );

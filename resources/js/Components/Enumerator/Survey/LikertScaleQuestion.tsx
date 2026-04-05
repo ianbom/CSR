@@ -37,7 +37,7 @@ export default function LikertScaleQuestion({
                 <div className="flex gap-3">
                     <span className={numberBadgeClasses}>{questionNumber}</span>
                     <h3
-                        className="pt-0.5 text-base font-bold leading-snug text-gray-900"
+                        className="pt-0.5 text-base leading-snug text-gray-800"
                         dangerouslySetInnerHTML={{ __html: question }}
                     />
                 </div>

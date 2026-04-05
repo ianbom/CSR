@@ -17,6 +17,7 @@ export { default as StepIndicator } from './UI/StepIndicator';
 export { default as TextInputField } from './UI/TextInputField';
 
 // Layout Components
+export { default as MobileBottomNav } from './MobileBottomNav';
 export { default as MobileHeader } from './MobileHeader';
 export { default as Modal } from './Modal';
 export { default as PageHeader } from './PageHeader';

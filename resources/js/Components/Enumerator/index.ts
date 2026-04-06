@@ -33,7 +33,6 @@ export { default as ProjectVerificationModal } from './ProjectVerificationModal'
 export {
     DemographicItem,
     LikertScaleQuestion,
-    RespondentProfileCard,
     ReviewFooter,
     ReviewItem,
     ReviewPageHeader,

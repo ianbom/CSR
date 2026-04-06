@@ -5,24 +5,24 @@
  * - Shows the existing photo from the server; user can optionally re-take it.
  * - Single "Simpan Perubahan" button (no submit-and-continue).
  * - Calls `onSubmit(null)` when keeping existing photo,
- *   or `onSubmit(file)` when a new photo was taken.
+ *   or `onSubmit(file)` when a new photo was taken / picked from gallery.
  */
 import {
     DemographicItem,
     MaterialIcon,
-    RespondentProfileCard,
     ReviewFooter,
     ReviewItem,
     ReviewPageHeader,
     ReviewProgressBar,
     ReviewSection,
-    VerifiedBadge,
     WarningBox,
 } from '@/Components/Enumerator';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import { QuestionAnswers } from './QuestionForm';
+import PhotoCaptureSection from './PhotoCaptureSection';
 import { RespondentData } from './RespondentForm';
 import { GpsLocation } from './ReviewForm';
+import { usePhotoCapture } from './usePhotoCapture';
 
 interface Question {
     id: number;
@@ -59,107 +59,20 @@ export default function EditReviewForm({
     onSubmit,
     isSubmitting,
 }: EditReviewFormProps) {
-    // New photo taken in this session (replaces existing on submit)
-    const [newPhoto, setNewPhoto] = useState<File | null>(null);
-    const [newPhotoPreview, setNewPhotoPreview] = useState<string | null>(null);
-    const [photoError, setPhotoError] = useState<string | null>(null);
-
-    const [isCameraOpen, setIsCameraOpen] = useState(false);
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const [stream, setStream] = useState<MediaStream | null>(null);
-
-    // ── Camera ──
-    const startCamera = async () => {
-        try {
-            const mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: 'environment',
-                    aspectRatio: { ideal: 4 / 3 },
-                },
-                audio: false,
-            });
-            setStream(mediaStream);
-            setIsCameraOpen(true);
-        } catch {
-            alert(
-                'Tidak dapat mengakses kamera. Pastikan izin kamera telah diberikan.',
-            );
-        }
-    };
-
-    const stopCamera = () => {
-        stream?.getTracks().forEach((t) => t.stop());
-        setStream(null);
-        setIsCameraOpen(false);
-    };
-
-    const capturePhoto = () => {
-        if (!videoRef.current) return;
-        const video = videoRef.current;
-        const canvas = document.createElement('canvas');
-        const vw = video.videoWidth;
-        const vh = video.videoHeight;
-        const isPortrait = vh > vw;
-        const ratio = isPortrait ? 3 / 4 : 4 / 3;
-        let cw = vw;
-        let ch = vh;
-        if (vw / vh > ratio) {
-            cw = vh * ratio;
-        } else {
-            ch = vw / ratio;
-        }
-        const sx = (vw - cw) / 2;
-        const sy = (vh - ch) / 2;
-        canvas.width = cw;
-        canvas.height = ch;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-            ctx.drawImage(video, sx, sy, cw, ch, 0, 0, cw, ch);
-            canvas.toBlob(
-                (blob) => {
-                    if (blob) {
-                        const file = new File(
-                            [blob],
-                            `photo_edit_${Date.now()}.jpg`,
-                            { type: 'image/jpeg' },
-                        );
-                        setNewPhoto(file);
-                        setNewPhotoPreview(URL.createObjectURL(file));
-                        setPhotoError(null);
-                        stopCamera();
-                    }
-                },
-                'image/jpeg',
-                0.8,
-            );
-        }
-    };
-
-    useEffect(() => {
-        if (isCameraOpen && stream && videoRef.current) {
-            videoRef.current.srcObject = stream;
-            videoRef.current.play().catch(console.error);
-        }
-    }, [isCameraOpen, stream]);
-
-    useEffect(() => {
-        return () => {
-            stream?.getTracks().forEach((t) => t.stop());
-        };
-    }, [stream]);
+    const photoHook = usePhotoCapture('photo_edit');
 
     // ── Submit ──
     const handleSubmitClick = () => {
         // Require either a new photo or an existing one
-        if (!newPhoto && !existingPhotoUrl) {
-            setPhotoError('Foto bukti wajib ada.');
+        if (!photoHook.photo && !existingPhotoUrl) {
+            alert('Foto bukti wajib ada.');
             return;
         }
         if (!gpsLocation.latitude || !gpsLocation.longitude) {
             alert('Koordinat GPS belum tersedia.');
             return;
         }
-        onSubmit(newPhoto); // null = keep existing
+        onSubmit(photoHook.photo); // null = keep existing
     };
 
     // ── Helpers ──
@@ -189,9 +102,6 @@ export default function EditReviewForm({
               ? 'Wanita'
               : '-';
 
-    // Decide which photo to display in preview
-    const displayPhotoSrc = newPhotoPreview ?? existingPhotoUrl;
-
     return (
         <>
             <div className="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-4 py-6 md:px-8 lg:px-0">
@@ -202,21 +112,7 @@ export default function EditReviewForm({
                     subtitle="Periksa kembali semua data sebelum menyimpan"
                 />
 
-                <RespondentProfileCard
-                    name={respondentData.name || 'Nama Responden'}
-                    id="-"
-                    location={respondentData.address || '-'}
-                    interviewDate={new Date().toLocaleString('id-ID', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                    })}
-                    imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuBwwE0BERxEh3AgbHPydoIU4mxdCB6AQRWX26RjdPXTI3LxWNcq8MTe_BGYEzUmCqmxUbyrw4TS2kHXudo3Of-RcyQoWSCpHl2W4_5tDooAWZNejW4m40E0BNW2_-Hdeh3CwSCUeQpc8SEBzCQIGtzM0qUP9JZ79IbqwsJ_AWVgy9TI9iYowKPOL5-H-xm-METe4xkA2QQbvF31SH6e7Ein_nFBr629oCG3w-Z24j1z-wgAaCQps8BuKNR_WUKx5fwmZ51HAK5IJfQ"
-                    onEdit={onEditRespondent}
-                />
-
-                {/* Data Responden */}
+                {/* Data Responden Lengkap */}
                 <ReviewSection
                     title="Data Responden"
                     icon="person"
@@ -252,25 +148,16 @@ export default function EditReviewForm({
                         onEdit={onEditRespondent}
                     />
                     <DemographicItem
-                        label="Pendidikan"
+                        label="Pendidikan Terakhir"
                         value={respondentData.education_level || '-'}
                         onEdit={onEditRespondent}
                     />
-                </ReviewSection>
-
-                {/* Pekerjaan & Ekonomi */}
-                <ReviewSection title="Pekerjaan & Ekonomi" icon="payments">
-                    <ReviewItem
+                    <DemographicItem
                         label="Pekerjaan Utama"
                         value={respondentData.main_occupation || '-'}
-                        badge={
-                            respondentData.main_occupation ? (
-                                <VerifiedBadge />
-                            ) : undefined
-                        }
                         onEdit={onEditRespondent}
                     />
-                    <ReviewItem
+                    <DemographicItem
                         label="Pendapatan per Bulan"
                         value={
                             respondentData.monthly_income
@@ -279,8 +166,8 @@ export default function EditReviewForm({
                         }
                         onEdit={onEditRespondent}
                     />
-                    <ReviewItem
-                        label="Alamat"
+                    <DemographicItem
+                        label="Alamat Lengkap"
                         value={respondentData.address || '-'}
                         onEdit={onEditRespondent}
                     />
@@ -366,109 +253,10 @@ export default function EditReviewForm({
                 </div>
 
                 {/* Photo Section */}
-                <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <div className="flex items-center gap-2">
-                        <MaterialIcon
-                            name="photo_camera"
-                            className="text-primary"
-                        />
-                        <h3 className="text-sm font-semibold text-gray-800">
-                            Foto Bukti
-                        </h3>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                        Foto saat ini ditampilkan di bawah. Anda dapat mengambil
-                        foto baru untuk mengganti, atau biarkan tidak berubah.
-                    </p>
-
-                    {/* Current / new photo preview */}
-                    {displayPhotoSrc && !isCameraOpen && (
-                        <div className="flex flex-col gap-3">
-                            <div className="overflow-hidden rounded-lg border border-gray-200">
-                                <img
-                                    src={displayPhotoSrc}
-                                    alt="Foto bukti"
-                                    className="aspect-[3/4] w-full object-cover md:aspect-[4/3]"
-                                />
-                            </div>
-                            {newPhoto && (
-                                <p className="text-xs font-medium text-emerald-600">
-                                    ✓ Foto baru siap digunakan
-                                </p>
-                            )}
-                            <button
-                                type="button"
-                                onClick={startCamera}
-                                className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-                            >
-                                <MaterialIcon
-                                    name="refresh"
-                                    className="text-sm"
-                                />
-                                Ganti Foto
-                            </button>
-                        </div>
-                    )}
-
-                    {/* No photo at all — show open camera button */}
-                    {!displayPhotoSrc && !isCameraOpen && (
-                        <button
-                            type="button"
-                            onClick={startCamera}
-                            className={`flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-6 text-sm transition-colors ${
-                                photoError
-                                    ? 'border-red-300 bg-red-50 text-red-600'
-                                    : 'border-gray-300 bg-gray-50 text-gray-500 hover:border-primary hover:bg-primary/5'
-                            }`}
-                        >
-                            <MaterialIcon
-                                name="photo_camera"
-                                className="text-xl"
-                            />
-                            <span>Buka Kamera untuk Mengambil Foto</span>
-                        </button>
-                    )}
-
-                    {/* Live camera */}
-                    {isCameraOpen && (
-                        <div className="flex flex-col gap-3 overflow-hidden rounded-lg border border-gray-200 bg-black">
-                            <video
-                                ref={videoRef}
-                                autoPlay
-                                playsInline
-                                className="aspect-[3/4] w-full object-cover md:aspect-[4/3]"
-                            />
-                            <div className="flex items-center justify-between p-3">
-                                <button
-                                    type="button"
-                                    onClick={stopCamera}
-                                    className="flex items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
-                                >
-                                    <MaterialIcon
-                                        name="close"
-                                        className="text-sm"
-                                    />
-                                    Batal
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={capturePhoto}
-                                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
-                                >
-                                    <MaterialIcon
-                                        name="camera"
-                                        className="text-sm"
-                                    />
-                                    Ambil Foto
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {photoError && (
-                        <p className="text-xs text-red-500">{photoError}</p>
-                    )}
-                </div>
+                <PhotoCaptureSection
+                    hook={photoHook}
+                    existingPhotoUrl={existingPhotoUrl}
+                />
 
                 <WarningBox
                     title="Menyimpan Perubahan"

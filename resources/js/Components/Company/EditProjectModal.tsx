@@ -232,8 +232,6 @@ export default function EditProjectModal({
 
                 {/* Footer */}
                 <div className="border-t border-slate-200 bg-slate-50">
-                
-
                     {/* Action Buttons */}
                     <div className="flex items-center justify-end gap-3 px-8 py-5">
                         <button

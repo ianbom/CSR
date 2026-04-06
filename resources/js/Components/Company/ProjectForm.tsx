@@ -169,7 +169,7 @@ export default function ProjectForm({
     // Update district_ids when selectedLocations changes
     useEffect(() => {
         const uniqueDistrictIds = Array.from(
-            new Set(selectedLocations.map((loc) => loc.district.id))
+            new Set(selectedLocations.map((loc) => loc.district.id)),
         );
         setData('district_ids', uniqueDistrictIds);
     }, [selectedLocations]);

@@ -34,7 +34,7 @@ export default function EnumeratorLayout({
         {
             label: 'Profil',
             icon: 'person',
-            href: '#',
+            href: route('profile.edit'),
             active: activeNav === 'profil',
         },
     ];

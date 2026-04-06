@@ -24,8 +24,8 @@ class ProfileController extends Controller
             'status' => session('status'),
         ];
 
-        // Load company data if user is a company role
-        if ($request->user()->role === 'company' && $request->user()->company_id) {
+        // Load company data if user is a company or enumerator role
+        if (in_array($request->user()->role, ['company', 'enumerator']) && $request->user()->company_id) {
             $data['company'] = $request->user()->company;
         }
 

@@ -1,5 +1,5 @@
 /**
- * PhotoCaptureSection — reusable photo UI used in ReviewForm & EditReviewForm.
+ * PhotoCaptureSection — reusable photo UI used in ReviewForm (both create and edit modes).
  *
  * Features:
  *  - Open camera (rear / front) with a flip button

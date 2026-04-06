@@ -1,3 +1,10 @@
+/**
+ * ReviewForm — Unified component for both create and edit modes.
+ *
+ * Mode differences:
+ * - Create mode: Requires new photo, shows 2 buttons (Submit & Submit+Continue)
+ * - Edit mode: Shows existing photo (optional re-take), shows 1 button (Save Changes)
+ */
 import {
     DemographicItem,
     MaterialIcon,
@@ -29,23 +36,30 @@ interface Question {
 }
 
 interface ReviewFormProps {
+    mode?: 'create' | 'edit';
     respondentData: RespondentData;
     answers: QuestionAnswers;
     questions: Question[];
     gpsLocation: GpsLocation;
+    /** URL of existing photo (edit mode only) */
+    existingPhotoUrl?: string | null;
     onBack: () => void;
     onEditRespondent: () => void;
     onEditQuestions: () => void;
-    onSubmit: (photo: File) => void;
-    onSubmitAndContinue: (photo: File) => void;
+    /** Called with new File in create mode, or File|null in edit mode */
+    onSubmit: (photo: File | null) => void;
+    /** Only used in create mode */
+    onSubmitAndContinue?: (photo: File) => void;
     isSubmitting: boolean;
 }
 
 export default function ReviewForm({
+    mode = 'create',
     respondentData,
     answers,
     questions,
     gpsLocation,
+    existingPhotoUrl,
     onBack,
     onEditRespondent,
     onEditQuestions,
@@ -53,16 +67,16 @@ export default function ReviewForm({
     onSubmitAndContinue,
     isSubmitting,
 }: ReviewFormProps) {
-    const photoHook = usePhotoCapture('photo');
+    const photoHook = usePhotoCapture(mode === 'edit' ? 'photo_edit' : 'photo');
 
     const validateBeforeSubmit = (): boolean => {
-        if (!photoHook.photo) {
-            photoHook.clearError();
-            // Trigger error via the hook's internal state — we do this by reading
-            // the fileInputRef; simplest way is to call the setter on the hook.
-            // Since hook doesn't expose setError directly, we use DOM approach:
-            // Just show a manual alert.
+        // In edit mode, photo is optional (can keep existing)
+        if (mode === 'create' && !photoHook.photo) {
             alert('Foto bukti wajib diunggah.');
+            return false;
+        }
+        if (mode === 'edit' && !photoHook.photo && !existingPhotoUrl) {
+            alert('Foto bukti wajib ada.');
             return false;
         }
         if (!gpsLocation.latitude || !gpsLocation.longitude) {
@@ -76,12 +90,18 @@ export default function ReviewForm({
 
     const handleSubmitClick = () => {
         if (!validateBeforeSubmit()) return;
-        onSubmit(photoHook.photo!);
+        if (mode === 'edit') {
+            // In edit mode, pass null to keep existing photo, or File to replace
+            onSubmit(photoHook.photo);
+        } else {
+            // In create mode, photo is always required
+            onSubmit(photoHook.photo!);
+        }
     };
 
     const handleSubmitAndContinueClick = () => {
         if (!validateBeforeSubmit()) return;
-        onSubmitAndContinue(photoHook.photo!);
+        onSubmitAndContinue?.(photoHook.photo!);
     };
 
     const questionMap = useMemo(() => {
@@ -116,8 +136,12 @@ export default function ReviewForm({
                 <ReviewProgressBar percentage={100} />
 
                 <ReviewPageHeader
-                    title="Review & Submit"
-                    subtitle="Periksa kembali semua data sebelum mengirim"
+                    title={mode === 'edit' ? 'Review Perubahan' : 'Review & Submit'}
+                    subtitle={
+                        mode === 'edit'
+                            ? 'Periksa kembali semua data sebelum menyimpan'
+                            : 'Periksa kembali semua data sebelum mengirim'
+                    }
                 />
 
                 {/* Data Responden Lengkap */}
@@ -240,7 +264,7 @@ export default function ReviewForm({
                         </h3>
                     </div>
                     {gpsLocation.error ? (
-                        <p className="text-sm text-red-500">
+                        <p className={`text-sm ${mode === 'edit' ? 'text-amber-600' : 'text-red-500'}`}>
                             ⚠ {gpsLocation.error}
                         </p>
                     ) : gpsLocation.latitude && gpsLocation.longitude ? (
@@ -261,20 +285,29 @@ export default function ReviewForm({
                     )}
                 </div>
 
-                {/* Photo Upload */}
-                <PhotoCaptureSection hook={photoHook} required />
+                {/* Photo Section */}
+                <PhotoCaptureSection
+                    hook={photoHook}
+                    existingPhotoUrl={mode === 'edit' ? existingPhotoUrl : undefined}
+                    required={mode === 'create'}
+                />
 
                 <WarningBox
-                    title="Pengiriman Bersifat Final"
-                    message="Pastikan semua data di atas sudah benar. Setelah dikirim, data survei ini akan dikunci dan tidak dapat diubah oleh enumerator."
+                    title={mode === 'edit' ? 'Menyimpan Perubahan' : 'Pengiriman Bersifat Final'}
+                    message={
+                        mode === 'edit'
+                            ? 'Status submission akan direset ke \'Submitted\' setelah disimpan dan akan menunggu persetujuan ulang.'
+                            : 'Pastikan semua data di atas sudah benar. Setelah dikirim, data survei ini akan dikunci dan tidak dapat diubah oleh enumerator.'
+                    }
                 />
             </div>
 
             <ReviewFooter
                 onBack={onBack}
                 onSubmit={handleSubmitClick}
-                onSubmitAndContinue={handleSubmitAndContinueClick}
+                onSubmitAndContinue={mode === 'create' ? handleSubmitAndContinueClick : undefined}
                 isSubmitting={isSubmitting}
+                submitLabel={mode === 'edit' ? 'Simpan Perubahan' : undefined}
             />
         </>
     );

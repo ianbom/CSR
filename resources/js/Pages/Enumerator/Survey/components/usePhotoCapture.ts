@@ -8,8 +8,8 @@ export interface UsePhotoCaptureReturn {
     photoError: string | null;
     isCameraOpen: boolean;
     facingMode: FacingMode;
-    videoRef: React.RefObject<HTMLVideoElement | null>;
-    fileInputRef: React.RefObject<HTMLInputElement | null>;
+    videoRef: React.RefObject<HTMLVideoElement>;
+    fileInputRef: React.RefObject<HTMLInputElement>;
     startCamera: () => Promise<void>;
     stopCamera: () => void;
     capturePhoto: () => void;

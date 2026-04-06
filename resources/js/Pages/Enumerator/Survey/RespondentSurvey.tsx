@@ -232,11 +232,13 @@ export default function RespondentSurvey({
         );
     };
 
-    const handleFinalSubmit = (photo: File) => {
+    const handleFinalSubmit = (photo: File | null) => {
+        if (!photo) return; // In create mode, photo is always required
         submitSurvey(photo, 'final');
     };
 
-    const handleSubmitAndContinue = (photo: File) => {
+    const handleSubmitAndContinue = (photo: File | null) => {
+        if (!photo) return; // In create mode, photo is always required
         submitSurvey(photo, 'continue');
     };
 

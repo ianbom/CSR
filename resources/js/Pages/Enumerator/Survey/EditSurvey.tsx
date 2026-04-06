@@ -2,13 +2,12 @@ import { MaterialIcon } from '@/Components/Enumerator';
 import EnumeratorLayout from '@/Layouts/EnumeratorLayout';
 import { Head, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import EditReviewForm from './components/EditReviewForm';
 import QuestionForm, {
     DescriptiveAnswers,
     QuestionAnswers,
 } from './components/QuestionForm';
 import RespondentForm, { RespondentData } from './components/RespondentForm';
-import { GpsLocation } from './components/ReviewForm';
+import ReviewForm, { GpsLocation } from './components/ReviewForm';
 
 // ─────────────────────────────────────────────────────────
 // Types
@@ -114,8 +113,8 @@ export default function EditSurvey({
 
     // ── GPS ──
     const [gpsLocation, setGpsLocation] = useState<GpsLocation>({
-        latitude: submission.latitude,
-        longitude: submission.longitude,
+        latitude: submission.latitude != null ? Number(submission.latitude) : null,
+        longitude: submission.longitude != null ? Number(submission.longitude) : null,
         error: null,
     });
 
@@ -385,7 +384,8 @@ export default function EditSurvey({
 
             {/* Step 3: Review & Save */}
             {currentStep === 3 && (
-                <EditReviewForm
+                <ReviewForm
+                    mode="edit"
                     respondentData={respondentData}
                     answers={answers}
                     questions={questions}

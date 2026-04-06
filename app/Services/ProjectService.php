@@ -428,6 +428,12 @@ class ProjectService
             $ikmStats = $this->computeIkmStats($project, $submissions);
         }
 
+        // Compute SLOI reliability analysis only for SLOI tab
+        $sloiReliability = null;
+        if ($assessmentType === 'SLOI') {
+            $sloiReliability = $this->computeSloiReliabilityAnalysis($submissionIds, $templateId);
+        }
+
         return [
             'project' => $this->formatProjectDetail($project),
             'stats' => $this->computeStats($project, $submissions, $assessmentType),
@@ -440,6 +446,7 @@ class ProjectService
             'trendData' => $this->computeTrendData($projectId, $assessmentType, $detailType),
             'respondents' => $this->computeRespondents($projectId, $assessmentType, $templateId, $respondentParams),
             'enumeratorList' => $this->computeEnumeratorList($project),
+            'sloiReliability' => $sloiReliability,
         ];
     }
 
@@ -831,6 +838,206 @@ class ProjectService
 
         // If we don't have any questions, return empty array
         return [];
+    }
+
+    /**
+     * Compute SLOI reliability & validity analysis:
+     * - VAR: variance for each question item
+     * - VAR TOTAL: variance of total scores across respondents
+     * - ALPHA: Cronbach's Alpha
+     * - PEARSON: Pearson product-moment correlation of each item with total
+     * - VALIDITAS: validity check (Pearson r > 0.254)
+     */
+    protected function computeSloiReliabilityAnalysis($submissionIds, ?int $templateId): ?array
+    {
+        if ($submissionIds->isEmpty() || !$templateId) {
+            return null;
+        }
+
+        // Get all SLOI questions for this template
+        $questions = TemplateQuestion::where('template_id', $templateId)
+            ->orderBy('order_no')
+            ->get(['id', 'code', 'question_text', 'order_no']);
+
+        if ($questions->isEmpty()) {
+            return null;
+        }
+
+        $questionIds = $questions->pluck('id')->toArray();
+        $questionIdToCode = $questions->pluck('code', 'id')->toArray();
+
+        // Fetch all raw answers: submission_id, question_id, value
+        $rawAnswers = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+            ->whereIn('question_id', $questionIds)
+            ->whereNull('deleted_at')
+            ->get(['submission_id', 'question_id', 'value']);
+
+        if ($rawAnswers->isEmpty()) {
+            return null;
+        }
+
+        // Build respondent × question matrix
+        // matrix[submissionId][questionId] = value
+        $matrix = [];
+        foreach ($rawAnswers as $answer) {
+            $matrix[$answer->submission_id][$answer->question_id] = (float) $answer->value;
+        }
+
+        // Filter only complete respondents (those who answered ALL questions)
+        $k = count($questionIds); // number of items
+        $completeMatrix = [];
+        foreach ($matrix as $subId => $answers) {
+            if (count($answers) >= $k) {
+                $completeMatrix[$subId] = $answers;
+            }
+        }
+
+        $n = count($completeMatrix); // number of valid respondents
+        if ($n < 2 || $k < 2) {
+            return [
+                'n' => $n,
+                'k' => $k,
+                'items' => [],
+                'varTotal' => 0,
+                'alpha' => 0,
+                'alphaStatus' => 'Tidak Reliabel',
+                'insufficientData' => true,
+            ];
+        }
+
+        // ──── 1. Compute item scores and total scores ────
+        // itemScores[questionId] = [val1, val2, ...]  (one per respondent)
+        $itemScores = [];
+        foreach ($questionIds as $qId) {
+            $itemScores[$qId] = [];
+        }
+        $totalScores = []; // totalScores[submissionId] = sum of all item values
+
+        foreach ($completeMatrix as $subId => $answers) {
+            $total = 0;
+            foreach ($questionIds as $qId) {
+                $val = $answers[$qId] ?? 0;
+                $itemScores[$qId][] = $val;
+                $total += $val;
+            }
+            $totalScores[$subId] = $total;
+        }
+
+        $totalScoresArray = array_values($totalScores);
+
+        // ──── 2. VAR — Item Variance (population variance) ────
+        $itemVariances = [];
+        foreach ($questionIds as $qId) {
+            $itemVariances[$qId] = $this->computeVariance($itemScores[$qId]);
+        }
+
+        // ──── 3. VAR TOTAL — Total Score Variance ────
+        $varTotal = $this->computeVariance($totalScoresArray);
+
+        // ──── 4. Sum of item variances ────
+        $sumItemVariances = array_sum($itemVariances);
+
+        // ──── 5. ALPHA — Cronbach's Alpha ────
+        // α = (k / (k - 1)) * (1 - Σσ²ᵢ / σ²total)
+        $alpha = 0;
+        if ($varTotal > 0) {
+            $alpha = ($k / ($k - 1)) * (1 - ($sumItemVariances / $varTotal));
+        }
+        $alpha = round($alpha, 4);
+
+        $alphaStatus = $alpha >= 0.60 ? 'Reliabel' : 'Tidak Reliabel';
+
+        // ──── 6. PEARSON — Correlation of each item with total ────
+        // ──── 7. VALIDITAS — Validity check ────
+        $items = [];
+        foreach ($questions as $question) {
+            $qId = $question->id;
+            $scores = $itemScores[$qId];
+
+            // Compute Pearson correlation between item scores and total scores
+            $pearson = $this->computePearsonCorrelation($scores, $totalScoresArray);
+            $pearson = round($pearson, 4);
+
+            $isValid = abs($pearson) > 0.254;
+
+            $mean = count($scores) > 0 ? round(array_sum($scores) / count($scores), 4) : 0;
+
+            $items[] = [
+                'code' => $questionIdToCode[$qId] ?? 'Q' . $qId,
+                'question' => $question->question_text,
+                'mean' => $mean,
+                'variance' => round($itemVariances[$qId], 4),
+                'pearson' => $pearson,
+                'isValid' => $isValid,
+                'validityLabel' => $isValid ? 'VALID' : 'TIDAK VALID',
+            ];
+        }
+
+        return [
+            'n' => $n,
+            'k' => $k,
+            'items' => $items,
+            'sumItemVariances' => round($sumItemVariances, 4),
+            'varTotal' => round($varTotal, 4),
+            'alpha' => $alpha,
+            'alphaStatus' => $alphaStatus,
+            'insufficientData' => false,
+        ];
+    }
+
+    /**
+     * Compute population variance for an array of numbers.
+     */
+    private function computeVariance(array $values): float
+    {
+        $n = count($values);
+        if ($n < 2) {
+            return 0.0;
+        }
+
+        $mean = array_sum($values) / $n;
+        $sumSquaredDiffs = 0;
+        foreach ($values as $val) {
+            $sumSquaredDiffs += ($val - $mean) ** 2;
+        }
+
+        // Population variance (σ²) — consistent with Cronbach's Alpha formula
+        return $sumSquaredDiffs / $n;
+    }
+
+    /**
+     * Compute Pearson product-moment correlation between two arrays.
+     */
+    private function computePearsonCorrelation(array $x, array $y): float
+    {
+        $n = count($x);
+        if ($n < 2 || $n !== count($y)) {
+            return 0.0;
+        }
+
+        $sumX = array_sum($x);
+        $sumY = array_sum($y);
+        $sumXY = 0;
+        $sumX2 = 0;
+        $sumY2 = 0;
+
+        for ($i = 0; $i < $n; $i++) {
+            $sumXY += $x[$i] * $y[$i];
+            $sumX2 += $x[$i] ** 2;
+            $sumY2 += $y[$i] ** 2;
+        }
+
+        $numerator = ($n * $sumXY) - ($sumX * $sumY);
+        $denominator = sqrt(
+            (($n * $sumX2) - ($sumX ** 2)) *
+            (($n * $sumY2) - ($sumY ** 2))
+        );
+
+        if ($denominator == 0) {
+            return 0.0;
+        }
+
+        return $numerator / $denominator;
     }
 
     /**

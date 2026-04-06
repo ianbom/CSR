@@ -317,6 +317,7 @@ export default function RespondentSurvey({
                 <QuestionForm
                     questions={questions}
                     projectName={project.name}
+                    companyName={project.company?.name}
                     answers={answers}
                     surveyType={surveyType}
                     onChange={setAnswers}

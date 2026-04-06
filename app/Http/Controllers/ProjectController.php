@@ -98,6 +98,7 @@ class ProjectController extends Controller
             'trendData' => $data['trendData'],
             'respondents' => $data['respondents'],
             'enumeratorList' => $data['enumeratorList'],
+            'sloiReliability' => $data['sloiReliability'] ?? null,
             'respondentFilters' => [
                 'enumerator' => $request->input('enumerator', ''),
                 'resp_status' => $request->input('resp_status', ''),

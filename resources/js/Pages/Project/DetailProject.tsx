@@ -201,6 +201,27 @@ interface EnumeratorListItem {
     }[];
 }
 
+interface SloiReliabilityItem {
+    code: string;
+    question: string;
+    mean: number;
+    variance: number;
+    pearson: number;
+    isValid: boolean;
+    validityLabel: string;
+}
+
+interface SloiReliabilityData {
+    n: number;
+    k: number;
+    items: SloiReliabilityItem[];
+    sumItemVariances: number;
+    varTotal: number;
+    alpha: number;
+    alphaStatus: string;
+    insufficientData: boolean;
+}
+
 interface Props {
     project: ProjectData;
     detailType: string;
@@ -214,6 +235,7 @@ interface Props {
     trendData: TrendDataItem[];
     respondents: RespondentsData;
     enumeratorList: EnumeratorListItem[];
+    sloiReliability: SloiReliabilityData | null;
     respondentFilters: RespondentFilters;
     canEdit?: boolean;
 }
@@ -263,6 +285,7 @@ export default function DetailProject({
     trendData,
     respondents,
     enumeratorList,
+    sloiReliability,
     respondentFilters,
     canEdit = true,
 }: Props) {
@@ -317,6 +340,7 @@ export default function DetailProject({
                         questionScores={questionScores}
                         auditLog={auditLog}
                         trendData={trendData}
+                        sloiReliability={sloiReliability}
                     />
                 );
             case 'ikm_respondent':

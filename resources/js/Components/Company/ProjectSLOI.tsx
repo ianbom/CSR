@@ -8,6 +8,7 @@ import {
     SLOIQuestionScores,
     SLOIScoreGauge,
 } from './SLOI';
+import SLOICalculationScores from './SLOI/SLOICalculationScores';
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -66,12 +67,34 @@ interface TrendDataItem {
     height: number;
 }
 
+interface SloiReliabilityItem {
+    code: string;
+    question: string;
+    mean: number;
+    variance: number;
+    pearson: number;
+    isValid: boolean;
+    validityLabel: string;
+}
+
+interface SloiReliabilityData {
+    n: number;
+    k: number;
+    items: SloiReliabilityItem[];
+    sumItemVariances: number;
+    varTotal: number;
+    alpha: number;
+    alphaStatus: string;
+    insufficientData: boolean;
+}
+
 interface ProjectSLOIProps {
     stats: StatsData;
     demographics: DemographicsData;
     questionScores: QuestionScoreItem[];
     auditLog: AuditLogItem[];
     trendData: TrendDataItem[];
+    sloiReliability?: SloiReliabilityData | null;
 }
 
 export default function ProjectSLOI({
@@ -79,6 +102,7 @@ export default function ProjectSLOI({
     demographics,
     questionScores,
     auditLog,
+    sloiReliability,
 }: ProjectSLOIProps): ReactNode {
     // Transform gender data for GenderPieChart
     const genderData = (() => {
@@ -139,6 +163,8 @@ export default function ProjectSLOI({
                     score: q.score,
                 }))}
             />
+
+            <SLOICalculationScores data={sloiReliability ?? null} />
 
             {/* Audit Log */}
             {/* <SLOIAuditLog

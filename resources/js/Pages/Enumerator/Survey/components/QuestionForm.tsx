@@ -31,6 +31,7 @@ interface DescriptiveQuestion {
 interface QuestionFormProps {
     questions: Question[];
     projectName?: string;
+    companyName?: string;
     answers: QuestionAnswers;
     surveyType: string; // 'IKM' | 'SLOI'
     onChange: (answers: QuestionAnswers) => void;
@@ -55,6 +56,7 @@ const SLOI_LABELS = { min: 'Sangat Tidak Setuju', max: 'Sangat Setuju' };
 export default function QuestionForm({
     questions,
     projectName,
+    companyName,
     answers,
     surveyType,
     onChange,
@@ -124,20 +126,48 @@ export default function QuestionForm({
                 }
             />
 
-            {/* Project Name */}
-            {projectName && (
-                <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <MaterialIcon name="apartment" className="text-xl" />
-                    </div>
-                    <div>
-                        <p className="text-xs font-medium text-gray-500">
-                            Nama Project
-                        </p>
-                        <p className="text-base font-bold text-gray-900">
-                            {projectName}
-                        </p>
-                    </div>
+            {/* Project & Company Name */}
+            {(projectName || companyName) && (
+                <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                    {companyName && (
+                        <div className="flex items-center gap-3">
+                            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                                <MaterialIcon
+                                    name="domain"
+                                    className="text-xl"
+                                />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-500">
+                                    Perusahaan
+                                </p>
+                                <p className="text-base font-bold text-gray-900">
+                                    {companyName}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                    {projectName && companyName && (
+                        <div className="h-px bg-gray-100" />
+                    )}
+                    {projectName && (
+                        <div className="flex items-center gap-3">
+                            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <MaterialIcon
+                                    name="apartment"
+                                    className="text-xl"
+                                />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-500">
+                                    Nama Project
+                                </p>
+                                <p className="text-base font-bold text-gray-900">
+                                    {projectName}
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 

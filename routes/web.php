@@ -33,13 +33,13 @@ Route::prefix('enumerator')->middleware('auth')->name('enumerator.')->group(func
     Route::get('/survey/{submissionId}/edit', [EnumeratorSurveyController::class, 'editPage'])->name('survey.edit');
     Route::put('/survey/{submissionId}', [EnumeratorSurveyController::class, 'updateDataSurvey'])->name('survey.update');
 
-    Route::get('/survey/questions', function () {
-        return Inertia::render('Enumerator/Survey/QuestionSurvey');
-    })->name('survey.questions');
+    // Route::get('/survey/questions', function () {
+    //     return Inertia::render('Enumerator/Survey/QuestionSurvey');
+    // })->name('survey.questions');
 
-    Route::get('/survey/review', function () {
-        return Inertia::render('Enumerator/Survey/ReviewSurvey');
-    })->name('survey.review');
+    // Route::get('/survey/review', function () {
+    //     return Inertia::render('Enumerator/Survey/ReviewSurvey');
+    // })->name('survey.review');
 });
 
 Route::prefix('api/area')->name('api.area.')->group(function () {

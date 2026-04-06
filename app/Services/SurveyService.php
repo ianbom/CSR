@@ -47,12 +47,16 @@ class SurveyService
             ->orderBy('order_no')
             ->get(['id', 'category', 'code', 'question_text', 'order_no']);
 
-        // Replace {project} placeholder with actual project name (bold)
+        // Replace {project} and {perusahaan} placeholders with actual names (bold)
         $projectName = $project->name;
-        $questions->each(function ($question) use ($projectName) {
-            $question->question_text = str_replace(
-                '{project}',
-                "<strong>{$projectName}</strong>",
+        
+        // Ensure we handle missing company relation gracefully
+        $companyName = $project->company ? $project->company->name : 'Perusahaan';
+
+        $questions->each(function ($question) use ($projectName, $companyName) {
+            $question->question_text = str_ireplace(
+                ['{project}', '{perusahaan}'],
+                ["<strong>{$projectName}</strong>", "<strong>{$companyName}</strong>"],
                 $question->question_text
             );
         });

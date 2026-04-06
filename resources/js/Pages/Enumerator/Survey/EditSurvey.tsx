@@ -113,8 +113,10 @@ export default function EditSurvey({
 
     // ── GPS ──
     const [gpsLocation, setGpsLocation] = useState<GpsLocation>({
-        latitude: submission.latitude != null ? Number(submission.latitude) : null,
-        longitude: submission.longitude != null ? Number(submission.longitude) : null,
+        latitude:
+            submission.latitude != null ? Number(submission.latitude) : null,
+        longitude:
+            submission.longitude != null ? Number(submission.longitude) : null,
         error: null,
     });
 
@@ -370,6 +372,7 @@ export default function EditSurvey({
                 <QuestionForm
                     questions={questions}
                     projectName={project.name}
+                    companyName={project.company?.name}
                     answers={answers}
                     surveyType={submission.assessment_type}
                     onChange={setAnswers}

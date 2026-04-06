@@ -526,8 +526,9 @@ class ProjectService
         }
 
         // Score label
-        $scoreLabel = $this->getScoreLabel($avgScore);
-        // dd($avgScore);
+        $scoreLabel = ($assessmentType === 'SLOI') 
+            ? $this->getSloiScoreLabel($avgScore) 
+            : $this->getScoreLabel($avgScore);
 
         return [
             'totalResponses' => $totalResponses,
@@ -555,6 +556,30 @@ class ProjectService
         }
         if ($score >= 1.0) {
             return 'Kurang';
+        }
+
+        return 'Belum Ada Data';
+    }
+
+    protected function getSloiScoreLabel(float $score): string
+    {
+        if ($score > 4.30) {
+            return 'Full Trust';
+        }
+        if ($score > 3.93) {
+            return 'High Approval';
+        }
+        if ($score > 3.56) {
+            return 'Low Approval';
+        }
+        if ($score > 3.08) {
+            return 'High Acceptance / Tolerance';
+        }
+        if ($score > 2.40) {
+            return 'Low Acceptance / Tolerance';
+        }
+        if ($score > 0) {
+            return 'Withheld / Withdrawn';
         }
 
         return 'Belum Ada Data';
@@ -911,7 +936,7 @@ class ProjectService
     protected function computeRespondents(int $projectId, ?string $assessmentType, ?int $templateId, array $params = []): array
     {
         $query = Submission::where('project_id', $projectId)
-            ->with(['respondent', 'enumerator', 'templateAnswers.question', 'timelines.decidedBy']);
+            ->with(['respondent', 'enumerator', 'templateAnswers.question', 'timelines.decidedBy', 'descriptiveAnswers.projectDescriptiveQuestion']);
 
         if ($assessmentType) {
             $query->where('assessment_type', $assessmentType);
@@ -1081,6 +1106,10 @@ class ProjectService
                     'decidedAt' => $t->decided_at?->format('Y-m-d H:i'),
                     'decidedBy' => $t->decidedBy?->name ?? '-',
                     'notes' => $t->notes,
+                ])->toArray(),
+                'descriptiveAnswers' => $sub->descriptiveAnswers->map(fn ($ans) => [
+                    'question' => $ans->projectDescriptiveQuestion?->title ?? '-',
+                    'answer' => $ans->answer,
                 ])->toArray(),
             ];
         })->toArray();

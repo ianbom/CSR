@@ -96,6 +96,14 @@ class Submission extends Model
     }
 
     /**
+     * Get the descriptive answers for the submission.
+     */
+    public function descriptiveAnswers(): HasMany
+    {
+        return $this->hasMany(SubmissionDescriptiveAnswer::class);
+    }
+
+    /**
      * Scope a query to only include IKM submissions.
      */
     public function scopeIkm($query)

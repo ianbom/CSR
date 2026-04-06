@@ -161,11 +161,12 @@ class SurveyService
      */
     public function getEnumeratorHistory(int $enumeratorId, array $params): array
     {
-        $projectId = $params['project_id'] ?? null;
-        $sortBy    = $params['sort_by'] ?? 'submitted_at';
-        $sortOrder = $params['sort_order'] ?? 'desc';
-        $perPage   = (int) ($params['per_page'] ?? 12);
-        $status    = $params['status'] ?? null;
+        $projectId      = $params['project_id'] ?? null;
+        $sortBy         = $params['sort_by'] ?? 'submitted_at';
+        $sortOrder      = $params['sort_order'] ?? 'desc';
+        $perPage        = (int) ($params['per_page'] ?? 12);
+        $status         = $params['status'] ?? null;
+        $assessmentType = $params['assessment_type'] ?? null;
 
         // Allowed sort columns
         $allowedSorts = ['submitted_at', 'avg_score', 'assessment_type', 'status'];
@@ -184,7 +185,19 @@ class SurveyService
                 FROM submission_template_answers sta
                 WHERE sta.submission_id = submissions.id
                   AND sta.deleted_at IS NULL
-            ) as avg_score');
+            ) as avg_score, (
+                SELECT ROUND(AVG(sta.value), 2)
+                FROM submission_template_answers sta
+                WHERE sta.submission_id = submissions.id
+                  AND sta.type = \'ikm-kepentingan\'
+                  AND sta.deleted_at IS NULL
+            ) as avg_kepentingan, (
+                SELECT ROUND(AVG(sta.value), 2)
+                FROM submission_template_answers sta
+                WHERE sta.submission_id = submissions.id
+                  AND sta.type = \'ikm-kinerja\'
+                  AND sta.deleted_at IS NULL
+            ) as avg_kinerja');
 
         // Filter by project
         if ($projectId) {
@@ -194,6 +207,11 @@ class SurveyService
         // Filter by status
         if ($status) {
             $query->where('status', $status);
+        }
+
+        // Filter by assessment type
+        if ($assessmentType) {
+            $query->where('assessment_type', $assessmentType);
         }
 
         $query->orderBy($sortBy, $sortOrder);

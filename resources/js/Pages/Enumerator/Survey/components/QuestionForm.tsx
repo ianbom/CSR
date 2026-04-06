@@ -176,208 +176,235 @@ export default function QuestionForm({
             ) : (
                 <div className="flex flex-col gap-4">
                     {Object.entries(groupedQuestions).map(
-                        ([category, catQuestions]) => (
-                            <div key={category} className="flex flex-col gap-4">
-                                {Object.keys(groupedQuestions).length > 1 && (
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-px flex-1 bg-gray-200" />
-                                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                            {category === 'ikm-kepentingan'
-                                                ? 'IKM Kepentingan'
-                                                : category === 'ikm-kinerja'
-                                                  ? 'IKM Kinerja'
-                                                  : category}
-                                        </span>
-                                        <div className="h-px flex-1 bg-gray-200" />
-                                    </div>
-                                )}
+                        ([category, catQuestions]) => {
+                            if (isIKM) {
+                                questionNumber = 0;
+                            }
 
-                                {catQuestions.map((question) => {
-                                    if (isIKM) {
-                                        const type = question.category;
+                            return (
+                                <div
+                                    key={category}
+                                    className="flex flex-col gap-4"
+                                >
+                                    {Object.keys(groupedQuestions).length >
+                                        1 && (
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-px flex-1 bg-gray-200" />
+                                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                                {category === 'ikm-kepentingan'
+                                                    ? 'IKM Kepentingan'
+                                                    : category === 'ikm-kinerja'
+                                                      ? 'IKM Kinerja'
+                                                      : category}
+                                            </span>
+                                            <div className="h-px flex-1 bg-gray-200" />
+                                        </div>
+                                    )}
 
-                                        if (
-                                            type === 'ikm-kepentingan' ||
-                                            type === 'ikm-kinerja'
-                                        ) {
-                                            const key = `${question.id}-${type}`;
-                                            const isKepentingan =
-                                                type === 'ikm-kepentingan';
-                                            const qNum = ++questionNumber;
-                                            return (
-                                                <div key={question.id}>
-                                                    <div className="p-4">
-                                                        <LikertScaleQuestion
-                                                            questionNumber={
-                                                                qNum
-                                                            }
-                                                            question={
-                                                                question.question_text
-                                                            }
-                                                            name={key}
-                                                            value={answers[key]}
-                                                            onChange={(v) =>
-                                                                handleAnswerChange(
-                                                                    key,
-                                                                    v,
-                                                                )
-                                                            }
-                                                            scaleSize={4}
-                                                            minLabel={
-                                                                isKepentingan
-                                                                    ? IKM_LABELS
-                                                                          .kepentingan
-                                                                          .min
-                                                                    : IKM_LABELS
-                                                                          .kinerja
-                                                                          .min
-                                                            }
-                                                            maxLabel={
-                                                                isKepentingan
-                                                                    ? IKM_LABELS
-                                                                          .kepentingan
-                                                                          .max
-                                                                    : IKM_LABELS
-                                                                          .kinerja
-                                                                          .max
-                                                            }
-                                                            isAnswered={
-                                                                answers[key] !==
-                                                                undefined
-                                                            }
-                                                        />
+                                    {catQuestions.map((question) => {
+                                        if (isIKM) {
+                                            const type = question.category;
+
+                                            if (
+                                                type === 'ikm-kepentingan' ||
+                                                type === 'ikm-kinerja'
+                                            ) {
+                                                const key = `${question.id}-${type}`;
+                                                const isKepentingan =
+                                                    type === 'ikm-kepentingan';
+                                                const qNum = ++questionNumber;
+                                                return (
+                                                    <div key={question.id}>
+                                                        <div className="p-4">
+                                                            <LikertScaleQuestion
+                                                                questionNumber={
+                                                                    qNum
+                                                                }
+                                                                question={
+                                                                    question.question_text
+                                                                }
+                                                                name={key}
+                                                                value={
+                                                                    answers[key]
+                                                                }
+                                                                onChange={(v) =>
+                                                                    handleAnswerChange(
+                                                                        key,
+                                                                        v,
+                                                                    )
+                                                                }
+                                                                scaleSize={4}
+                                                                minLabel={
+                                                                    isKepentingan
+                                                                        ? IKM_LABELS
+                                                                              .kepentingan
+                                                                              .min
+                                                                        : IKM_LABELS
+                                                                              .kinerja
+                                                                              .min
+                                                                }
+                                                                maxLabel={
+                                                                    isKepentingan
+                                                                        ? IKM_LABELS
+                                                                              .kepentingan
+                                                                              .max
+                                                                        : IKM_LABELS
+                                                                              .kinerja
+                                                                              .max
+                                                                }
+                                                                isAnswered={
+                                                                    answers[
+                                                                        key
+                                                                    ] !==
+                                                                    undefined
+                                                                }
+                                                            />
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                );
+                                            }
+
+                                            // Fallback for legacy database templates
+                                            const kepKey = `${question.id}-ikm-kepentingan`;
+                                            const kinKey = `${question.id}-ikm-kinerja`;
+                                            const kepNumber = ++questionNumber;
+                                            const kinNumber = ++questionNumber;
+                                            return (
+                                                <React.Fragment
+                                                    key={question.id}
+                                                >
+                                                    {/* ── IKM Kepentingan ── */}
+                                                    <div className="rounded-xl border border-blue-100 bg-white shadow-sm">
+                                                        <div className="flex items-center gap-2 rounded-t-xl border-b border-blue-100 bg-blue-50 px-4 py-2.5">
+                                                            <span className="inline-flex size-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">
+                                                                K
+                                                            </span>
+                                                            <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                                                                IKM Kepentingan
+                                                            </span>
+                                                        </div>
+                                                        <div className="p-4">
+                                                            <LikertScaleQuestion
+                                                                questionNumber={
+                                                                    kepNumber
+                                                                }
+                                                                question={`Bagaimana Kepentingan ${question.question_text}?`}
+                                                                name={kepKey}
+                                                                value={
+                                                                    answers[
+                                                                        kepKey
+                                                                    ]
+                                                                }
+                                                                onChange={(v) =>
+                                                                    handleAnswerChange(
+                                                                        kepKey,
+                                                                        v,
+                                                                    )
+                                                                }
+                                                                scaleSize={4}
+                                                                minLabel={
+                                                                    IKM_LABELS
+                                                                        .kepentingan
+                                                                        .min
+                                                                }
+                                                                maxLabel={
+                                                                    IKM_LABELS
+                                                                        .kepentingan
+                                                                        .max
+                                                                }
+                                                                isAnswered={
+                                                                    answers[
+                                                                        kepKey
+                                                                    ] !==
+                                                                    undefined
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* ── IKM Kinerja ── */}
+                                                    <div className="rounded-xl border border-emerald-100 bg-white shadow-sm">
+                                                        <div className="flex items-center gap-2 rounded-t-xl border-b border-emerald-100 bg-emerald-50 px-4 py-2.5">
+                                                            <span className="inline-flex size-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
+                                                                P
+                                                            </span>
+                                                            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+                                                                IKM Kinerja
+                                                            </span>
+                                                        </div>
+                                                        <div className="p-4">
+                                                            <LikertScaleQuestion
+                                                                questionNumber={
+                                                                    kinNumber
+                                                                }
+                                                                question={`Bagaimana Kinerja ${question.question_text}?`}
+                                                                name={kinKey}
+                                                                value={
+                                                                    answers[
+                                                                        kinKey
+                                                                    ]
+                                                                }
+                                                                onChange={(v) =>
+                                                                    handleAnswerChange(
+                                                                        kinKey,
+                                                                        v,
+                                                                    )
+                                                                }
+                                                                scaleSize={4}
+                                                                minLabel={
+                                                                    IKM_LABELS
+                                                                        .kinerja
+                                                                        .min
+                                                                }
+                                                                maxLabel={
+                                                                    IKM_LABELS
+                                                                        .kinerja
+                                                                        .max
+                                                                }
+                                                                isAnswered={
+                                                                    answers[
+                                                                        kinKey
+                                                                    ] !==
+                                                                    undefined
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </React.Fragment>
                                             );
                                         }
 
-                                        // Fallback for legacy database templates
-                                        const kepKey = `${question.id}-ikm-kepentingan`;
-                                        const kinKey = `${question.id}-ikm-kinerja`;
-                                        const kepNumber = ++questionNumber;
-                                        const kinNumber = ++questionNumber;
+                                        // SLOI — single answer
+                                        questionNumber++;
+                                        const sloiKey = `${question.id}-sloi`;
                                         return (
-                                            <React.Fragment key={question.id}>
-                                                {/* ── IKM Kepentingan ── */}
-                                                <div className="rounded-xl border border-blue-100 bg-white shadow-sm">
-                                                    <div className="flex items-center gap-2 rounded-t-xl border-b border-blue-100 bg-blue-50 px-4 py-2.5">
-                                                        <span className="inline-flex size-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">
-                                                            K
-                                                        </span>
-                                                        <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
-                                                            IKM Kepentingan
-                                                        </span>
-                                                    </div>
-                                                    <div className="p-4">
-                                                        <LikertScaleQuestion
-                                                            questionNumber={
-                                                                kepNumber
-                                                            }
-                                                            question={`Bagaimana Kepentingan ${question.question_text}?`}
-                                                            name={kepKey}
-                                                            value={
-                                                                answers[kepKey]
-                                                            }
-                                                            onChange={(v) =>
-                                                                handleAnswerChange(
-                                                                    kepKey,
-                                                                    v,
-                                                                )
-                                                            }
-                                                            scaleSize={4}
-                                                            minLabel={
-                                                                IKM_LABELS
-                                                                    .kepentingan
-                                                                    .min
-                                                            }
-                                                            maxLabel={
-                                                                IKM_LABELS
-                                                                    .kepentingan
-                                                                    .max
-                                                            }
-                                                            isAnswered={
-                                                                answers[
-                                                                    kepKey
-                                                                ] !== undefined
-                                                            }
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                {/* ── IKM Kinerja ── */}
-                                                <div className="rounded-xl border border-emerald-100 bg-white shadow-sm">
-                                                    <div className="flex items-center gap-2 rounded-t-xl border-b border-emerald-100 bg-emerald-50 px-4 py-2.5">
-                                                        <span className="inline-flex size-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
-                                                            P
-                                                        </span>
-                                                        <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
-                                                            IKM Kinerja
-                                                        </span>
-                                                    </div>
-                                                    <div className="p-4">
-                                                        <LikertScaleQuestion
-                                                            questionNumber={
-                                                                kinNumber
-                                                            }
-                                                            question={`Bagaimana Kinerja ${question.question_text}?`}
-                                                            name={kinKey}
-                                                            value={
-                                                                answers[kinKey]
-                                                            }
-                                                            onChange={(v) =>
-                                                                handleAnswerChange(
-                                                                    kinKey,
-                                                                    v,
-                                                                )
-                                                            }
-                                                            scaleSize={4}
-                                                            minLabel={
-                                                                IKM_LABELS
-                                                                    .kinerja.min
-                                                            }
-                                                            maxLabel={
-                                                                IKM_LABELS
-                                                                    .kinerja.max
-                                                            }
-                                                            isAnswered={
-                                                                answers[
-                                                                    kinKey
-                                                                ] !== undefined
-                                                            }
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </React.Fragment>
+                                            <LikertScaleQuestion
+                                                key={question.id}
+                                                questionNumber={questionNumber}
+                                                question={
+                                                    question.question_text
+                                                }
+                                                name={sloiKey}
+                                                value={answers[sloiKey]}
+                                                onChange={(value) =>
+                                                    handleAnswerChange(
+                                                        sloiKey,
+                                                        value,
+                                                    )
+                                                }
+                                                scaleSize={6}
+                                                minLabel={SLOI_LABELS.min}
+                                                maxLabel={SLOI_LABELS.max}
+                                                isAnswered={
+                                                    answers[sloiKey] !==
+                                                    undefined
+                                                }
+                                            />
                                         );
-                                    }
-
-                                    // SLOI — single answer
-                                    questionNumber++;
-                                    const sloiKey = `${question.id}-sloi`;
-                                    return (
-                                        <LikertScaleQuestion
-                                            key={question.id}
-                                            questionNumber={questionNumber}
-                                            question={question.question_text}
-                                            name={sloiKey}
-                                            value={answers[sloiKey]}
-                                            onChange={(value) =>
-                                                handleAnswerChange(
-                                                    sloiKey,
-                                                    value,
-                                                )
-                                            }
-                                            scaleSize={6}
-                                            minLabel={SLOI_LABELS.min}
-                                            maxLabel={SLOI_LABELS.max}
-                                            isAnswered={
-                                                answers[sloiKey] !== undefined
-                                            }
-                                        />
-                                    );
-                                })}
-                            </div>
-                        ),
+                                    })}
+                                </div>
+                            );
+                        },
                     )}
                 </div>
             )}

@@ -36,6 +36,8 @@ interface SubmissionItem {
     latitude: number;
     longitude: number;
     avgScore: number;
+    avgKepentingan: number | null;
+    avgKinerja: number | null;
     project: { id: number; name: string };
     respondent: RespondentData | null;
 }
@@ -66,6 +68,7 @@ interface Stats {
 interface Filters {
     project_id: string | null;
     status: string | null;
+    assessment_type: string | null;
     sort_by: string;
     sort_order: 'asc' | 'desc';
     per_page: number;
@@ -128,12 +131,16 @@ export default function HistorySurvey({
     const [localFilters, setLocalFilters] = useState({
         project_id: filters.project_id || '',
         status: filters.status || '',
+        assessment_type: filters.assessment_type || '',
         sort_by: filters.sort_by || 'submitted_at',
         sort_order: filters.sort_order || 'desc',
         per_page: filters.per_page || 10,
     });
 
-    const hasActiveFilter = !!localFilters.project_id || !!localFilters.status;
+    const hasActiveFilter =
+        !!localFilters.project_id ||
+        !!localFilters.status ||
+        !!localFilters.assessment_type;
 
     const navigate = (overrides: Record<string, string | number>) => {
         const params = { ...localFilters, ...overrides, page: 1 };
@@ -170,6 +177,7 @@ export default function HistorySurvey({
         setLocalFilters({
             project_id: '',
             status: '',
+            assessment_type: '',
             sort_by: 'submitted_at',
             sort_order: 'desc',
             per_page: 10,
@@ -374,6 +382,21 @@ export default function HistorySurvey({
                         <option value="approved">Approved</option>
                         <option value="rejected">Revisi</option>
                     </select>
+
+                    <select
+                        value={localFilters.assessment_type}
+                        onChange={(e) =>
+                            handleFilterChange(
+                                'assessment_type',
+                                e.target.value,
+                            )
+                        }
+                        className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-600 focus:border-slate-400 focus:outline-none focus:ring-0"
+                    >
+                        <option value="">Semua Tipe</option>
+                        <option value="IKM">IKM</option>
+                        <option value="SLOI">SLOI</option>
+                    </select>
                 </div>
 
                 {/* Desktop: Horizontal Layout */}
@@ -406,10 +429,24 @@ export default function HistorySurvey({
                         <option value="rejected">Revisi</option>
                     </select>
 
+                    <select
+                        value={localFilters.assessment_type}
+                        onChange={(e) =>
+                            handleFilterChange(
+                                'assessment_type',
+                                e.target.value,
+                            )
+                        }
+                        className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 focus:border-slate-400 focus:outline-none focus:ring-0"
+                    >
+                        <option value="">Semua Tipe</option>
+                        <option value="IKM">IKM</option>
+                        <option value="SLOI">SLOI</option>
+                    </select>
+
                     <div className="flex gap-1.5">
                         <SortButton field="submitted_at">Tanggal</SortButton>
                         <SortButton field="avg_score">Rerata</SortButton>
-                        <SortButton field="assessment_type">Tipe</SortButton>
                     </div>
 
                     {hasActiveFilter && (
@@ -428,7 +465,6 @@ export default function HistorySurvey({
                     <div className="flex flex-1 gap-1.5">
                         <SortButton field="submitted_at">Tanggal</SortButton>
                         <SortButton field="avg_score">Rerata</SortButton>
-                        <SortButton field="assessment_type">Tipe</SortButton>
                     </div>
                     {hasActiveFilter && (
                         <button
@@ -493,16 +529,50 @@ export default function HistorySurvey({
                                 </p>
 
                                 {/* Score */}
-                                <div className="flex items-baseline gap-2">
-                                    <span
-                                        className={`text-3xl font-bold tabular-nums leading-none ${scoreColor(item.avgScore)}`}
-                                    >
-                                        {item.avgScore.toFixed(2)}
-                                    </span>
-                                    <span className="text-xs text-slate-400">
-                                        Rerata
-                                    </span>
-                                </div>
+                                {item.assessmentType.toUpperCase() === 'IKM' ? (
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex flex-col">
+                                            <div className="flex items-baseline gap-1.5">
+                                                <span
+                                                    className={`text-3xl font-bold tabular-nums leading-none ${scoreColor(item.avgKepentingan ?? 0)}`}
+                                                >
+                                                    {(
+                                                        item.avgKepentingan ?? 0
+                                                    ).toFixed(2)}
+                                                </span>
+                                            </div>
+                                            <span className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                                Kepentingan
+                                            </span>
+                                        </div>
+                                        <div className="h-8 w-px bg-slate-200"></div>
+                                        <div className="flex flex-col">
+                                            <div className="flex items-baseline gap-1.5">
+                                                <span
+                                                    className={`text-3xl font-bold tabular-nums leading-none ${scoreColor(item.avgKinerja ?? 0)}`}
+                                                >
+                                                    {(
+                                                        item.avgKinerja ?? 0
+                                                    ).toFixed(2)}
+                                                </span>
+                                            </div>
+                                            <span className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                                Kinerja
+                                            </span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-baseline gap-2">
+                                        <span
+                                            className={`text-3xl font-bold tabular-nums leading-none ${scoreColor(item.avgScore)}`}
+                                        >
+                                            {item.avgScore.toFixed(2)}
+                                        </span>
+                                        <span className="text-xs text-slate-400">
+                                            Rerata
+                                        </span>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Card footer */}

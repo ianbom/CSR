@@ -75,7 +75,7 @@ export default function SLOIQuestionScores({
                 </h3>
                 <div className="flex items-center gap-2 text-xs text-slate-500">
                     <span className="size-3 rounded bg-primary"></span>
-                    <span>Skor (skala 1-5)</span>
+                    <span>Skor (skala 1-6)</span>
                 </div>
             </div>
 

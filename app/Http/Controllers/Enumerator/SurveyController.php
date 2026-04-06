@@ -86,11 +86,12 @@ class SurveyController extends Controller
         $enumeratorId = Auth::id();
 
         $result = $this->surveyService->getEnumeratorHistory($enumeratorId, [
-            'project_id' => $request->input('project_id'),
-            'status'     => $request->input('status'),
-            'sort_by'    => $request->input('sort_by', 'submitted_at'),
-            'sort_order' => $request->input('sort_order', 'desc'),
-            'per_page'   => $request->input('per_page', 12),
+            'project_id'      => $request->input('project_id'),
+            'status'          => $request->input('status'),
+            'assessment_type' => $request->input('assessment_type'),
+            'sort_by'         => $request->input('sort_by', 'submitted_at'),
+            'sort_order'      => $request->input('sort_order', 'desc'),
+            'per_page'        => $request->input('per_page', 12),
         ]);
 
         return Inertia::render('Enumerator/Survey/HistorySurvey', [
@@ -98,11 +99,12 @@ class SurveyController extends Controller
             'projects'    => $result['projects'],
             'stats'       => $result['stats'],
             'filters'     => [
-                'project_id' => $request->input('project_id'),
-                'status'     => $request->input('status'),
-                'sort_by'    => $request->input('sort_by', 'submitted_at'),
-                'sort_order' => $request->input('sort_order', 'desc'),
-                'per_page'   => (int) $request->input('per_page', 12),
+                'project_id'      => $request->input('project_id'),
+                'status'          => $request->input('status'),
+                'assessment_type' => $request->input('assessment_type'),
+                'sort_by'         => $request->input('sort_by', 'submitted_at'),
+                'sort_order'      => $request->input('sort_order', 'desc'),
+                'per_page'        => (int) $request->input('per_page', 12),
             ],
         ]);
     }

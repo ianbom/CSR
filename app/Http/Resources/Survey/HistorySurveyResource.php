@@ -23,6 +23,8 @@ class HistorySurveyResource extends JsonResource
             'latitude'        => (float) $this->latitude,
             'longitude'       => (float) $this->longitude,
             'avgScore'        => round((float) $this->avg_score, 2),
+            'avgKepentingan'  => $this->avg_kepentingan !== null ? round((float) $this->avg_kepentingan, 2) : null,
+            'avgKinerja'      => $this->avg_kinerja !== null ? round((float) $this->avg_kinerja, 2) : null,
             'project'         => [
                 'id'   => $this->project->id,
                 'name' => $this->project->name,

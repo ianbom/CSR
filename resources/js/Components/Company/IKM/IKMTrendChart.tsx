@@ -103,9 +103,9 @@ function IPAScatterChart({
     for (let v = yMin; v <= yMax + 0.001; v += yStep)
         yTicks.push(Math.round(v * 100) / 100);
 
-    const fontSize = compact ? 8 : 11;
-    const dotR = compact ? 4 : 6;
-    const labelFontSize = compact ? 7 : 9;
+    const fontSize = compact ? 10 : 12;
+    const dotR = compact ? 6 : 8;
+    const labelFontSize = compact ? 11 : 13;
 
     return (
         <div className="w-full overflow-x-auto">
@@ -277,37 +277,37 @@ function IPAScatterChart({
                             <circle
                                 cx={cx}
                                 cy={cy}
-                                r={isHovered ? dotR * 1.3 : dotR}
+                                r={isHovered ? dotR * 1.5 : dotR}
                                 fill={color}
                                 stroke="white"
-                                strokeWidth={isHovered ? 2 : 1.5}
+                                strokeWidth={isHovered ? 2.5 : 1.5}
                                 style={{ transition: 'all 0.2s ease' }}
                             />
                             {/* Label - only visible on hover */}
                             {isHovered && (
                                 <>
                                     <rect
-                                        x={cx + dotR + 3}
-                                        y={cy - labelFontSize - 1}
+                                        x={cx + dotR * 1.5 + 4}
+                                        y={cy - labelFontSize - 4}
                                         width={
                                             label.length *
-                                                (labelFontSize * 0.52) +
-                                            6
+                                                (labelFontSize * 0.55) +
+                                            12
                                         }
-                                        height={labelFontSize + 5}
+                                        height={labelFontSize + 10}
                                         fill="white"
                                         fillOpacity={0.95}
-                                        rx={2}
+                                        rx={4}
                                         stroke={color}
-                                        strokeWidth={1}
+                                        strokeWidth={1.5}
                                     />
                                     <text
-                                        x={cx + dotR + 6}
-                                        y={cy}
-                                        className="fill-slate-600"
+                                        x={cx + dotR * 1.5 + 10}
+                                        y={cy + 3}
+                                        className="fill-slate-700"
                                         style={{
                                             fontSize: labelFontSize,
-                                            fontWeight: 600,
+                                            fontWeight: 700,
                                         }}
                                     >
                                         {label}

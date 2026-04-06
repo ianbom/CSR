@@ -204,6 +204,7 @@ interface EnumeratorListItem {
 interface SloiReliabilityItem {
     code: string;
     question: string;
+    raw_question: string;
     mean: number;
     variance: number;
     pearson: number;

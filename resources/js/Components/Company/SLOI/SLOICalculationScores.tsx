@@ -14,6 +14,7 @@ import { ReactNode, useState } from 'react';
 interface SloiReliabilityItem {
     code: string;
     question: string;
+    raw_question: string;
     mean: number;
     variance: number;
     pearson: number;
@@ -309,12 +310,13 @@ export default function SLOICalculationScores({
                                         </span>
                                     </td>
                                     <td className="max-w-xs px-4 py-3.5 text-xs text-slate-600">
-                                        <span
-                                            className="line-clamp-2"
-                                            title={item.question}
-                                        >
-                                            {item.question}
-                                        </span>
+                                        <div
+                                            className="line-clamp-2 [&>strong]:font-bold [&>strong]:text-slate-900"
+                                            title={item.raw_question}
+                                            dangerouslySetInnerHTML={{
+                                                __html: item.question,
+                                            }}
+                                        />
                                     </td>
                                     <td className="whitespace-nowrap px-4 py-3.5 text-center font-mono text-xs font-semibold text-slate-700">
                                         {item.mean.toFixed(2)}

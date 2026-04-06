@@ -431,7 +431,7 @@ class ProjectService
         // Compute SLOI reliability analysis only for SLOI tab
         $sloiReliability = null;
         if ($assessmentType === 'SLOI') {
-            $sloiReliability = $this->computeSloiReliabilityAnalysis($submissionIds, $templateId);
+            $sloiReliability = $this->computeSloiReliabilityAnalysis($submissionIds, $templateId, $project->name);
         }
 
         return [
@@ -848,7 +848,7 @@ class ProjectService
      * - PEARSON: Pearson product-moment correlation of each item with total
      * - VALIDITAS: validity check (Pearson r > 0.254)
      */
-    protected function computeSloiReliabilityAnalysis($submissionIds, ?int $templateId): ?array
+    protected function computeSloiReliabilityAnalysis($submissionIds, ?int $templateId, string $projectName): ?array
     {
         if ($submissionIds->isEmpty() || !$templateId) {
             return null;
@@ -962,9 +962,17 @@ class ProjectService
 
             $mean = count($scores) > 0 ? round(array_sum($scores) / count($scores), 4) : 0;
 
+            // Replace {perusahaan} or {project} with project name
+            $questionText = str_ireplace(
+                ['{perusahaan}', '{project}'], 
+                "<strong>{$projectName}</strong>", 
+                $question->question_text
+            );
+
             $items[] = [
                 'code' => $questionIdToCode[$qId] ?? 'Q' . $qId,
-                'question' => $question->question_text,
+                'question' => $questionText,
+                'raw_question' => $question->question_text, // For tooltip
                 'mean' => $mean,
                 'variance' => round($itemVariances[$qId], 4),
                 'pearson' => $pearson,

@@ -59,7 +59,7 @@ export interface IKMRespondentRow {
         { kepentingan: number | null; kinerja: number | null }
     >;
     timelines: TimelineEntry[];
-    descriptiveAnswers?: { question: string; answer: string }[];
+    descriptiveAnswers?: { question: string; answer: string | null }[];
 }
 
 export interface PaginationData {

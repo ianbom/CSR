@@ -33,7 +33,7 @@ export interface SubmissionDetailData {
     enumerator: string | null;
     respondent: RespondentInfo | null;
     timelines?: TimelineEntry[];
-    descriptiveAnswers?: { question: string; answer: string }[];
+    descriptiveAnswers?: { question: string; answer: string | null }[];
 }
 
 interface Props {

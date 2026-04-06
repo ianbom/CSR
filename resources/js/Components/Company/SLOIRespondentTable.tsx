@@ -55,6 +55,7 @@ export interface SLOIRespondentRow {
         string,
         { kepentingan: number | null; kinerja: number | null }
     >;
+    descriptiveAnswers?: { question: string; answer: string | null }[];
     timelines: TimelineEntry[];
 }
 
@@ -663,6 +664,7 @@ export default function SLOIRespondentTable({
                               }
                             : null,
                         timelines: selected.timelines,
+                        descriptiveAnswers: selected.descriptiveAnswers,
                     }}
                     onClose={() => setSelected(null)}
                 />

@@ -157,6 +157,7 @@ interface RespondentsData {
             decidedBy: string;
             notes: string | null;
         }[];
+        descriptiveAnswers?: { question: string; answer: string | null }[];
     }[];
     pagination: {
         currentPage: number;

@@ -431,7 +431,7 @@ class ProjectService
         // Compute SLOI reliability analysis only for SLOI tab
         $sloiReliability = null;
         if ($assessmentType === 'SLOI') {
-            $sloiReliability = $this->computeSloiReliabilityAnalysis($submissionIds, $templateId, $project->name);
+            $sloiReliability = $this->computeSloiReliabilityAnalysis($submissionIds, $templateId, $project->company->name);
         }
 
         return [
@@ -848,7 +848,7 @@ class ProjectService
      * - PEARSON: Pearson product-moment correlation of each item with total
      * - VALIDITAS: validity check (Pearson r > 0.254)
      */
-    protected function computeSloiReliabilityAnalysis($submissionIds, ?int $templateId, string $projectName): ?array
+    protected function computeSloiReliabilityAnalysis($submissionIds, ?int $templateId, string $companyName): ?array
     {
         if ($submissionIds->isEmpty() || !$templateId) {
             return null;
@@ -964,8 +964,8 @@ class ProjectService
 
             // Replace {perusahaan} or {project} with project name
             $questionText = str_ireplace(
-                ['{perusahaan}', '{project}'], 
-                "<strong>{$projectName}</strong>", 
+                ['{perusahaan}'], 
+                "<strong>{$companyName}</strong>", 
                 $question->question_text
             );
 

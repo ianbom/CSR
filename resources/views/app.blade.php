@@ -6,7 +6,7 @@
 
         <title inertia>{{ config('app.name', 'ImpactManagement') }}</title>
         <link rel="icon" type="image/png" href="/img/LogoTab.png"/>
-
+        
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +18,7 @@
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/Pages/{$page['component']}.tsx"])
         @inertiaHead
+        @laravelPWA
     </head>
     <body class="font-sans antialiased">
         @inertia

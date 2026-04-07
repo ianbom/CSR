@@ -1,7 +1,7 @@
 import { MaterialIcon } from '@/Components/Enumerator';
 import EnumeratorLayout from '@/Layouts/EnumeratorLayout';
 import { Head, router } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import QuestionForm, {
     DescriptiveAnswers,
     QuestionAnswers,
@@ -112,7 +112,7 @@ export default function EditSurvey({
         useState<DescriptiveAnswers>(descriptiveAnswersMap);
 
     // ── GPS ──
-    const [gpsLocation, setGpsLocation] = useState<GpsLocation>({
+    const [gpsLocation] = useState<GpsLocation>({
         latitude:
             submission.latitude != null ? Number(submission.latitude) : null,
         longitude:
@@ -120,30 +120,7 @@ export default function EditSurvey({
         error: null,
     });
 
-    // Re-fetch GPS for updated location
-    useEffect(() => {
-        if (!navigator.geolocation) {
-            setGpsLocation((prev) => ({
-                ...prev,
-                error: 'Browser tidak mendukung GPS.',
-            }));
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(
-            (pos) =>
-                setGpsLocation({
-                    latitude: pos.coords.latitude,
-                    longitude: pos.coords.longitude,
-                    error: null,
-                }),
-            () =>
-                setGpsLocation((prev) => ({
-                    ...prev,
-                    error: 'Gagal memperbarui lokasi GPS. Menggunakan lokasi sebelumnya.',
-                })),
-            { enableHighAccuracy: true, timeout: 10000 },
-        );
-    }, []);
+    // GPS tidak perlu di-fetch ulang saat edit, cukup gunakan data saat pertama kali disubmit.
 
     // ── Navigation ──
     const goToStep = (step: 1 | 2 | 3) => setCurrentStep(step);
@@ -396,7 +373,6 @@ export default function EditSurvey({
                     existingPhotoUrl={submission.photo_url}
                     onBack={() => goToStep(2)}
                     onEditRespondent={() => goToStep(1)}
-                    onEditQuestions={() => goToStep(2)}
                     onSubmit={submitUpdate}
                     isSubmitting={isSubmitting}
                 />

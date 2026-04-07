@@ -12,7 +12,6 @@ import {
     User,
     UserCircle,
 } from 'lucide-react';
-import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdateCompanyInformationForm from './Partials/UpdateCompanyInformationForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';

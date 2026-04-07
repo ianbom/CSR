@@ -89,7 +89,10 @@ export default function PhotoCaptureSection({
                             onClick={startCamera}
                             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
                         >
-                            <MaterialIcon name="photo_camera" className="text-sm" />
+                            <MaterialIcon
+                                name="photo_camera"
+                                className="text-sm"
+                            />
                             Kamera
                         </button>
                         <button
@@ -97,7 +100,10 @@ export default function PhotoCaptureSection({
                             onClick={openGallery}
                             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
                         >
-                            <MaterialIcon name="photo_library" className="text-sm" />
+                            <MaterialIcon
+                                name="photo_library"
+                                className="text-sm"
+                            />
                             Galeri
                         </button>
                         {photo && (
@@ -106,7 +112,10 @@ export default function PhotoCaptureSection({
                                 onClick={resetPhoto}
                                 className="flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600 shadow-sm hover:bg-red-100"
                             >
-                                <MaterialIcon name="delete" className="text-sm" />
+                                <MaterialIcon
+                                    name="delete"
+                                    className="text-sm"
+                                />
                             </button>
                         )}
                     </div>
@@ -133,7 +142,10 @@ export default function PhotoCaptureSection({
                         onClick={openGallery}
                         className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
                     >
-                        <MaterialIcon name="photo_library" className="text-sm" />
+                        <MaterialIcon
+                            name="photo_library"
+                            className="text-sm"
+                        />
                         Pilih dari Galeri
                     </button>
                 </div>
@@ -208,9 +220,7 @@ export default function PhotoCaptureSection({
                 </div>
             )}
 
-            {photoError && (
-                <p className="text-xs text-red-500">{photoError}</p>
-            )}
+            {photoError && <p className="text-xs text-red-500">{photoError}</p>}
         </div>
     );
 }

@@ -1,9 +1,4 @@
-import {
-    Icon,
-    Pagination,
-    SearchInput,
-    SummaryCard,
-} from '@/Components/Company';
+import { Icon, Pagination, SearchInput } from '@/Components/Company';
 import CreateInstrumentTemplateModal from '@/Components/Company/CreateInstrumentTemplateModal';
 import EditInstrumentTemplateModal, {
     type EditTemplateData,

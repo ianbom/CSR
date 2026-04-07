@@ -21,7 +21,9 @@ export interface UsePhotoCaptureReturn {
     setExternalPhoto: (file: File, preview: string) => void;
 }
 
-export function usePhotoCapture(filenamePrefix = 'photo'): UsePhotoCaptureReturn {
+export function usePhotoCapture(
+    filenamePrefix = 'photo',
+): UsePhotoCaptureReturn {
     const [photo, setPhoto] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [photoError, setPhotoError] = useState<string | null>(null);
@@ -128,8 +130,12 @@ export function usePhotoCapture(filenamePrefix = 'photo'): UsePhotoCaptureReturn
                 setPhotoError('Ukuran file terlalu besar. Maksimum 5MB.');
                 return;
             }
-            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-                setPhotoError('Format file tidak didukung. Gunakan JPG/PNG/WebP.');
+            if (
+                !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)
+            ) {
+                setPhotoError(
+                    'Format file tidak didukung. Gunakan JPG/PNG/WebP.',
+                );
                 return;
             }
 

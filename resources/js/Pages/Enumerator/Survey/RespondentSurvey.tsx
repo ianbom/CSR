@@ -338,7 +338,6 @@ export default function RespondentSurvey({
                     gpsLocation={gpsLocation}
                     onBack={() => goToStep(2)}
                     onEditRespondent={() => goToStep(1)}
-                    onEditQuestions={() => goToStep(2)}
                     onSubmit={handleFinalSubmit}
                     onSubmitAndContinue={handleSubmitAndContinue}
                     isSubmitting={isSubmitting}

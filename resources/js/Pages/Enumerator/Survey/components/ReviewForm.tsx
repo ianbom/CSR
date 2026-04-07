@@ -9,15 +9,14 @@ import {
     DemographicItem,
     MaterialIcon,
     ReviewFooter,
-    ReviewItem,
     ReviewPageHeader,
     ReviewProgressBar,
     ReviewSection,
     WarningBox,
 } from '@/Components/Enumerator';
 import { useMemo } from 'react';
-import { QuestionAnswers } from './QuestionForm';
 import PhotoCaptureSection from './PhotoCaptureSection';
+import { QuestionAnswers } from './QuestionForm';
 import { RespondentData } from './RespondentForm';
 import { usePhotoCapture } from './usePhotoCapture';
 
@@ -45,7 +44,6 @@ interface ReviewFormProps {
     existingPhotoUrl?: string | null;
     onBack: () => void;
     onEditRespondent: () => void;
-    onEditQuestions: () => void;
     /** Called with new File in create mode, or File|null in edit mode */
     onSubmit: (photo: File | null) => void;
     /** Only used in create mode */
@@ -62,7 +60,6 @@ export default function ReviewForm({
     existingPhotoUrl,
     onBack,
     onEditRespondent,
-    onEditQuestions,
     onSubmit,
     onSubmitAndContinue,
     isSubmitting,
@@ -136,7 +133,9 @@ export default function ReviewForm({
                 <ReviewProgressBar percentage={100} />
 
                 <ReviewPageHeader
-                    title={mode === 'edit' ? 'Review Perubahan' : 'Review & Submit'}
+                    title={
+                        mode === 'edit' ? 'Review Perubahan' : 'Review & Submit'
+                    }
                     subtitle={
                         mode === 'edit'
                             ? 'Periksa kembali semua data sebelum menyimpan'
@@ -207,49 +206,104 @@ export default function ReviewForm({
 
                 {/* Jawaban Kuesioner */}
                 <ReviewSection title="Jawaban Kuesioner" icon="quiz">
-                    {Object.entries(answers).length > 0 ? (
-                        Object.entries(answers)
-                            .sort(([keyA], [keyB]) => {
-                                const qIdA = Number(
-                                    keyA.substring(0, keyA.indexOf('-')),
-                                );
-                                const qIdB = Number(
-                                    keyB.substring(0, keyB.indexOf('-')),
-                                );
-                                const orderA =
-                                    questionMap.get(qIdA)?.order_no ?? qIdA;
-                                const orderB =
-                                    questionMap.get(qIdB)?.order_no ?? qIdB;
-                                if (orderA !== orderB) return orderA - orderB;
-                                return keyA.localeCompare(keyB);
-                            })
-                            .map(([key, value]) => {
-                                const dashIdx = key.indexOf('-');
-                                const qId = Number(key.substring(0, dashIdx));
-                                const type = key.substring(dashIdx + 1);
-                                const question = questionMap.get(qId);
+                    <div className="overflow-x-auto rounded-lg border border-gray-200">
+                        <table className="w-full text-left text-sm text-gray-600">
+                            <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+                                <tr>
+                                    <th className="px-4 py-3 font-semibold">
+                                        Kode
+                                    </th>
+                                    {/* <th className="px-4 py-3 font-semibold">
+                                        Tipe
+                                    </th> */}
+                                    <th className="px-4 py-3 font-semibold">
+                                        Pertanyaan
+                                    </th>
+                                    <th className="px-4 py-3 text-center font-semibold">
+                                        Nilai
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200 bg-white">
+                                {Object.entries(answers).length > 0 ? (
+                                    Object.entries(answers)
+                                        .sort(([keyA], [keyB]) => {
+                                            const qIdA = Number(
+                                                keyA.substring(
+                                                    0,
+                                                    keyA.indexOf('-'),
+                                                ),
+                                            );
+                                            const qIdB = Number(
+                                                keyB.substring(
+                                                    0,
+                                                    keyB.indexOf('-'),
+                                                ),
+                                            );
+                                            const orderA =
+                                                questionMap.get(qIdA)
+                                                    ?.order_no ?? qIdA;
+                                            const orderB =
+                                                questionMap.get(qIdB)
+                                                    ?.order_no ?? qIdB;
+                                            if (orderA !== orderB)
+                                                return orderA - orderB;
+                                            return keyA.localeCompare(keyB);
+                                        })
+                                        .map(([key, value]) => {
+                                            const dashIdx = key.indexOf('-');
+                                            const qId = Number(
+                                                key.substring(0, dashIdx),
+                                            );
+                                            const type = key.substring(
+                                                dashIdx + 1,
+                                            );
+                                            const question =
+                                                questionMap.get(qId);
 
-                                return (
-                                    <ReviewItem
-                                        key={key}
-                                        label={`${question?.code ?? `Q${qId}`} — ${typeLabel(type)}`}
-                                        value={question?.question_text ?? '-'}
-                                        badge={
-                                            <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-sm font-semibold text-primary">
-                                                Nilai: {value}
-                                            </span>
-                                        }
-                                        onEdit={onEditQuestions}
-                                    />
-                                );
-                            })
-                    ) : (
-                        <ReviewItem
-                            label="Status"
-                            value="Belum ada jawaban"
-                            onEdit={onEditQuestions}
-                        />
-                    )}
+                                            return (
+                                                <tr
+                                                    key={key}
+                                                    className="transition-colors hover:bg-gray-50"
+                                                >
+                                                    <td className="whitespace-nowrap border-r border-gray-100 px-4 py-3 font-medium text-gray-900">
+                                                        {question?.code ??
+                                                            `Q${qId}`}
+                                                    </td>
+                                                    {/* <td className="whitespace-nowrap border-r border-gray-100 px-4 py-3">
+                                                        <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                                                            {typeLabel(type)}
+                                                        </span>
+                                                    </td> */}
+                                                    <td
+                                                        className="min-w-[200px] border-r border-gray-100 px-4 py-3"
+                                                        dangerouslySetInnerHTML={{
+                                                            __html:
+                                                                question?.question_text ??
+                                                                '-',
+                                                        }}
+                                                    />
+                                                    <td className="whitespace-nowrap px-4 py-3 text-center">
+                                                        <span className="inline-flex items-center justify-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+                                                            {value}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                ) : (
+                                    <tr>
+                                        <td
+                                            colSpan={4}
+                                            className="px-4 py-6 text-center text-gray-500"
+                                        >
+                                            Belum ada jawaban
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </ReviewSection>
 
                 {/* GPS Location */}
@@ -264,7 +318,9 @@ export default function ReviewForm({
                         </h3>
                     </div>
                     {gpsLocation.error ? (
-                        <p className={`text-sm ${mode === 'edit' ? 'text-amber-600' : 'text-red-500'}`}>
+                        <p
+                            className={`text-sm ${mode === 'edit' ? 'text-amber-600' : 'text-red-500'}`}
+                        >
                             ⚠ {gpsLocation.error}
                         </p>
                     ) : gpsLocation.latitude && gpsLocation.longitude ? (
@@ -288,15 +344,21 @@ export default function ReviewForm({
                 {/* Photo Section */}
                 <PhotoCaptureSection
                     hook={photoHook}
-                    existingPhotoUrl={mode === 'edit' ? existingPhotoUrl : undefined}
+                    existingPhotoUrl={
+                        mode === 'edit' ? existingPhotoUrl : undefined
+                    }
                     required={mode === 'create'}
                 />
 
                 <WarningBox
-                    title={mode === 'edit' ? 'Menyimpan Perubahan' : 'Pengiriman Bersifat Final'}
+                    title={
+                        mode === 'edit'
+                            ? 'Menyimpan Perubahan'
+                            : 'Pengiriman Bersifat Final'
+                    }
                     message={
                         mode === 'edit'
-                            ? 'Status submission akan direset ke \'Submitted\' setelah disimpan dan akan menunggu persetujuan ulang.'
+                            ? "Status submission akan direset ke 'Submitted' setelah disimpan dan akan menunggu persetujuan ulang."
                             : 'Pastikan semua data di atas sudah benar. Setelah dikirim, data survei ini akan dikunci dan tidak dapat diubah oleh enumerator.'
                     }
                 />
@@ -305,7 +367,9 @@ export default function ReviewForm({
             <ReviewFooter
                 onBack={onBack}
                 onSubmit={handleSubmitClick}
-                onSubmitAndContinue={mode === 'create' ? handleSubmitAndContinueClick : undefined}
+                onSubmitAndContinue={
+                    mode === 'create' ? handleSubmitAndContinueClick : undefined
+                }
                 isSubmitting={isSubmitting}
                 submitLabel={mode === 'edit' ? 'Simpan Perubahan' : undefined}
             />

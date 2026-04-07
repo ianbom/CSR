@@ -5,6 +5,9 @@ export interface User {
     email_verified_at?: string;
     role?: string;
     company_id?: number;
+    position?: string;
+    phone?: string;
+    is_active?: boolean;
 }
 
 export interface Company {

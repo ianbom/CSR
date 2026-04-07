@@ -20,7 +20,7 @@ return new class extends Migration
             $table->softDeletes();
             
             $table->index('project_id');
-            $table->unique(['project_id', 'district_id']);
+            $table->unique(['project_id', 'district_id', 'deleted_at'], 'proj_loc_dist_del_unique');
         });
     }
 

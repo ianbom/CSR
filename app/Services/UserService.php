@@ -79,4 +79,27 @@ class UserService
             $query->orderBy('created_at', 'desc');
         }
     }
+
+    public function createUser(array $data): User
+    {
+        if (isset($data['password'])) {
+            $data['password'] = \Illuminate\Support\Facades\Hash::make($data['password']);
+        }
+        
+        return User::create($data);
+    }
+
+    public function updateUser(int $id, array $data): User
+    {
+        $user = User::findOrFail($id);
+
+        if (isset($data['password']) && !empty($data['password'])) {
+            $data['password'] = \Illuminate\Support\Facades\Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        $user->update($data);
+        return $user;
+    }
 }

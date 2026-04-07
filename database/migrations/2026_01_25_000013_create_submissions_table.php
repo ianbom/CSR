@@ -39,7 +39,7 @@ return new class extends Migration
             $table->index(['company_id', 'project_id', 'assessment_type', 'submitted_at'], 'submissions_company_project_type_submitted_idx');
             $table->index(['project_id', 'enumerator_id', 'submitted_at']);
             $table->index(['project_id', 'respondent_id']);
-            $table->unique(['project_id', 'respondent_id']);
+            $table->unique(['project_id', 'respondent_id', 'deleted_at'], 'sub_proj_resp_del_unique');
         });
     }
 

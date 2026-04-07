@@ -1,3 +1,4 @@
+
 import {
     Icon,
     Pagination,
@@ -8,6 +9,7 @@ import CompanyLayout from '@/Layouts/AppLayout';
 import { Head, router } from '@inertiajs/react';
 import debounce from 'lodash/debounce';
 import { useCallback, useState } from 'react';
+import ModalUserForm from './components/ModalUserForm';
 
 interface User {
     id: number;
@@ -55,6 +57,7 @@ interface Props {
     users: PaginatedUsers;
     summary: Summary;
     filters: Filters;
+    companies: { id: number; name: string }[];
 }
 
 const roleTabs = [
@@ -91,8 +94,25 @@ const sortableColumns: { key: SortKey; label: string }[] = [
     { key: 'created_at', label: 'Terdaftar' },
 ];
 
-export default function ListUser({ users, summary, filters }: Props) {
+export default function ListUser({
+    users,
+    summary,
+    filters,
+    companies,
+}: Props) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+    const openCreateModal = () => {
+        setSelectedUser(null);
+        setIsModalOpen(true);
+    };
+
+    const openEditModal = (user: User) => {
+        setSelectedUser(user);
+        setIsModalOpen(true);
+    };
 
     const navigateWithFilters = (overrides: Record<string, unknown>) => {
         router.get(
@@ -154,13 +174,22 @@ export default function ListUser({ users, summary, filters }: Props) {
 
             <div className="p-8">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-slate-900">
-                        Manajemen Pengguna
-                    </h1>
-                    <p className="mt-2 text-slate-500">
-                        Kelola semua pengguna yang terdaftar dalam sistem.
-                    </p>
+                <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                    <div>
+                        <h1 className="text-3xl font-bold text-slate-900">
+                            Manajemen Pengguna
+                        </h1>
+                        <p className="mt-2 text-slate-500">
+                            Kelola semua pengguna yang terdaftar dalam sistem.
+                        </p>
+                    </div>
+                    <button
+                        onClick={openCreateModal}
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    >
+                        <Icon name="person_add" className="text-[20px]" />
+                        Tambah Pengguna
+                    </button>
                 </div>
 
                 {/* Summary Cards */}
@@ -300,6 +329,9 @@ export default function ListUser({ users, summary, filters }: Props) {
                                         <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
                                             Telepon
                                         </th>
+                                        <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                            Aksi
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -354,6 +386,20 @@ export default function ListUser({ users, summary, filters }: Props) {
                                             <td className="px-6 py-4 text-slate-500">
                                                 {user.phone ?? '-'}
                                             </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <button
+                                                    onClick={() =>
+                                                        openEditModal(user)
+                                                    }
+                                                    className="inline-flex items-center justify-center rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none"
+                                                    title="Edit Pengguna"
+                                                >
+                                                    <Icon
+                                                        name="edit"
+                                                        className="text-[20px]"
+                                                    />
+                                                </button>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -401,6 +447,13 @@ export default function ListUser({ users, summary, filters }: Props) {
                         {users.total} pengguna
                     </div>
                 )} */}
+
+                <ModalUserForm
+                    show={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    companies={companies}
+                    user={selectedUser}
+                />
             </div>
         </CompanyLayout>
     );

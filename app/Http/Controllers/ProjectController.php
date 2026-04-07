@@ -53,6 +53,7 @@ class ProjectController extends Controller
         }
 
         $provinces = $this->areaService->getAllProvinces();
+        // dd($projects); 
 
         return Inertia::render('Project/ListProject', [
             'projects' => $projects,

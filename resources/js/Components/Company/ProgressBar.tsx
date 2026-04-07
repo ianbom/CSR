@@ -32,7 +32,7 @@ export default function ProgressBar({
                                   : 'text-slate-600'
                         }`}
                     >
-                        {isNotStarted ? 'Not Started' : `${percentage}%`}
+                        {isNotStarted ? '0%' : `${percentage}%`}
                     </span>
                 )}
             </div>

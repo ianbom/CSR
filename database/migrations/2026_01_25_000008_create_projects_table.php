@@ -37,7 +37,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             
-            $table->unique(['company_id', 'project_code']);
+            $table->unique(['company_id', 'project_code', 'deleted_at'], 'proj_comp_code_del_unique');
             $table->index(['company_id', 'status']);
         });
     }

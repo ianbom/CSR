@@ -88,6 +88,8 @@ Route::middleware('auth')->group(function () {
 
     Route::group(['middleware' => 'role:admin,superadmin,company'], function () {
         Route::get('/users', [UserController::class, 'index'])->middleware('role:admin,superadmin')->name('users.index');
+        Route::post('/users', [UserController::class, 'store'])->middleware('role:admin,superadmin')->name('users.store');
+        Route::patch('/users/{id}', [UserController::class, 'update'])->middleware('role:admin,superadmin')->name('users.update');
     });
 
 });

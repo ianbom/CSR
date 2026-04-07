@@ -1461,6 +1461,13 @@ class ProjectService
             return $city ? $city->name : ($district?->name ?? '-');
         })->unique()->take(2)->implode(', ');
 
+        // Get first city and province for separate display
+        $firstLocation = $project->locations->first();
+        $firstCity = $firstLocation?->district?->city;
+        $firstProvince = $firstCity?->province;
+        $cityName = $firstCity?->name ?? '-';
+        $provinceName = $firstProvince?->name ?? '-';
+
         $fullLocations = $project->locations->map(function ($loc) {
             return [
                 'id' => $loc->id,
@@ -1471,8 +1478,18 @@ class ProjectService
         })->toArray();
 
         $type = $this->determineProjectType($project);
+        
+        // Total responses (all types)
         $currentResponses = $project->submissions->count();
         $targetResponses = $project->target_ikm_count + $project->target_sloi_count;
+
+        // Separate IKM responses
+        $ikmCurrentResponses = $project->submissions->where('assessment_type', 'IKM')->count();
+        $ikmTargetResponses = $project->target_ikm_count;
+
+        // Separate SLOI responses
+        $sloiCurrentResponses = $project->submissions->where('assessment_type', 'SLOI')->count();
+        $sloiTargetResponses = $project->target_sloi_count;
 
         return [
             'id' => $project->id,
@@ -1482,6 +1499,8 @@ class ProjectService
             'type' => $type,
             'typeLabel' => $this->getTypeLabel($project),
             'location' => $locationsString ?: '-',
+            'city' => $cityName,
+            'province' => $provinceName,
             'status' => $project->status,
             'description' => $project->description,
             'target_ikm_count' => $project->target_ikm_count,
@@ -1494,6 +1513,10 @@ class ProjectService
             'locations' => $fullLocations,
             'currentResponses' => $currentResponses,
             'targetResponses' => $targetResponses ?: 0,
+            'ikmCurrentResponses' => $ikmCurrentResponses,
+            'ikmTargetResponses' => $ikmTargetResponses,
+            'sloiCurrentResponses' => $sloiCurrentResponses,
+            'sloiTargetResponses' => $sloiTargetResponses,
             'startDate' => $project->start_date?->format('Y-m-d'),
             'endDate' => $project->end_date?->format('Y-m-d'),
         ];

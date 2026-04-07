@@ -18,9 +18,6 @@ export function CompanyCard({ company }: CompanyCardProps) {
 
     return (
         <div className="group flex items-center gap-4 rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md dark:bg-slate-800">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 text-lg font-bold text-white shadow-md">
-                {company.name.charAt(0)}
-            </div>
             <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold text-slate-900 dark:text-white">
                     {company.name}

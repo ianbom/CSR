@@ -1,8 +1,12 @@
-var staticCacheName = "pwa-v" + new Date().getTime();
-var filesToCache = [
+const CACHE_VERSION = 'pwa-v' + new Date().getTime();
+const OFFLINE_CACHE = 'offline-v1';
+const STATIC_CACHE = 'static-v1';
+
+const OFFLINE_URL = '/offline';
+
+const STATIC_ASSETS = [
     '/offline',
-    '/css/app.css',
-    '/js/app.js',
+    '/img/LogoTab.png',
     '/images/icons/icon-72x72.png',
     '/images/icons/icon-96x96.png',
     '/images/icons/icon-128x128.png',
@@ -13,40 +17,92 @@ var filesToCache = [
     '/images/icons/icon-512x512.png',
 ];
 
-// Cache on install
+// Install event - cache static assets
 self.addEventListener("install", event => {
-    this.skipWaiting();
+    console.log('[ServiceWorker] Installing...');
     event.waitUntil(
-        caches.open(staticCacheName)
-            .then(cache => {
-                return cache.addAll(filesToCache);
-            })
-    )
-});
-
-// Clear cache on activate
-self.addEventListener('activate', event => {
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames
-                    .filter(cacheName => (cacheName.startsWith("pwa-")))
-                    .filter(cacheName => (cacheName !== staticCacheName))
-                    .map(cacheName => caches.delete(cacheName))
-            );
-        })
+        (async () => {
+            const cache = await caches.open(CACHE_VERSION);
+            try {
+                await cache.addAll(STATIC_ASSETS);
+                console.log('[ServiceWorker] Static assets cached');
+            } catch (error) {
+                console.error('[ServiceWorker] Failed to cache assets:', error);
+            }
+            await self.skipWaiting();
+        })()
     );
 });
 
-// Serve from Cache
+// Activate event - cleanup old caches
+self.addEventListener('activate', event => {
+    console.log('[ServiceWorker] Activating...');
+    event.waitUntil(
+        (async () => {
+            const cacheNames = await caches.keys();
+            await Promise.all(
+                cacheNames
+                    .filter(cacheName => cacheName.startsWith("pwa-") && cacheName !== CACHE_VERSION)
+                    .map(cacheName => {
+                        console.log('[ServiceWorker] Deleting old cache:', cacheName);
+                        return caches.delete(cacheName);
+                    })
+            );
+            await self.clients.claim();
+        })()
+    );
+});
+
+// Fetch event - network first, fallback to cache
 self.addEventListener("fetch", event => {
+    // Skip cross-origin requests
+    if (!event.request.url.startsWith(self.location.origin)) {
+        return;
+    }
+
+    // Skip non-GET requests
+    if (event.request.method !== 'GET') {
+        return;
+    }
+
     event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                return response || fetch(event.request);
-            })
-            .catch(() => {
-                return caches.match('offline');
-            })
-    )
+        (async () => {
+            try {
+                // Try network first
+                const networkResponse = await fetch(event.request);
+                
+                // Cache successful responses
+                if (networkResponse.ok) {
+                    const cache = await caches.open(CACHE_VERSION);
+                    cache.put(event.request, networkResponse.clone());
+                }
+                
+                return networkResponse;
+            } catch (error) {
+                // Network failed, try cache
+                const cachedResponse = await caches.match(event.request);
+                
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+                
+                // If it's a navigation request, show offline page
+                if (event.request.mode === 'navigate') {
+                    const offlineResponse = await caches.match(OFFLINE_URL);
+                    if (offlineResponse) {
+                        return offlineResponse;
+                    }
+                }
+                
+                // For all other requests, return a basic error response
+                return new Response('Offline - Resource not available', {
+                    status: 503,
+                    statusText: 'Service Unavailable',
+                    headers: new Headers({
+                        'Content-Type': 'text/plain'
+                    })
+                });
+            }
+        })()
+    );
 });

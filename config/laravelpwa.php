@@ -3,14 +3,15 @@
 return [
     'name' => 'LaravelPWA',
     'manifest' => [
-        'name' => env('APP_NAME', 'ImpactManagment'),
-        'short_name' => 'ImpactManagment',
+        'name' => env('APP_NAME', 'Impact Management'),
+        'short_name' => 'CSR Impact',
+        'description' => 'Corporate Social Responsibility Impact Management System',
         'start_url' => '/',
         'background_color' => '#ffffff',
-        'theme_color' => '#000000',
+        'theme_color' => '#059669',
         'display' => 'standalone',
         'orientation'=> 'any',
-        'status_bar'=> 'black',
+        'status_bar'=> '#059669',
         'icons' => [
             '72x72' => [
                 'path' => '/images/icons/icon-72x72.png',
@@ -34,7 +35,7 @@ return [
             ],
             '192x192' => [
                 'path' => '/images/icons/icon-192x192.png',
-                'purpose' => 'any'
+                'purpose' => 'any maskable'
             ],
             '384x384' => [
                 'path' => '/images/icons/icon-384x384.png',
@@ -42,7 +43,7 @@ return [
             ],
             '512x512' => [
                 'path' => '/images/icons/icon-512x512.png',
-                'purpose' => 'any'
+                'purpose' => 'any maskable'
             ],
         ],
         'splash' => [
@@ -59,18 +60,13 @@ return [
         ],
         'shortcuts' => [
             [
-                'name' => 'Shortcut Link 1',
-                'description' => 'Shortcut Link 1 Description',
-                'url' => '/shortcutlink1',
+                'name' => 'Dashboard',
+                'description' => 'Go to Dashboard',
+                'url' => '/dashboard',
                 'icons' => [
-                    "src" => "/images/icons/icon-72x72.png",
+                    "src" => "/images/icons/icon-192x192.png",
                     "purpose" => "any"
                 ]
-            ],
-            [
-                'name' => 'Shortcut Link 2',
-                'description' => 'Shortcut Link 2 Description',
-                'url' => '/shortcutlink2'
             ]
         ],
         'custom' => []

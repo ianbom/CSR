@@ -52,13 +52,12 @@ export default function InstrumentTemplateForm({
                             key={type}
                             type="button"
                             onClick={() => setData('type', type)}
-                            className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-bold transition-all ${
-                                data.type === type
+                            className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-bold transition-all ${data.type === type
                                     ? type === 'IKM'
                                         ? 'border-blue-500 bg-blue-50 text-blue-700'
                                         : 'border-violet-500 bg-violet-50 text-violet-700'
                                     : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300'
-                            }`}
+                                }`}
                         >
                             {type}
                         </button>

@@ -1,0 +1,300 @@
+-- Merging decision tree log ---
+provider#androidx.core.content.FileProvider
+INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:27:9-35:20
+	android:grantUriPermissions
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:31:13-47
+	android:authorities
+		INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:29:13-64
+	android:exported
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:30:13-37
+	android:name
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:28:13-62
+manifest
+ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:2:1-41:12
+INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:2:1-41:12
+INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:2:1-41:12
+INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:2:1-41:12
+MERGED from [:capacitor-android] E:\laragon\www\CSR\node_modules\@capacitor\android\capacitor\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [:capacitor-cordova-android-plugins] E:\laragon\www\CSR\android\capacitor-cordova-android-plugins\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:2:1-11:12
+MERGED from [org.apache.cordova:framework:14.0.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\50de50860a79b5e0c7341f47c9d5a5e4\transformed\framework-14.0.1\AndroidManifest.xml:20:1-27:12
+MERGED from [androidx.core:core-splashscreen:1.2.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\325566790d55d72c9c637facfa0645bd\transformed\core-splashscreen-1.2.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\485d4f0c50e8c1cd19949413fade2819\transformed\appcompat-resources-1.7.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.appcompat:appcompat:1.7.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\be5381c162999aa95f101410b105e471\transformed\appcompat-1.7.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d2d816ced6b68121ff3d414a6ba31a94\transformed\coordinatorlayout-1.3.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.fragment:fragment:1.8.9] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\7186b5a8ca4e2c921a7086461235cf0e\transformed\fragment-1.8.9\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity:1.11.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\0ebfc906d6e6e72eadf68c16b596e002\transformed\activity-1.11.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\72b7afbec0a06d304c19e129bf835826\transformed\cursoradapter-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\845de46a23ac4dc621f38904f4f16cdf\transformed\drawerlayout-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\130887e00c4c5a37232515ed56b5cd46\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d734e9dc1161098095f820463d6f953a\transformed\viewpager-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.customview:customview:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\e88e33317404de05d7f6a94c4d4a33e4\transformed\customview-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.webkit:webkit:1.14.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\0f15bc77ce5eed101255fa0df20b1ecc\transformed\webkit-1.14.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\7743e9fc63ef921fc3c47342773d57ec\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\54b16cae7427be5489f0aaff776ad900\transformed\vectordrawable-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.core:core-ktx:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\5c09754852a86c7b3058caeb7d436a25\transformed\core-ktx-1.17.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\bb55292ad05e36ffd285ceda482bc450\transformed\loader-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:17:1-30:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d3133da8171d4a5ef9547feec2237b3e\transformed\lifecycle-livedata-2.6.2\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\b518a2184dedcaecafc41499ddb5a50a\transformed\lifecycle-viewmodel-2.6.2\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\30757f443ca6206401e14ecff5356f82\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\bf244cc5b73e7f46b466e81231638584\transformed\lifecycle-livedata-core-2.6.2\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\4ae69f6da776b9ac20024affd8d8a30e\transformed\lifecycle-runtime-2.6.2\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\7efd995dc3d1942b209fd78ad86aa975\transformed\lifecycle-viewmodel-savedstate-2.6.2\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\52a6c2c4947f1fc0f72d4175737df145\transformed\savedstate-1.2.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:17:1-55:12
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\656fb0f7102e672a80bcdd2dcc374782\transformed\startup-runtime-1.1.1\AndroidManifest.xml:17:1-33:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\18222198880d2954effb6a9e4d43caf0\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\bb8a6c9a32cee660ff86a7886d6b9fe9\transformed\interpolator-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.tracing:tracing:1.2.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\3095d6354cc7424938cf67bf05886a62\transformed\tracing-1.2.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\887ef308f3741cfb47d73ed784128270\transformed\core-runtime-2.2.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\05d393370f5a562892eca22def52319b\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.core:core-viewtree:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\f1124d23ff039235972c7cb2165f1186\transformed\core-viewtree-1.0.0\AndroidManifest.xml:2:1-7:12
+	package
+		INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml
+	android:versionName
+		INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml
+	android:versionCode
+		INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:2:11-69
+application
+ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:4:5-36:19
+INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:4:5-36:19
+MERGED from [:capacitor-cordova-android-plugins] E:\laragon\www\CSR\android\capacitor-cordova-android-plugins\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:8:5-9:19
+MERGED from [:capacitor-cordova-android-plugins] E:\laragon\www\CSR\android\capacitor-cordova-android-plugins\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:8:5-9:19
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:28:5-89
+MERGED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:28:5-89
+MERGED from [androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\30757f443ca6206401e14ecff5356f82\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\30757f443ca6206401e14ecff5356f82\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\656fb0f7102e672a80bcdd2dcc374782\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\656fb0f7102e672a80bcdd2dcc374782\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\18222198880d2954effb6a9e4d43caf0\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\18222198880d2954effb6a9e4d43caf0\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
+	android:extractNativeLibs
+		INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml
+	android:appComponentFactory
+		ADDED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:28:18-86
+	android:supportsRtl
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:9:9-35
+	android:label
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:7:9-41
+	android:roundIcon
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:8:9-54
+	android:icon
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:6:9-43
+	android:allowBackup
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:5:9-35
+	android:theme
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:10:9-40
+	android:usesCleartextTraffic
+		ADDED from [:capacitor-cordova-android-plugins] E:\laragon\www\CSR\android\capacitor-cordova-android-plugins\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:8:18-53
+activity#com.impactmanagement.id.MainActivity
+ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:12:9-25:20
+	android:label
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:15:13-56
+	android:launchMode
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:17:13-44
+	android:exported
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:18:13-36
+	android:configChanges
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:13:13-148
+	android:theme
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:16:13-62
+	android:name
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:14:13-41
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:20:13-23:29
+action#android.intent.action.MAIN
+ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:21:17-69
+	android:name
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:21:25-66
+category#android.intent.category.LAUNCHER
+ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:22:17-77
+	android:name
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:22:27-74
+uses-permission#android.permission.INTERNET
+ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:40:5-67
+	android:name
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:40:22-64
+meta-data#android.support.FILE_PROVIDER_PATHS
+ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:32:13-34:64
+	android:resource
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:34:17-51
+	android:name
+		ADDED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml:33:17-67
+uses-sdk
+INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml
+INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml
+MERGED from [:capacitor-android] E:\laragon\www\CSR\node_modules\@capacitor\android\capacitor\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:5:5-44
+MERGED from [:capacitor-android] E:\laragon\www\CSR\node_modules\@capacitor\android\capacitor\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:5:5-44
+MERGED from [:capacitor-cordova-android-plugins] E:\laragon\www\CSR\android\capacitor-cordova-android-plugins\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:6:5-44
+MERGED from [:capacitor-cordova-android-plugins] E:\laragon\www\CSR\android\capacitor-cordova-android-plugins\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:6:5-44
+MERGED from [org.apache.cordova:framework:14.0.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\50de50860a79b5e0c7341f47c9d5a5e4\transformed\framework-14.0.1\AndroidManifest.xml:25:5-44
+MERGED from [org.apache.cordova:framework:14.0.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\50de50860a79b5e0c7341f47c9d5a5e4\transformed\framework-14.0.1\AndroidManifest.xml:25:5-44
+MERGED from [androidx.core:core-splashscreen:1.2.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\325566790d55d72c9c637facfa0645bd\transformed\core-splashscreen-1.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core-splashscreen:1.2.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\325566790d55d72c9c637facfa0645bd\transformed\core-splashscreen-1.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\485d4f0c50e8c1cd19949413fade2819\transformed\appcompat-resources-1.7.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\485d4f0c50e8c1cd19949413fade2819\transformed\appcompat-resources-1.7.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.appcompat:appcompat:1.7.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\be5381c162999aa95f101410b105e471\transformed\appcompat-1.7.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.appcompat:appcompat:1.7.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\be5381c162999aa95f101410b105e471\transformed\appcompat-1.7.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d2d816ced6b68121ff3d414a6ba31a94\transformed\coordinatorlayout-1.3.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d2d816ced6b68121ff3d414a6ba31a94\transformed\coordinatorlayout-1.3.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.fragment:fragment:1.8.9] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\7186b5a8ca4e2c921a7086461235cf0e\transformed\fragment-1.8.9\AndroidManifest.xml:5:5-44
+MERGED from [androidx.fragment:fragment:1.8.9] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\7186b5a8ca4e2c921a7086461235cf0e\transformed\fragment-1.8.9\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity:1.11.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\0ebfc906d6e6e72eadf68c16b596e002\transformed\activity-1.11.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity:1.11.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\0ebfc906d6e6e72eadf68c16b596e002\transformed\activity-1.11.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\72b7afbec0a06d304c19e129bf835826\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\72b7afbec0a06d304c19e129bf835826\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\845de46a23ac4dc621f38904f4f16cdf\transformed\drawerlayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\845de46a23ac4dc621f38904f4f16cdf\transformed\drawerlayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\130887e00c4c5a37232515ed56b5cd46\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\130887e00c4c5a37232515ed56b5cd46\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d734e9dc1161098095f820463d6f953a\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d734e9dc1161098095f820463d6f953a\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\e88e33317404de05d7f6a94c4d4a33e4\transformed\customview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\e88e33317404de05d7f6a94c4d4a33e4\transformed\customview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.webkit:webkit:1.14.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\0f15bc77ce5eed101255fa0df20b1ecc\transformed\webkit-1.14.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.webkit:webkit:1.14.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\0f15bc77ce5eed101255fa0df20b1ecc\transformed\webkit-1.14.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\7743e9fc63ef921fc3c47342773d57ec\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\7743e9fc63ef921fc3c47342773d57ec\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\54b16cae7427be5489f0aaff776ad900\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\54b16cae7427be5489f0aaff776ad900\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.core:core-ktx:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\5c09754852a86c7b3058caeb7d436a25\transformed\core-ktx-1.17.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-ktx:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\5c09754852a86c7b3058caeb7d436a25\transformed\core-ktx-1.17.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\bb55292ad05e36ffd285ceda482bc450\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\bb55292ad05e36ffd285ceda482bc450\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d3133da8171d4a5ef9547feec2237b3e\transformed\lifecycle-livedata-2.6.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d3133da8171d4a5ef9547feec2237b3e\transformed\lifecycle-livedata-2.6.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\b518a2184dedcaecafc41499ddb5a50a\transformed\lifecycle-viewmodel-2.6.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\b518a2184dedcaecafc41499ddb5a50a\transformed\lifecycle-viewmodel-2.6.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\30757f443ca6206401e14ecff5356f82\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\30757f443ca6206401e14ecff5356f82\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\bf244cc5b73e7f46b466e81231638584\transformed\lifecycle-livedata-core-2.6.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\bf244cc5b73e7f46b466e81231638584\transformed\lifecycle-livedata-core-2.6.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\4ae69f6da776b9ac20024affd8d8a30e\transformed\lifecycle-runtime-2.6.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\4ae69f6da776b9ac20024affd8d8a30e\transformed\lifecycle-runtime-2.6.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\7efd995dc3d1942b209fd78ad86aa975\transformed\lifecycle-viewmodel-savedstate-2.6.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\7efd995dc3d1942b209fd78ad86aa975\transformed\lifecycle-viewmodel-savedstate-2.6.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\52a6c2c4947f1fc0f72d4175737df145\transformed\savedstate-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\52a6c2c4947f1fc0f72d4175737df145\transformed\savedstate-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\656fb0f7102e672a80bcdd2dcc374782\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\656fb0f7102e672a80bcdd2dcc374782\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\18222198880d2954effb6a9e4d43caf0\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\18222198880d2954effb6a9e4d43caf0\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\bb8a6c9a32cee660ff86a7886d6b9fe9\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\bb8a6c9a32cee660ff86a7886d6b9fe9\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.tracing:tracing:1.2.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\3095d6354cc7424938cf67bf05886a62\transformed\tracing-1.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.tracing:tracing:1.2.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\3095d6354cc7424938cf67bf05886a62\transformed\tracing-1.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\887ef308f3741cfb47d73ed784128270\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\887ef308f3741cfb47d73ed784128270\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\05d393370f5a562892eca22def52319b\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\05d393370f5a562892eca22def52319b\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-viewtree:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\f1124d23ff039235972c7cb2165f1186\transformed\core-viewtree-1.0.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-viewtree:1.0.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\f1124d23ff039235972c7cb2165f1186\transformed\core-viewtree-1.0.0\AndroidManifest.xml:5:5-44
+	android:targetSdkVersion
+		INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from E:\laragon\www\CSR\android\app\src\main\AndroidManifest.xml
+provider#androidx.startup.InitializationProvider
+ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\30757f443ca6206401e14ecff5356f82\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\30757f443ca6206401e14ecff5356f82\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\656fb0f7102e672a80bcdd2dcc374782\transformed\startup-runtime-1.1.1\AndroidManifest.xml:26:9-30:34
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\656fb0f7102e672a80bcdd2dcc374782\transformed\startup-runtime-1.1.1\AndroidManifest.xml:26:9-30:34
+	tools:node
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:28:13-31
+	android:authorities
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+	android:exported
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+	android:name
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
+meta-data#androidx.emoji2.text.EmojiCompatInitializer
+ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\d747e4e03c8e1ad3d4e18b6eaf2889a6\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:23:9-81
+permission#com.impactmanagement.id.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:23:9-81
+uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:26:22-94
+uses-permission#com.impactmanagement.id.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.17.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\954a8bbce1ee6b591442fa19a648058f\transformed\core-1.17.0\AndroidManifest.xml:26:22-94
+meta-data#androidx.lifecycle.ProcessLifecycleInitializer
+ADDED from [androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\30757f443ca6206401e14ecff5356f82\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\30757f443ca6206401e14ecff5356f82\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\30757f443ca6206401e14ecff5356f82\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:30:17-78
+meta-data#androidx.profileinstaller.ProfileInstallerInitializer
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:30:17-85
+receiver#androidx.profileinstaller.ProfileInstallReceiver
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:34:9-52:20
+	android:enabled
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:37:13-35
+	android:exported
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:38:13-36
+	android:permission
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:39:13-57
+	android:directBootAware
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:36:13-44
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:35:13-76
+intent-filter#action:name:androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:40:13-42:29
+action#androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:17-91
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:25-88
+intent-filter#action:name:androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:43:13-45:29
+action#androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:17-85
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:25-82
+intent-filter#action:name:androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:46:13-48:29
+action#androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:17-88
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:25-85
+intent-filter#action:name:androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:49:13-51:29
+action#androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:17-95
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Windows 11 Home\.gradle\caches\8.11.1\transforms\065544cdb066fd7e5ca3cd7107f150d8\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:25-92

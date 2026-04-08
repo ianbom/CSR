@@ -74,6 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/enumerators/{id}', [EnumeratorController::class, 'show'])->name('enumerators.show');
     // Companies
     Route::get('/companies', [CompanyController::class, 'index'])->name('companies.index');
+    Route::post('/companies', [CompanyController::class, 'store'])->name('companies.store');
     // Users
 
     // Templates

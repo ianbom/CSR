@@ -9,6 +9,7 @@ interface NavItemProps {
     label: string;
     active?: boolean;
     roles?: string[];
+    hideForRoles?: string[];
 }
 
 interface SidebarProps {
@@ -25,7 +26,12 @@ interface SidebarProps {
 const navItems: NavItemProps[] = [
     { href: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
     { href: '/projects', icon: 'assignment', label: 'Projects' },
-    { href: '/enumerators', icon: 'group', label: 'Enumerators' },
+    {
+        href: '/enumerators',
+        icon: 'group',
+        label: 'Enumerators',
+        hideForRoles: ['superadmin', 'admin'],
+    },
     // { href: '/inbox', icon: 'move_to_inbox', label: 'Data Inbox' },
     // { href: '/reports', icon: 'description', label: 'Reports' },
 
@@ -96,9 +102,20 @@ export default function Sidebar({
             {/* Navigation */}
             <nav className="mt-4 flex-1 space-y-1 px-4">
                 {navItems
-                    .filter(
-                        (item) => !item.roles || item.roles.includes(user.role),
-                    )
+                    .filter((item) => {
+                        const userRole = user.role.toLowerCase();
+                        const isAllowedByRoles =
+                            !item.roles ||
+                            item.roles
+                                .map((r) => r.toLowerCase())
+                                .includes(userRole);
+                        const isHiddenByRoles =
+                            item.hideForRoles &&
+                            item.hideForRoles
+                                .map((r) => r.toLowerCase())
+                                .includes(userRole);
+                        return isAllowedByRoles && !isHiddenByRoles;
+                    })
                     .map((item) => (
                         <NavItem
                             key={item.href}

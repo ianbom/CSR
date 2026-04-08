@@ -34,4 +34,11 @@ class CompanyController extends Controller
             'filters'   => $params,
         ]);
     }
+
+    public function store(\App\Http\Requests\Company\StoreCompanyRequest $request)
+    {
+        $this->companyService->createCompany($request->validated());
+
+        return redirect()->back()->with('success', 'Perusahaan berhasil ditambahkan.');
+    }
 }

@@ -180,7 +180,6 @@ export default function CompanyDashboard({
                     <ActivityFeed
                         title="Aktivitas Terbaru"
                         activities={activities}
-                        viewAllLink="/activities"
                     />
                 </section>
             </div>

@@ -245,12 +245,6 @@ export default function AdminDashboard({
                                         <Activity className="h-5 w-5 text-primary" />
                                         Aktivitas Terbaru
                                     </CardTitle>
-                                    <Link
-                                        href="/admin/activities"
-                                        className="text-xs font-medium text-primary hover:underline"
-                                    >
-                                        Lihat semua
-                                    </Link>
                                 </div>
                             </CardHeader>
                             <CardContent>

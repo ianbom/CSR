@@ -20,7 +20,7 @@ const features: Feature[] = [
         detailedDescription:
             'Platform IKM (Indeks Kepuasan Masyarakat) kami memungkinkan Anda untuk mengukur dan menganalisis tingkat kepuasan masyarakat terhadap program keberlanjutan perusahaan secara menyeluruh. Dengan metodologi yang terstandarisasi dan antarmuka yang user-friendly, Anda dapat mengumpulkan feedback real-time dari stakeholder, mengidentifikasi area perbaikan, dan membuat keputusan berbasis data untuk meningkatkan dampak sosial program Anda.',
         tags: ['Kepuasan Masyarakat', 'Keberlanjutan Survey'],
-        image: '/img/hom2.jpeg',
+        image: '/img/hom3.webp',
         href: '#features-section',
         featured: true,
     },
@@ -30,7 +30,7 @@ const features: Feature[] = [
             'Pantau tingkat penerimaan masyarakat terhadap operasional perusahaan Anda.',
         detailedDescription:
             'SLOI (Social License to Operate Index) adalah alat penting untuk memantau dan mengukur tingkat penerimaan masyarakat terhadap kehadiran dan operasional perusahaan Anda. Sistem ini membantu mengidentifikasi potensi konflik, mengukur persepsi publik, dan memastikan operasional perusahaan berjalan harmonis dengan masyarakat sekitar. Dashboard interaktif memberikan insight mendalam tentang dinamika hubungan perusahaan dengan komunitas lokal.',
-        image: '/img/Hom1.jpg',
+        image: '/img/hom2.webp',
         href: '#features-section',
     },
     {
@@ -39,7 +39,7 @@ const features: Feature[] = [
             'Evaluasi dampak sosial dan lingkungan dengan metodologi Social Return on Investment (Coming Soon).',
         detailedDescription:
             'SROI (Social Return on Investment) adalah metodologi canggih untuk mengukur nilai sosial, lingkungan, dan ekonomi yang dihasilkan dari investasi program keberlanjutan Anda. Fitur ini akan segera hadir untuk membantu Anda menghitung ROI sosial, mengidentifikasi dampak yang paling signifikan, dan mengkomunikasikan nilai program CSR Anda dalam bahasa yang dipahami oleh stakeholder bisnis.',
-        image: '/img/hom3.jpg',
+        image: '/img/hom-new.webp',
         href: '#features-section',
         comingSoon: true,
     },

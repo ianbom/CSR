@@ -92,7 +92,7 @@ export default function Sidebar({
             <div className="flex items-center gap-3 p-8">
                 <a href="/">
                     <img
-                        src="/img/LogoHeader.png"
+                        src="/img/LogoHeader.svg"
                         alt="Logo"
                         className="h-10 w-auto opacity-75 brightness-0 invert filter"
                     />

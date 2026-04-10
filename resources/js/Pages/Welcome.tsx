@@ -21,7 +21,7 @@ export default function Welcome({
                     <div className="relative mx-auto flex max-w-7xl items-center justify-between">
                         <div className="flex items-center gap-2">
                             <img
-                                src="/img/LogoHeader.png"
+                                src="/img/LogoHeader.svg"
                                 alt="Impact Report Manajemen Apps"
                                 className="h-10 w-auto"
                             />

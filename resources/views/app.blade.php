@@ -8,7 +8,7 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
         <title inertia>{{ config('app.name', 'ImpactManagement') }}</title>
-        <link rel="icon" type="image/png" href="/img/LogoTab.png"/>
+        <link rel="icon" type="image/png" href="/img/LogoTab.svg"/>
         <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
         
         <!-- Fonts -->

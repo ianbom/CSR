@@ -19,7 +19,7 @@ export default function Guest({ children }: PropsWithChildren) {
                 <div className="relative z-10 flex items-center justify-between px-10 py-8">
                     {/* Logo */}
                     <img
-                        src="/img/LogoHeader.png"
+                        src="/img/LogoHeader.svg"
                         alt="Logo"
                         className="h-10 w-auto rounded-lg bg-white object-contain p-2"
                     />

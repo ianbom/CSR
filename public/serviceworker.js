@@ -6,7 +6,7 @@ const OFFLINE_URL = '/offline';
 
 const STATIC_ASSETS = [
     '/offline',
-    '/img/LogoTab.png',
+    '/img/LogoTab.svg',
     '/images/icons/icon-72x72.png',
     '/images/icons/icon-96x96.png',
     '/images/icons/icon-128x128.png',
@@ -70,22 +70,22 @@ self.addEventListener("fetch", event => {
             try {
                 // Try network first
                 const networkResponse = await fetch(event.request);
-                
+
                 // Cache successful responses
                 if (networkResponse.ok) {
                     const cache = await caches.open(CACHE_VERSION);
                     cache.put(event.request, networkResponse.clone());
                 }
-                
+
                 return networkResponse;
             } catch (error) {
                 // Network failed, try cache
                 const cachedResponse = await caches.match(event.request);
-                
+
                 if (cachedResponse) {
                     return cachedResponse;
                 }
-                
+
                 // If it's a navigation request, show offline page
                 if (event.request.mode === 'navigate') {
                     const offlineResponse = await caches.match(OFFLINE_URL);
@@ -93,7 +93,7 @@ self.addEventListener("fetch", event => {
                         return offlineResponse;
                     }
                 }
-                
+
                 // For all other requests, return a basic error response
                 return new Response('Offline - Resource not available', {
                     status: 503,

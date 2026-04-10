@@ -28,7 +28,7 @@ export default function FooterSection() {
                         <div className="lg:col-span-1">
                             <div className="flex items-center gap-2.5">
                                 <img
-                                    src="/img/LogoHeader.png"
+                                    src="/img/LogoHeader.svg"
                                     alt="Impact Report Manajemen Apps"
                                     className="h-12 w-auto"
                                 />

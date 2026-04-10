@@ -13,7 +13,7 @@ export default function HeroSection() {
                 playsInline
                 className="absolute inset-0 z-0 h-full w-full object-cover"
             >
-                <source src="/img/animation.mp4" type="video/mp4" />
+                <source src="/img/animation.webm" type="video/webm" />
             </video>
             <div className="absolute inset-0 z-0 bg-black/40 backdrop-blur-sm dark:bg-black/60"></div>
 

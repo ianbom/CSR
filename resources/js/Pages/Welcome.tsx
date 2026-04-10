@@ -1,16 +1,13 @@
+import CtaSection from '@/Components/Home/CtaSection';
+import FeaturesSection from '@/Components/Home/FeaturesSection';
+import FooterSection from '@/Components/Home/FooterSection';
 import HeroSection from '@/Components/Home/HeroSection';
+import WhyChooseUsSection from '@/Components/Home/WhyChooseUsSection';
+import LogoGrid from '@/Components/LogoGrid';
 import { Button } from '@/Components/ui/button';
 import { PageProps } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { LogIn, Loader2 } from 'lucide-react';
-import React, { Suspense } from 'react';
-
-// Lazy load komponen yang berada di bawah layar pertama (below the fold)
-const WhyChooseUsSection = React.lazy(() => import('@/Components/Home/WhyChooseUsSection'));
-const FeaturesSection = React.lazy(() => import('@/Components/Home/FeaturesSection'));
-const LogoGrid = React.lazy(() => import('@/Components/LogoGrid'));
-const CtaSection = React.lazy(() => import('@/Components/Home/CtaSection'));
-const FooterSection = React.lazy(() => import('@/Components/Home/FooterSection'));
+import { LogIn } from 'lucide-react';
 
 export default function Welcome({
     auth,
@@ -69,17 +66,13 @@ export default function Welcome({
                 {/* Main Content */}
                 <main className="flex-1">
                     <HeroSection />
-                    <Suspense fallback={<div className="flex h-32 w-full items-center justify-center"><Loader2 className="size-8 animate-spin text-green-500" /></div>}>
-                        <WhyChooseUsSection />
-                        <FeaturesSection />
-                        <LogoGrid />
-                        <CtaSection />
-                    </Suspense>
+                    <WhyChooseUsSection />
+                    <FeaturesSection />
+                    <LogoGrid />
+                    <CtaSection />
                 </main>
 
-                <Suspense fallback={null}>
-                    <FooterSection />
-                </Suspense>
+                <FooterSection />
             </div>
         </>
     );

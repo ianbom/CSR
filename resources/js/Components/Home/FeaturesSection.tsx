@@ -222,13 +222,13 @@ export default function FeaturesSection() {
                     onClick={() => setExpandedFeature(null)}
                 >
                     <div
-                        className="relative flex w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl"
+                        className="relative flex w-full max-w-5xl max-h-[90vh] flex-col overflow-hidden rounded-3xl bg-white shadow-2xl md:flex-row"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Close button */}
                         <button
                             onClick={() => setExpandedFeature(null)}
-                            className="absolute right-4 top-4 z-10 flex size-10 items-center justify-center rounded-full bg-black/10 text-white backdrop-blur-sm transition-all hover:bg-black/20"
+                            className="absolute right-4 top-4 z-10 flex size-10 items-center justify-center rounded-full bg-gray-100 text-gray-900 transition-all hover:bg-gray-200 md:bg-black/10 md:text-white md:backdrop-blur-sm md:hover:bg-black/20"
                         >
                             <X className="size-5" />
                         </button>

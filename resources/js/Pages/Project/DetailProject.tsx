@@ -190,15 +190,9 @@ interface EnumeratorListItem {
     phone: string | null;
     isActive: boolean;
     totalSubmissions: number;
-    avgScore: number;
+    ikmSubmissions: number;
+    sloiSubmissions: number;
     lastSubmittedAt: string | null;
-    submissions: {
-        id: number;
-        respondentName: string;
-        assessmentType: string;
-        status: string;
-        submittedAt: string | null;
-    }[];
 }
 
 interface SloiReliabilityItem {

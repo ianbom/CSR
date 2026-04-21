@@ -180,7 +180,7 @@ class ProjectService
                 DB::table('project_locations')
                     ->where('project_id', $projectId)
                     ->delete();
-                
+
                 if (!empty($data['district_ids'])) {
                     $uniqueDistrictIds = array_unique($data['district_ids']);
                     $this->storeProjectLocations($uniqueDistrictIds, $projectId, $companyId);
@@ -256,17 +256,17 @@ class ProjectService
             if (array_key_exists('district_ids', $data)) {
                 // Ensure unique district IDs
                 $uniqueDistrictIds = array_unique(array_filter($data['district_ids']));
-                
+
                 // Get current district IDs
                 $currentDistrictIds = DB::table('project_locations')
                     ->where('project_id', $projectId)
                     ->pluck('district_id')
                     ->toArray();
-                
+
                 // Find what to delete and what to add
                 $toDelete = array_diff($currentDistrictIds, $uniqueDistrictIds);
                 $toAdd = array_diff($uniqueDistrictIds, $currentDistrictIds);
-                
+
                 // Delete locations that are not in the new list
                 if (!empty($toDelete)) {
                     DB::table('project_locations')
@@ -274,7 +274,7 @@ class ProjectService
                         ->whereIn('district_id', $toDelete)
                         ->delete();
                 }
-                
+
                 // Insert new locations
                 if (!empty($toAdd)) {
                     $locations = collect($toAdd)->map(fn ($districtId) => [
@@ -284,7 +284,7 @@ class ProjectService
                         'created_at' => now(),
                         'updated_at' => now(),
                     ])->toArray();
-                    
+
                     DB::table('project_locations')->insert($locations);
                 }
             }
@@ -1363,7 +1363,6 @@ class ProjectService
             ->get();
 
         $allSubmissions = Submission::where('project_id', $project->id)
-            ->with('respondent')
             ->get()
             ->groupBy('enumerator_id');
 
@@ -1372,14 +1371,9 @@ class ProjectService
             $submissions = $allSubmissions->get($enumerator->id, collect());
 
             $totalSubmissions = $submissions->count();
+            $ikmSubmissions = $submissions->where('assessment_type', 'IKM')->count();
+            $sloiSubmissions = $submissions->where('assessment_type', 'SLOI')->count();
             $latestSubmission = $submissions->sortByDesc('submitted_at')->first();
-            $avgScore = 0;
-            if ($totalSubmissions > 0) {
-                $submissionIds = $submissions->pluck('id');
-                $avg = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
-                    ->avg('value');
-                $avgScore = round((float) $avg, 2);
-            }
 
             return [
                 'id' => $enumerator->id,
@@ -1388,17 +1382,9 @@ class ProjectService
                 'phone' => $enumerator->phone,
                 'isActive' => $enumerator->is_active,
                 'totalSubmissions' => $totalSubmissions,
-                'avgScore' => $avgScore,
+                'ikmSubmissions' => $ikmSubmissions,
+                'sloiSubmissions' => $sloiSubmissions,
                 'lastSubmittedAt' => $latestSubmission?->submitted_at?->format('Y-m-d H:i'),
-                'submissions' => $submissions->map(function ($sub) {
-                    return [
-                        'id' => $sub->id,
-                        'respondentName' => $sub->respondent?->name ?? '-',
-                        'assessmentType' => $sub->assessment_type,
-                        'status' => $sub->status,
-                        'submittedAt' => $sub->submitted_at?->format('Y-m-d H:i'),
-                    ];
-                })->values()->toArray(),
             ];
         })->toArray();
     }
@@ -1478,7 +1464,7 @@ class ProjectService
         })->toArray();
 
         $type = $this->determineProjectType($project);
-        
+
         // Total responses (all types)
         $currentResponses = $project->submissions->count();
         $targetResponses = $project->target_ikm_count + $project->target_sloi_count;

@@ -485,7 +485,7 @@ export default function ProjectOverview({
             </div>
 
             {/* ─── Recent Submissions ──────────────────────── */}
-            <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm">
+            {/* <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm">
                 <div className="border-b border-slate-100 px-6 py-4">
                     <h3 className="flex items-center gap-2 text-base font-bold text-slate-900">
                         <Icon name="history" className="text-lg text-primary" />
@@ -573,7 +573,7 @@ export default function ProjectOverview({
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div> */}
         </>
     );
 }

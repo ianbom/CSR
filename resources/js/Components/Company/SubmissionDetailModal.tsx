@@ -242,7 +242,7 @@ export default function SubmissionDetailModal({
                                 data.descriptiveAnswers.length > 0 && (
                                     <div className="mt-2 flex flex-col gap-3 border-t border-slate-100 pt-6">
                                         <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                            Pertanyaan Deskriptif
+                                            Pertanyaan Kualitatif
                                         </p>
                                         <div className="flex flex-col gap-4">
                                             {data.descriptiveAnswers.map(

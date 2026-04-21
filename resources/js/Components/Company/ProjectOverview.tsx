@@ -199,12 +199,11 @@ export default function ProjectOverview({
                                 {[1, 2, 3, 4, 5].map((i) => (
                                     <div
                                         key={i}
-                                        className={`h-1.5 flex-1 rounded-full ${
-                                            i <=
-                                            Math.ceil(effectiveSloiStats.score)
+                                        className={`h-1.5 flex-1 rounded-full ${i <=
+                                                Math.ceil(effectiveSloiStats.score)
                                                 ? 'bg-primary'
                                                 : 'bg-slate-200'
-                                        }`}
+                                            }`}
                                     />
                                 ))}
                             </div>
@@ -315,11 +314,10 @@ export default function ProjectOverview({
                     {assessmentTypes.map((at) => (
                         <div
                             key={at.key}
-                            className={`flex items-center gap-3 rounded-lg border p-4 ${
-                                at.enabled
+                            className={`flex items-center gap-3 rounded-lg border p-4 ${at.enabled
                                     ? 'border-primary/20 bg-primary/5'
                                     : 'border-slate-100 bg-slate-50 opacity-50'
-                            }`}
+                                }`}
                         >
                             <div
                                 className={`flex size-10 items-center justify-center rounded-lg ${at.bg}`}
@@ -348,7 +346,7 @@ export default function ProjectOverview({
                 </div>
             </div>
 
-            {/* ─── Pertanyaan Deskriptif ───────────────────────── */}
+            {/* ─── Pertanyaan Kualitatif ───────────────────────── */}
             <div className="mb-8 rounded-xl border border-slate-100 bg-white shadow-sm">
                 <div className="border-b border-slate-100 px-6 py-4">
                     <h3 className="flex items-center gap-2 text-base font-bold text-slate-900">
@@ -356,7 +354,7 @@ export default function ProjectOverview({
                             name="help_outline"
                             className="text-lg text-primary"
                         />
-                        Pertanyaan Deskriptif
+                        Pertanyaan Kualitatif
                         <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
                             {project.descriptiveQuestions.length}
                         </span>
@@ -365,7 +363,7 @@ export default function ProjectOverview({
                 <div className="p-6">
                     {project.descriptiveQuestions.length === 0 ? (
                         <p className="text-center text-sm text-slate-400">
-                            Belum ada pertanyaan deskriptif.
+                            Belum ada Pertanyaan Kualitatif.
                         </p>
                     ) : (
                         <div className="flex flex-col gap-3">
@@ -548,26 +546,24 @@ export default function ProjectOverview({
                                     </td>
                                     <td className="px-6 py-4">
                                         <span
-                                            className={`text-sm font-bold ${
-                                                log.score >= 4
+                                            className={`text-sm font-bold ${log.score >= 4
                                                     ? 'text-green-600'
                                                     : log.score >= 3
-                                                      ? 'text-amber-600'
-                                                      : 'text-red-600'
-                                            }`}
+                                                        ? 'text-amber-600'
+                                                        : 'text-red-600'
+                                                }`}
                                         >
                                             {log.score}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
                                         <span
-                                            className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase ${
-                                                log.status === 'approved'
+                                            className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase ${log.status === 'approved'
                                                     ? 'bg-green-100 text-green-700'
                                                     : log.status === 'submitted'
-                                                      ? 'bg-amber-100 text-amber-700'
-                                                      : 'bg-red-100 text-red-700'
-                                            }`}
+                                                        ? 'bg-amber-100 text-amber-700'
+                                                        : 'bg-red-100 text-red-700'
+                                                }`}
                                         >
                                             {log.status}
                                         </span>

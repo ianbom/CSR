@@ -19,6 +19,8 @@ interface AllQuestionItem {
 interface IKMTrendChartProps {
     questionScores: QuestionScoreItem[];
     allQuestions?: AllQuestionItem[];
+    avgKepentingan?: number;
+    avgKinerja?: number;
     title?: string;
 }
 
@@ -44,13 +46,33 @@ const DOT_COLORS = [
     '#d946ef',
 ];
 
+const SCORE_MIN = 1;
+const SCORE_MAX = 4;
+const DEFAULT_AVERAGE = 2.5;
+
+function clampScore(value: number | null | undefined): number {
+    if (!Number.isFinite(value) || !value || value <= 0) {
+        return DEFAULT_AVERAGE;
+    }
+
+    return Math.min(SCORE_MAX, Math.max(SCORE_MIN, value));
+}
+
+function formatScore(value: number): string {
+    return value.toFixed(2).replace('.', ',');
+}
+
 function IPAScatterChart({
     questionScores,
     chartTitle,
+    avgKepentingan,
+    avgKinerja,
     compact = false,
 }: {
     questionScores: QuestionScoreItem[];
     chartTitle: string;
+    avgKepentingan: number;
+    avgKinerja: number;
     compact?: boolean;
 }) {
     const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -63,15 +85,14 @@ function IPAScatterChart({
         );
     }
 
-    // Fixed center point at 3.0 for both axes
-    const avgImportance = 3.0;
-    const avgPerformance = 3.0;
+    const safeAvgKepentingan = clampScore(avgKepentingan);
+    const safeAvgKinerja = clampScore(avgKinerja);
 
-    // Fixed axis range: 0 to 6 for both X and Y
-    const xMin = 0;
-    const xMax = 6;
-    const yMin = 0;
-    const yMax = 6;
+    // IKM uses a 1-4 scale on both axes.
+    const xMin = SCORE_MIN;
+    const xMax = SCORE_MAX;
+    const yMin = SCORE_MIN;
+    const yMax = SCORE_MAX;
     const xRange = xMax - xMin;
     const yRange = yMax - yMin;
 
@@ -94,8 +115,8 @@ function IPAScatterChart({
     const toSvgY = (val: number) => marginTop + ((yMax - val) / yRange) * plotH;
 
     // Generate ticks
-    const xStep = 0.5; // 0.5 step for 0 to 6 range
-    const yStep = 0.5; // 0.5 step for 0 to 6 range
+    const xStep = 0.5;
+    const yStep = 0.5;
     const xTicks: number[] = [];
     const yTicks: number[] = [];
     for (let v = xMin; v <= xMax + 0.001; v += xStep)
@@ -106,6 +127,40 @@ function IPAScatterChart({
     const fontSize = compact ? 10 : 12;
     const dotR = compact ? 6 : 8;
     const labelFontSize = compact ? 11 : 13;
+    const quadrantFontSize = compact ? 10 : 14;
+    const quadrantLabelStyle = {
+        fontSize: quadrantFontSize,
+        fontWeight: 800,
+        fontStyle: 'italic',
+    };
+    const verticalLineX = toSvgX(safeAvgKepentingan);
+    const horizontalLineY = toSvgY(safeAvgKinerja);
+    const quadrantLabels = [
+        {
+            label: 'Kuadran I',
+            description: 'Prioritas Utama',
+            x: verticalLineX + (marginLeft + plotW - verticalLineX) / 2,
+            y: horizontalLineY + (marginTop + plotH - horizontalLineY) / 2,
+        },
+        {
+            label: 'Kuadran II',
+            description: 'Pertahankan Kinerja',
+            x: verticalLineX + (marginLeft + plotW - verticalLineX) / 2,
+            y: marginTop + (horizontalLineY - marginTop) / 2,
+        },
+        {
+            label: 'Kuadran III',
+            description: 'Prioritas Rendah',
+            x: marginLeft + (verticalLineX - marginLeft) / 2,
+            y: horizontalLineY + (marginTop + plotH - horizontalLineY) / 2,
+        },
+        {
+            label: 'Kuadran IV',
+            description: 'Berlebihan',
+            x: marginLeft + (verticalLineX - marginLeft) / 2,
+            y: marginTop + (horizontalLineY - marginTop) / 2,
+        },
+    ];
 
     return (
         <div className="w-full overflow-x-auto">
@@ -165,25 +220,72 @@ function IPAScatterChart({
                     />
                 ))}
 
+                {/* Quadrant labels */}
+                {quadrantLabels.map((quadrant) => (
+                    <text
+                        key={quadrant.label}
+                        x={quadrant.x}
+                        y={quadrant.y}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        className="fill-slate-400"
+                        opacity={0.65}
+                        style={quadrantLabelStyle}
+                    >
+                        <tspan x={quadrant.x} dy="-0.35em">
+                            {quadrant.label}
+                        </tspan>
+                        <tspan x={quadrant.x} dy="1.2em">
+                            {quadrant.description}
+                        </tspan>
+                    </text>
+                ))}
+
                 {/* Average lines — quadrant dividers */}
-                {/* Horizontal blue line (avg kepentingan / importance) */}
+                {/* Vertical blue line (avg kepentingan / importance) */}
+                <line
+                    x1={verticalLineX}
+                    y1={marginTop}
+                    x2={verticalLineX}
+                    y2={marginTop + plotH}
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
+                />
+                {/* Horizontal green line (avg kinerja / performance) */}
                 <line
                     x1={marginLeft}
-                    y1={toSvgY(avgImportance)}
+                    y1={horizontalLineY}
                     x2={marginLeft + plotW}
-                    y2={toSvgY(avgImportance)}
-                    stroke="#3b82f6"
-                    strokeWidth={1.5}
+                    y2={horizontalLineY}
+                    stroke="#22c55e"
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
                 />
-                {/* Vertical red line (avg kinerja / performance) */}
-                <line
-                    x1={toSvgX(avgPerformance)}
-                    y1={marginTop}
-                    x2={toSvgX(avgPerformance)}
-                    y2={marginTop + plotH}
-                    stroke="#dc2626"
-                    strokeWidth={1.5}
-                />
+
+                {/* Average line labels */}
+                <text
+                    x={Math.min(verticalLineX + 6, marginLeft + plotW - 118)}
+                    y={marginTop + 14}
+                    className="fill-blue-600"
+                    style={{
+                        fontSize: compact ? 9 : 11,
+                        fontWeight: 700,
+                    }}
+                >
+                    Rerata Kepentingan: {formatScore(safeAvgKepentingan)}
+                </text>
+                <text
+                    x={marginLeft + 8}
+                    y={Math.max(horizontalLineY - 8, marginTop + 24)}
+                    className="fill-green-600"
+                    style={{
+                        fontSize: compact ? 9 : 11,
+                        fontWeight: 700,
+                    }}
+                >
+                    Rerata Kinerja: {formatScore(safeAvgKinerja)}
+                </text>
 
                 {/* X-axis tick labels */}
                 {xTicks.map((tick) => (
@@ -195,7 +297,7 @@ function IPAScatterChart({
                         className="fill-slate-500"
                         style={{ fontSize }}
                     >
-                        {tick.toFixed(2).replace('.', ',')}
+                        {formatScore(tick)}
                     </text>
                 ))}
 
@@ -209,7 +311,7 @@ function IPAScatterChart({
                         className="fill-slate-500"
                         style={{ fontSize }}
                     >
-                        {tick.toFixed(1).replace('.', ',')}
+                        {formatScore(tick)}
                     </text>
                 ))}
 
@@ -224,7 +326,7 @@ function IPAScatterChart({
                         fontWeight: 600,
                     }}
                 >
-                    Aspek Kinerja (ikm-kinerja)
+                    IKM Kepentingan
                 </text>
 
                 {/* Y-axis label */}
@@ -239,17 +341,19 @@ function IPAScatterChart({
                     }}
                     transform={`rotate(-90, ${compact ? 12 : 16}, ${marginTop + plotH / 2})`}
                 >
-                    Aspek Kepentingan (ikm-kepentingan)
+                    IKM Kinerja
                 </text>
 
                 {/* Data points + labels */}
                 {questionScores.map((q, i) => {
-                    // X = kinerja (performance), Y = kepentingan (importance)
-                    const baseCx = toSvgX(q.performance);
-                    const baseCy = toSvgY(q.importance);
+                    // X = kepentingan (importance), Y = kinerja (performance)
+                    const kepentingan = clampScore(q.importance);
+                    const kinerja = clampScore(q.performance);
+                    const baseCx = toSvgX(kepentingan);
+                    const baseCy = toSvgY(kinerja);
                     const color = DOT_COLORS[i % DOT_COLORS.length];
                     const shortId = q.id.replace(/^(IKM-|SLOI-)/, '');
-                    const label = `${shortId}; ${q.performance.toFixed(2).replace('.', ',')}; ${q.importance.toFixed(2).replace('.', ',')}`;
+                    const label = `${shortId}; Kepentingan ${formatScore(kepentingan)}; Kinerja ${formatScore(kinerja)}`;
                     const isHovered = hoveredId === q.id;
 
                     // Offset overlapping points: count how many previous points share the same coords
@@ -257,8 +361,8 @@ function IPAScatterChart({
                         .slice(0, i)
                         .filter(
                             (prev) =>
-                                prev.performance === q.performance &&
-                                prev.importance === q.importance,
+                                prev.importance === q.importance &&
+                                prev.performance === q.performance,
                         ).length;
                     const angle =
                         (overlapIndex * (2 * Math.PI)) / 3 - Math.PI / 2;
@@ -325,6 +429,8 @@ function IPAScatterChart({
 export default function IKMTrendChart({
     questionScores,
     allQuestions = [],
+    avgKepentingan = DEFAULT_AVERAGE,
+    avgKinerja = DEFAULT_AVERAGE,
     title,
 }: IKMTrendChartProps): ReactNode {
     const [showModal, setShowModal] = useState(false);
@@ -352,6 +458,8 @@ export default function IKMTrendChart({
                     <IPAScatterChart
                         questionScores={questionScores}
                         chartTitle={chartTitle}
+                        avgKepentingan={avgKepentingan}
+                        avgKinerja={avgKinerja}
                         compact
                     />
                 </div>
@@ -385,6 +493,8 @@ export default function IKMTrendChart({
                         <IPAScatterChart
                             questionScores={questionScores}
                             chartTitle={chartTitle}
+                            avgKepentingan={avgKepentingan}
+                            avgKinerja={avgKinerja}
                         />
 
                         {/* Question Legend */}

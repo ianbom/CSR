@@ -6,8 +6,10 @@ import {
     IKMGenderPieChart,
     IKMHeader,
     IKMQuestionScores,
+    IKMQuestionTable,
     IKMScoreGauge,
     IKMTrendChart,
+    ServingQuality,
 } from './IKM';
 
 // ─── Types ─────────────────────────────────────────────────
@@ -86,6 +88,7 @@ interface IkmStatsData {
 }
 
 interface ProjectIKMProps {
+    projectName: string;
     stats: StatsData;
     ikmStats: IkmStatsData | null;
     demographics: DemographicsData;
@@ -96,6 +99,7 @@ interface ProjectIKMProps {
 }
 
 export default function ProjectIKM({
+    projectName,
     stats,
     ikmStats,
     demographics,
@@ -151,17 +155,9 @@ export default function ProjectIKM({
                 <IKMTrendChart
                     questionScores={questionScores}
                     allQuestions={allQuestions}
+                    avgKepentingan={avgKepentingan}
+                    avgKinerja={avgKinerja}
                 />
-            </div>
-
-            {/* Demographics Row */}
-            <div className="grid gap-6 lg:grid-cols-2">
-                <IKMGenderPieChart data={genderData} />
-
-                <div className="space-y-6">
-                    <IKMEducationChart data={demographics.educationLevel} />
-                    <IKMAgeRangeChart ageRange={demographics.ageRange} />
-                </div>
             </div>
 
             {/* Question Scores */}
@@ -175,6 +171,24 @@ export default function ProjectIKM({
                     score: q.performance,
                 }))}
             />
+
+            <ServingQuality questionScores={questionScores} />
+
+            <IKMQuestionTable
+                questionScores={questionScores}
+                allQuestions={allQuestions}
+                projectName={projectName}
+            />
+
+            {/* Demographics Row */}
+            <div className="grid gap-6 lg:grid-cols-2">
+                <IKMGenderPieChart data={genderData} />
+
+                <div className="space-y-6">
+                    <IKMEducationChart data={demographics.educationLevel} />
+                    <IKMAgeRangeChart ageRange={demographics.ageRange} />
+                </div>
+            </div>
 
             {/* Audit Log */}
             {/* <IKMAuditLog

@@ -245,6 +245,11 @@ interface Props {
 
 function buildTabs(project: ProjectData) {
     const tabs = [{ key: 'overview', label: 'Overview', icon: 'dashboard' }];
+    tabs.push({
+        key: 'enumerator',
+        label: 'Enumerator',
+        icon: 'badge',
+    });
     if (project.enableIkm) {
         tabs.push({ key: 'ikm', label: 'IKM', icon: 'sentiment_satisfied' });
         tabs.push({
@@ -263,11 +268,6 @@ function buildTabs(project: ProjectData) {
     }
     if (project.enableSroi)
         tabs.push({ key: 'sroi', label: 'SROI', icon: 'payments' });
-    tabs.push({
-        key: 'enumerator',
-        label: 'Enumerator',
-        icon: 'badge',
-    });
     return tabs;
 }
 
@@ -321,9 +321,22 @@ export default function DetailProject({
                         auditLog={auditLog}
                     />
                 );
+            case 'enumerator':
+                return (
+                    <ProjectEnumeratorList
+                        enumeratorList={enumeratorList}
+                        project={{
+                            id: project.id,
+                            name: project.name,
+                            code: project.projectCode,
+                        }}
+                        canEdit={canEdit}
+                    />
+                );
             case 'ikm':
                 return (
                     <ProjectIKM
+                        projectName={project.name}
                         stats={stats}
                         ikmStats={ikmStats}
                         demographics={demographics}
@@ -364,18 +377,7 @@ export default function DetailProject({
                 );
             case 'sroi':
                 return <ProjectSROI />;
-            case 'enumerator':
-                return (
-                    <ProjectEnumeratorList
-                        enumeratorList={enumeratorList}
-                        project={{
-                            id: project.id,
-                            name: project.name,
-                            code: project.projectCode,
-                        }}
-                        canEdit={canEdit}
-                    />
-                );
+            
             default:
                 return (
                     <ProjectOverview

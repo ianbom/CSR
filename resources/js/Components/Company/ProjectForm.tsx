@@ -322,8 +322,8 @@ export default function ProjectForm({
                                 type.id === 'ikm'
                                     ? data.enable_ikm
                                     : type.id === 'sloi'
-                                      ? data.enable_sloi
-                                      : data.enable_sroi
+                                        ? data.enable_sloi
+                                        : data.enable_sroi
                             }
                             onChange={(checked) =>
                                 handleAssessmentTypeChange(type.id, checked)
@@ -541,11 +541,11 @@ export default function ProjectForm({
                 )}
             </div>
 
-            {/* Pertanyaan Deskriptif */}
+            {/* Pertanyaan Kualitatif */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <label className="block text-sm font-bold text-slate-900">
-                        Pertanyaan Deskriptif
+                        Pertanyaan Kualitatif
                         <span className="ml-1 font-normal text-slate-400">
                             (Opsional)
                         </span>
@@ -572,7 +572,7 @@ export default function ProjectForm({
                             className="mb-2 text-3xl text-slate-300"
                         />
                         <p className="text-sm text-slate-400">
-                            Belum ada pertanyaan deskriptif. Klik &quot;Tambah
+                            Belum ada Pertanyaan Kualitatif. Klik &quot;Tambah
                             Pertanyaan&quot; untuk menambahkan.
                         </p>
                     </div>
@@ -589,7 +589,7 @@ export default function ProjectForm({
                                 <div className="flex-1">
                                     <input
                                         type="text"
-                                        placeholder="Tulis pertanyaan deskriptif di sini..."
+                                        placeholder="Tulis Pertanyaan Kualitatif di sini..."
                                         value={q.title}
                                         onChange={(e) => {
                                             const updated = [
@@ -609,14 +609,14 @@ export default function ProjectForm({
                                     {errors[
                                         `descriptive_questions.${idx}.title`
                                     ] && (
-                                        <p className="mt-1 text-xs text-red-500">
-                                            {
-                                                errors[
+                                            <p className="mt-1 text-xs text-red-500">
+                                                {
+                                                    errors[
                                                     `descriptive_questions.${idx}.title`
-                                                ]
-                                            }
-                                        </p>
-                                    )}
+                                                    ]
+                                                }
+                                            </p>
+                                        )}
                                 </div>
                                 <button
                                     type="button"

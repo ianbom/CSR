@@ -57,6 +57,7 @@ interface AllQuestionItem {
     id: string;
     code: string;
     category: string;
+    aspect: string;
     question: string;
     order_no: number;
 }

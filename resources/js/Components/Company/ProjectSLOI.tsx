@@ -5,6 +5,7 @@ import {
     SLOIEducationChart,
     SLOIGenderPieChart,
     SLOIHeader,
+    SLOIAspectTable,
     SLOIQuestionScores,
     SLOIScoreGauge,
 } from './SLOI';
@@ -89,6 +90,32 @@ interface SloiReliabilityData {
     insufficientData: boolean;
 }
 
+interface AspectCell {
+    count: number;
+    percentage: number;
+}
+
+interface SloiAspectRow {
+    value: number;
+    label: string;
+    aspects: Record<string, AspectCell>;
+    total: AspectCell;
+}
+
+interface SloiAspectAnalysis {
+    aspects: string[];
+    rows: SloiAspectRow[];
+    totals: {
+        aspects: Record<string, AspectCell>;
+        total: AspectCell;
+    };
+    summary: {
+        positivePercentage: number;
+        doubtPercentage: number;
+        doubtfulAspect: string | null;
+    };
+}
+
 interface ProjectSLOIProps {
     stats: StatsData;
     demographics: DemographicsData;
@@ -96,6 +123,7 @@ interface ProjectSLOIProps {
     auditLog: AuditLogItem[];
     trendData: TrendDataItem[];
     sloiReliability?: SloiReliabilityData | null;
+    sloiAspectAnalysis?: SloiAspectAnalysis | null;
 }
 
 export default function ProjectSLOI({
@@ -104,6 +132,7 @@ export default function ProjectSLOI({
     questionScores,
     auditLog,
     sloiReliability,
+    sloiAspectAnalysis,
 }: ProjectSLOIProps): ReactNode {
     // Transform gender data for GenderPieChart
     const genderData = (() => {
@@ -140,22 +169,19 @@ export default function ProjectSLOI({
                 targetResponses={stats.targetResponses}
             />
 
-            {/* Main Score */}
-            <SLOIScoreGauge
-                sloiScore={stats.score}
-                trustLevel={stats.scoreLabel}
-            />
-            {/* <SLOITrendChart questionScores={questionScores} /> */}
-
-            {/* Demographics Row */}
-            <div className="grid gap-6 lg:grid-cols-2">
-                <SLOIGenderPieChart data={genderData} />
-
-                <div className="space-y-6">
-                    <SLOIEducationChart data={demographics.educationLevel} />
-                    <SLOIAgeRangeChart ageRange={demographics.ageRange} />
+            {/* Main Score & Aspect Analysis */}
+            <div className="grid gap-6 xl:grid-cols-5">
+                <div className="xl:col-span-2">
+                    <SLOIScoreGauge
+                        sloiScore={stats.score}
+                        trustLevel={stats.scoreLabel}
+                    />
+                </div>
+                <div className="xl:col-span-3">
+                    <SLOIAspectTable data={sloiAspectAnalysis ?? null} />
                 </div>
             </div>
+            {/* <SLOITrendChart questionScores={questionScores} /> */}
 
             {/* Question Scores */}
             <SLOIQuestionScores
@@ -166,6 +192,16 @@ export default function ProjectSLOI({
             />
 
             <SLOICalculationScores data={sloiReliability ?? null} />
+
+            {/* Demographics Row */}
+            <div className="grid gap-6 lg:grid-cols-2">
+                <SLOIGenderPieChart data={genderData} />
+
+                <div className="space-y-6">
+                    <SLOIEducationChart data={demographics.educationLevel} />
+                    <SLOIAgeRangeChart ageRange={demographics.ageRange} />
+                </div>
+            </div>
 
             {/* Audit Log */}
             {/* <SLOIAuditLog

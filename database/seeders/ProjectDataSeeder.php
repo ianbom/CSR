@@ -31,40 +31,50 @@ class ProjectDataSeeder extends Seeder
         $ikmTemplate = InstrumentTemplate::where('type', 'IKM')->firstOrFail();
         $sloiTemplate = InstrumentTemplate::where('type', 'SLOI')->firstOrFail();
 
-        $ikmQuestions = TemplateQuestion::where('template_id', $ikmTemplate->id)->orderBy('order_no')->get();
-        $sloiQuestions = TemplateQuestion::where('template_id', $sloiTemplate->id)->orderBy('order_no')->get();
+        $ikmKepentinganQuestions = TemplateQuestion::where('template_id', $ikmTemplate->id)
+            ->where('category', 'ikm-kepentingan')
+            ->orderBy('order_no')
+            ->get();
+        $ikmKinerjaQuestions = TemplateQuestion::where('template_id', $ikmTemplate->id)
+            ->where('category', 'ikm-kinerja')
+            ->orderBy('order_no')
+            ->get();
+        $sloiQuestions = TemplateQuestion::where('template_id', $sloiTemplate->id)
+            ->where('category', 'sloi')
+            ->orderBy('order_no')
+            ->get();
 
         // ─── 1. Project ────────────────────────────────────
         $project = Project::create([
-            'company_id'       => $company->id,
-            'name'             => 'Program CSR Desa Makmur 2026',
-            'description'      => 'Program pemberdayaan masyarakat desa melalui kegiatan CSR untuk meningkatkan kesejahteraan dan kepuasan masyarakat.',
-            'project_code'     => 'PROJ-MJB001',
-            'status'           => 'active',
+            'company_id' => $company->id,
+            'name' => 'Program CSR Desa Makmur 2026',
+            'description' => 'Program pemberdayaan masyarakat desa melalui kegiatan CSR untuk meningkatkan kesejahteraan dan kepuasan masyarakat.',
+            'project_code' => 'PROJ-MJB001',
+            'status' => 'active',
             'target_ikm_count' => 15,
             'target_sloi_count' => 10,
-            'enable_ikm'       => true,
-            'enable_sloi'      => true,
-            'enable_sroi'      => false,
-            'ikm_template_id'  => $ikmTemplate->id,
+            'enable_ikm' => true,
+            'enable_sloi' => true,
+            'enable_sroi' => false,
+            'ikm_template_id' => $ikmTemplate->id,
             'sloi_template_id' => $sloiTemplate->id,
-            'start_date'       => '2026-01-01',
-            'end_date'         => '2026-12-31',
-            'created_by'       => $companyAdmin->id,
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-12-31',
+            'created_by' => $companyAdmin->id,
         ]);
 
         // ─── 2. Project Location ───────────────────────────
         ProjectLocation::create([
-            'company_id'  => $company->id,
-            'project_id'  => $project->id,
+            'company_id' => $company->id,
+            'project_id' => $project->id,
             'district_id' => $district->id,
         ]);
 
         // ─── 3. Enumerator Assignments ─────────────────────
         foreach ($enumerators as $enumerator) {
             ProjectEnumeratorAssignment::create([
-                'company_id'    => $company->id,
-                'project_id'    => $project->id,
+                'company_id' => $company->id,
+                'project_id' => $project->id,
                 'enumerator_id' => $enumerator->id,
             ]);
         }
@@ -95,8 +105,10 @@ class ProjectDataSeeder extends Seeder
             $companyAdmin,
             'IKM',
             $ikmData,
-            $ikmQuestions,
-            ['ikm-kepentingan', 'ikm-kinerja'],
+            [
+                'ikm-kepentingan' => $ikmKepentinganQuestions,
+                'ikm-kinerja' => $ikmKinerjaQuestions,
+            ],
         );
 
         // ─── 5. SLOI Respondents + Submissions ────────────
@@ -108,7 +120,7 @@ class ProjectDataSeeder extends Seeder
             ['name' => 'Suparman Hadi',     'address' => 'Jl. Cemara No. 5, RT 03/RW 01',     'phone' => '081300000005', 'age' => 47, 'gender' => 'Laki-laki', 'respondent_status' => 'Kepala keluarga',  'education_level' => 'SMP',      'main_occupation' => 'Buruh',              'monthly_income' => 1600000,  'status' => 'approved'],
             ['name' => 'Ratna Dewi',        'address' => 'Jl. Cemara No. 9, RT 03/RW 01',     'phone' => '081300000006', 'age' => 30, 'gender' => 'Perempuan', 'respondent_status' => 'Ibu rumah tangga', 'education_level' => 'D3',       'main_occupation' => 'Perawat',            'monthly_income' => 3500000,  'status' => 'rejected'],
             ['name' => 'Mulyono Adi',       'address' => 'Jl. Akasia No. 2, RT 04/RW 03',     'phone' => '081300000007', 'age' => 56, 'gender' => 'Laki-laki', 'respondent_status' => 'Kepala keluarga',  'education_level' => 'SD',       'main_occupation' => 'Petani',             'monthly_income' => 1300000,  'status' => 'approved'],
-            ['name' => 'Fitriani Handayani','address' => 'Jl. Akasia No. 6, RT 04/RW 03',     'phone' => '081300000008', 'age' => 27, 'gender' => 'Perempuan', 'respondent_status' => 'Ibu rumah tangga', 'education_level' => 'S1',       'main_occupation' => 'Karyawan Swasta',    'monthly_income' => 4000000,  'status' => 'submitted'],
+            ['name' => 'Fitriani Handayani', 'address' => 'Jl. Akasia No. 6, RT 04/RW 03',     'phone' => '081300000008', 'age' => 27, 'gender' => 'Perempuan', 'respondent_status' => 'Ibu rumah tangga', 'education_level' => 'S1',       'main_occupation' => 'Karyawan Swasta',    'monthly_income' => 4000000,  'status' => 'submitted'],
             ['name' => 'Sugiyanto',         'address' => 'Jl. Pinus No. 10, RT 05/RW 02',     'phone' => '081300000009', 'age' => 60, 'gender' => 'Laki-laki', 'respondent_status' => 'Kepala keluarga',  'education_level' => 'SMP',      'main_occupation' => 'Pensiunan',          'monthly_income' => 2000000,  'status' => 'approved'],
             ['name' => 'Winda Kusuma',      'address' => 'Jl. Pinus No. 14, RT 05/RW 02',     'phone' => '081300000010', 'age' => 32, 'gender' => 'Perempuan', 'respondent_status' => 'Ibu rumah tangga', 'education_level' => 'SMA/SMK',  'main_occupation' => 'Wiraswasta',         'monthly_income' => 2800000,  'status' => 'approved'],
         ];
@@ -120,15 +132,15 @@ class ProjectDataSeeder extends Seeder
             $companyAdmin,
             'SLOI',
             $sloiData,
-            $sloiQuestions,
-            ['sloi'],
+            [
+                'sloi' => $sloiQuestions,
+            ],
         );
     }
 
     /**
      * @param  \Illuminate\Database\Eloquent\Collection<int, User>  $enumerators
-     * @param  \Illuminate\Database\Eloquent\Collection<int, TemplateQuestion>  $questions
-     * @param  list<string>  $answerTypes
+     * @param  array<string, \Illuminate\Database\Eloquent\Collection<int, TemplateQuestion>>  $questionGroups
      */
     private function createRespondentsWithSubmissions(
         Project $project,
@@ -137,8 +149,7 @@ class ProjectDataSeeder extends Seeder
         User $companyAdmin,
         string $assessmentType,
         array $respondentData,
-        $questions,
-        array $answerTypes,
+        array $questionGroups,
     ): void {
         $baseDate = now()->subMonths(3);
 
@@ -149,52 +160,52 @@ class ProjectDataSeeder extends Seeder
 
             // Create respondent
             $respondent = Respondent::create([
-                'company_id'        => $company->id,
-                'project_id'        => $project->id,
-                'name'              => $data['name'],
-                'address'           => $data['address'],
-                'phone'             => $data['phone'],
-                'age'               => $data['age'],
-                'gender'            => $data['gender'],
+                'company_id' => $company->id,
+                'project_id' => $project->id,
+                'name' => $data['name'],
+                'address' => $data['address'],
+                'phone' => $data['phone'],
+                'age' => $data['age'],
+                'gender' => $data['gender'],
                 'respondent_status' => $data['respondent_status'],
-                'education_level'   => $data['education_level'],
-                'main_occupation'   => $data['main_occupation'],
-                'monthly_income'    => $data['monthly_income'],
-                'created_by'        => $enumerator->id,
+                'education_level' => $data['education_level'],
+                'main_occupation' => $data['main_occupation'],
+                'monthly_income' => $data['monthly_income'],
+                'created_by' => $enumerator->id,
             ]);
 
             // Create submission
             $submission = Submission::create([
-                'company_id'      => $company->id,
-                'project_id'      => $project->id,
+                'company_id' => $company->id,
+                'project_id' => $project->id,
                 'assessment_type' => $assessmentType,
-                'respondent_id'   => $respondent->id,
-                'enumerator_id'   => $enumerator->id,
-                'status'          => $submissionStatus,
-                'photo_path'      => 'submissions/' . $assessmentType . '/' . $respondent->id . '.jpg',
-                'photo_mime'      => 'image/jpeg',
+                'respondent_id' => $respondent->id,
+                'enumerator_id' => $enumerator->id,
+                'status' => $submissionStatus,
+                'photo_path' => 'submissions/'.$assessmentType.'/'.$respondent->id.'.jpg',
+                'photo_mime' => 'image/jpeg',
                 'photo_size_bytes' => rand(200000, 800000),
-                'latitude'        => -6.2 + ($index * 0.002),
-                'longitude'       => 106.8 + ($index * 0.002),
-                'submitted_at'    => $submittedAt,
+                'latitude' => -6.2 + ($index * 0.002),
+                'longitude' => 106.8 + ($index * 0.002),
+                'submitted_at' => $submittedAt,
             ]);
 
             // Create template answers
-            foreach ($answerTypes as $type) {
+            foreach ($questionGroups as $type => $questions) {
                 foreach ($questions as $question) {
                     // IKM: 1-4 points for both kepentingan and kinerja
-                    // SLOI: 1-6 points
+                    // SLOI: 1-5 points
                     $value = match ($type) {
                         'ikm-kepentingan', 'ikm-kinerja' => rand(1, 4),
-                        'sloi' => rand(1, 6),
+                        'sloi' => rand(1, 5),
                         default => rand(1, 4),
                     };
 
                     SubmissionTemplateAnswer::create([
                         'submission_id' => $submission->id,
-                        'type'          => $type,
-                        'question_id'   => $question->id,
-                        'value'         => $value,
+                        'type' => $type,
+                        'question_id' => $question->id,
+                        'value' => $value,
                     ]);
                 }
             }
@@ -202,27 +213,27 @@ class ProjectDataSeeder extends Seeder
             // Create timeline: always has 'submitted'
             SubmissionTimeline::create([
                 'submission_id' => $submission->id,
-                'action'        => 'submitted',
-                'decided_at'    => $submittedAt,
-                'decided_by'    => $enumerator->id,
-                'notes'         => null,
+                'action' => 'submitted',
+                'decided_at' => $submittedAt,
+                'decided_by' => $enumerator->id,
+                'notes' => null,
             ]);
 
             if ($submissionStatus === 'approved') {
                 SubmissionTimeline::create([
                     'submission_id' => $submission->id,
-                    'action'        => 'approved',
-                    'decided_at'    => $submittedAt->copy()->addDays(rand(1, 3)),
-                    'decided_by'    => $companyAdmin->id,
-                    'notes'         => 'Data valid dan lengkap.',
+                    'action' => 'approved',
+                    'decided_at' => $submittedAt->copy()->addDays(rand(1, 3)),
+                    'decided_by' => $companyAdmin->id,
+                    'notes' => 'Data valid dan lengkap.',
                 ]);
             } elseif ($submissionStatus === 'rejected') {
                 SubmissionTimeline::create([
                     'submission_id' => $submission->id,
-                    'action'        => 'rejected',
-                    'decided_at'    => $submittedAt->copy()->addDays(rand(1, 3)),
-                    'decided_by'    => $companyAdmin->id,
-                    'notes'         => 'Data tidak lengkap, harap perbaiki.',
+                    'action' => 'rejected',
+                    'decided_at' => $submittedAt->copy()->addDays(rand(1, 3)),
+                    'decided_by' => $companyAdmin->id,
+                    'notes' => 'Data tidak lengkap, harap perbaiki.',
                 ]);
             }
         }

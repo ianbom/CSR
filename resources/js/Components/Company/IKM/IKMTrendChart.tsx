@@ -47,7 +47,7 @@ const DOT_COLORS = [
 ];
 
 const SCORE_MIN = 1;
-const SCORE_MAX = 4;
+const SCORE_MAX = 4.25;
 const DEFAULT_AVERAGE = 2.5;
 
 function clampScore(value: number | null | undefined): number {
@@ -88,7 +88,7 @@ function IPAScatterChart({
     const safeAvgKepentingan = clampScore(avgKepentingan);
     const safeAvgKinerja = clampScore(avgKinerja);
 
-    // IKM uses a 1-4 scale on both axes.
+    // IKM uses a 1-5 scale on both axes.
     const xMin = SCORE_MIN;
     const xMax = SCORE_MAX;
     const yMin = SCORE_MIN;
@@ -353,7 +353,7 @@ function IPAScatterChart({
                     const baseCy = toSvgY(kinerja);
                     const color = DOT_COLORS[i % DOT_COLORS.length];
                     const shortId = q.id.replace(/^(IKM-|SLOI-)/, '');
-                    const label = `${shortId}; Kepentingan ${formatScore(kepentingan)}; Kinerja ${formatScore(kinerja)}`;
+                    const label = `${shortId}; Kpt ${formatScore(kepentingan)}; Kin ${formatScore(kinerja)}`;
                     const isHovered = hoveredId === q.id;
 
                     // Offset overlapping points: count how many previous points share the same coords

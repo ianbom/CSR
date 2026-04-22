@@ -13,6 +13,7 @@ interface AllQuestionItem {
     id: string;
     code: string;
     category: string;
+    aspect: string;
     question: string;
     order_no: number;
 }
@@ -31,31 +32,79 @@ function replaceProjectPlaceholder(question: string, projectName: string): strin
     return question.replaceAll('{project}', `<strong>${projectName}</strong>`);
 }
 
+function getCategoryLabel(category: string): string {
+    return category === 'ikm-kinerja' ? 'Kinerja' : 'Kepentingan';
+}
+
 export default function IKMQuestionTable({
     questionScores,
     allQuestions = [],
     projectName,
 }: IKMQuestionTableProps): ReactNode {
     const rows = useMemo(() => {
-        const questionMap = new Map<string, AllQuestionItem>();
+        const scoreMap = new Map(
+            questionScores.map((score) => [score.id, score]),
+        );
+        const ikmQuestions = allQuestions
+            .filter((question) =>
+                ['ikm-kepentingan', 'ikm-kinerja'].includes(
+                    question.category,
+                ),
+            )
+            .sort((a, b) => a.order_no - b.order_no);
 
-        allQuestions
-            .filter((question) => question.category === 'ikm-kepentingan')
-            .forEach((question) => questionMap.set(question.code, question));
+        if (ikmQuestions.length > 0) {
+            return ikmQuestions.map((question, index) => {
+                const score = scoreMap.get(question.code);
+                const average =
+                    question.category === 'ikm-kinerja'
+                        ? score?.performance
+                        : score?.importance;
 
-        return questionScores.map((score, index) => {
-            const question = questionMap.get(score.id);
-            const questionText =
-                question?.question ?? score.question ?? `Pertanyaan ${score.id}`;
+                return {
+                    id: `${question.category}-${question.code}`,
+                    no: index + 1,
+                    aspect: question.aspect ?? '-',
+                    category: getCategoryLabel(question.category),
+                    question: replaceProjectPlaceholder(
+                        question.question,
+                        projectName,
+                    ),
+                    average: average ?? 0,
+                    averageColor:
+                        question.category === 'ikm-kinerja'
+                            ? 'emerald'
+                            : 'blue',
+                };
+            });
+        }
 
-            return {
-                id: score.id,
-                orderNo: question?.order_no ?? index + 1,
-                question: replaceProjectPlaceholder(questionText, projectName),
-                importance: score.importance,
-                performance: score.performance,
-            };
-        });
+        return questionScores.flatMap((score, index) => [
+            {
+                id: `ikm-kepentingan-${score.id}`,
+                no: index + 1,
+                aspect: '-',
+                category: 'Kepentingan',
+                question: replaceProjectPlaceholder(
+                    score.question ?? `Pertanyaan ${score.id}`,
+                    projectName,
+                ),
+                average: score.importance,
+                averageColor: 'blue',
+            },
+            {
+                id: `ikm-kinerja-${score.id}`,
+                no: index + 1 + questionScores.length,
+                aspect: '-',
+                category: 'Kinerja',
+                question: replaceProjectPlaceholder(
+                    score.question ?? `Pertanyaan ${score.id}`,
+                    projectName,
+                ),
+                average: score.performance,
+                averageColor: 'emerald',
+            },
+        ]);
     }, [allQuestions, projectName, questionScores]);
 
     if (rows.length === 0) {
@@ -84,8 +133,8 @@ export default function IKMQuestionTable({
                     Tabel Pertanyaan IKM
                 </h3>
                 <p className="mt-0.5 text-xs text-slate-400">
-                    Daftar indikator IKM beserta rerata Kepentingan dan Kinerja
-                    untuk setiap pertanyaan.
+                    Daftar 17 pertanyaan Kepentingan dan 17 pertanyaan Kinerja
+                    beserta rerata setiap pertanyaan.
                 </p>
             </div>
 
@@ -94,16 +143,19 @@ export default function IKMQuestionTable({
                     <thead>
                         <tr className="border-b border-slate-100 bg-slate-50/50">
                             <th className="whitespace-nowrap px-6 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                Kode
+                                No
+                            </th>
+                            <th className="min-w-[12rem] px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                Aspect
+                            </th>
+                            <th className="whitespace-nowrap px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                Jenis
                             </th>
                             <th className="min-w-[28rem] px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                                 Pertanyaan
                             </th>
-                            <th className="whitespace-nowrap px-4 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-blue-500">
-                                Rerata Kepentingan
-                            </th>
-                            <th className="whitespace-nowrap px-6 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-emerald-500">
-                                Rerata Kinerja
+                            <th className="whitespace-nowrap px-6 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                Rerata
                             </th>
                         </tr>
                     </thead>
@@ -116,8 +168,22 @@ export default function IKMQuestionTable({
                                 }`}
                             >
                                 <td className="whitespace-nowrap px-6 py-3.5">
-                                    <span className="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-xs font-bold text-slate-600">
-                                        {row.id}
+                                    <span className="inline-flex size-7 items-center justify-center rounded-md bg-slate-100 font-mono text-xs font-bold text-slate-600">
+                                        {row.no}
+                                    </span>
+                                </td>
+                                <td className="px-4 py-3.5 text-xs font-semibold leading-relaxed text-slate-600">
+                                    {row.aspect}
+                                </td>
+                                <td className="whitespace-nowrap px-4 py-3.5">
+                                    <span
+                                        className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${
+                                            row.averageColor === 'emerald'
+                                                ? 'bg-emerald-50 text-emerald-700'
+                                                : 'bg-blue-50 text-blue-700'
+                                        }`}
+                                    >
+                                        {row.category}
                                     </span>
                                 </td>
                                 <td className="px-4 py-3.5 text-xs leading-relaxed text-slate-600">
@@ -128,14 +194,15 @@ export default function IKMQuestionTable({
                                         }}
                                     />
                                 </td>
-                                <td className="whitespace-nowrap px-4 py-3.5 text-center">
-                                    <span className="inline-flex min-w-14 justify-center rounded-lg bg-blue-50 px-2.5 py-1 font-mono text-xs font-bold text-blue-700">
-                                        {formatScore(row.importance)}
-                                    </span>
-                                </td>
                                 <td className="whitespace-nowrap px-6 py-3.5 text-center">
-                                    <span className="inline-flex min-w-14 justify-center rounded-lg bg-emerald-50 px-2.5 py-1 font-mono text-xs font-bold text-emerald-700">
-                                        {formatScore(row.performance)}
+                                    <span
+                                        className={`inline-flex min-w-14 justify-center rounded-lg px-2.5 py-1 font-mono text-xs font-bold ${
+                                            row.averageColor === 'emerald'
+                                                ? 'bg-emerald-50 text-emerald-700'
+                                                : 'bg-blue-50 text-blue-700'
+                                        }`}
+                                    >
+                                        {formatScore(row.average)}
                                     </span>
                                 </td>
                             </tr>

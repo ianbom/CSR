@@ -101,6 +101,7 @@ interface AllQuestionItem {
     id: string;
     code: string;
     category: string;
+    aspect: string;
     question: string;
     order_no: number;
 }
@@ -217,6 +218,32 @@ interface SloiReliabilityData {
     insufficientData: boolean;
 }
 
+interface AspectCell {
+    count: number;
+    percentage: number;
+}
+
+interface SloiAspectRow {
+    value: number;
+    label: string;
+    aspects: Record<string, AspectCell>;
+    total: AspectCell;
+}
+
+interface SloiAspectAnalysis {
+    aspects: string[];
+    rows: SloiAspectRow[];
+    totals: {
+        aspects: Record<string, AspectCell>;
+        total: AspectCell;
+    };
+    summary: {
+        positivePercentage: number;
+        doubtPercentage: number;
+        doubtfulAspect: string | null;
+    };
+}
+
 interface Props {
     project: ProjectData;
     detailType: string;
@@ -231,6 +258,7 @@ interface Props {
     respondents: RespondentsData;
     enumeratorList: EnumeratorListItem[];
     sloiReliability: SloiReliabilityData | null;
+    sloiAspectAnalysis: SloiAspectAnalysis | null;
     respondentFilters: RespondentFilters;
     canEdit?: boolean;
 }
@@ -281,6 +309,7 @@ export default function DetailProject({
     respondents,
     enumeratorList,
     sloiReliability,
+    sloiAspectAnalysis,
     respondentFilters,
     canEdit = true,
 }: Props) {
@@ -349,6 +378,7 @@ export default function DetailProject({
                         auditLog={auditLog}
                         trendData={trendData}
                         sloiReliability={sloiReliability}
+                        sloiAspectAnalysis={sloiAspectAnalysis}
                     />
                 );
             case 'ikm_respondent':

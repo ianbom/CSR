@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('template_id')->constrained('instrument_templates')->cascadeOnDelete();
             $table->string('category', 100)->nullable();
             $table->string('code', 50);
+            $table->string('aspect', 100);
             $table->text('question_text');
             $table->integer('order_no')->default(1);
             $table->timestamp('created_at')->useCurrent();

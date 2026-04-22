@@ -181,7 +181,7 @@ class ProjectService
                     ->where('project_id', $projectId)
                     ->delete();
 
-                if (!empty($data['district_ids'])) {
+                if (! empty($data['district_ids'])) {
                     $uniqueDistrictIds = array_unique($data['district_ids']);
                     $this->storeProjectLocations($uniqueDistrictIds, $projectId, $companyId);
                 }
@@ -248,7 +248,7 @@ class ProjectService
             }
 
             // Update project if there are changes
-            if (!empty($updateData)) {
+            if (! empty($updateData)) {
                 $project->update($updateData);
             }
 
@@ -268,7 +268,7 @@ class ProjectService
                 $toAdd = array_diff($uniqueDistrictIds, $currentDistrictIds);
 
                 // Delete locations that are not in the new list
-                if (!empty($toDelete)) {
+                if (! empty($toDelete)) {
                     DB::table('project_locations')
                         ->where('project_id', $projectId)
                         ->whereIn('district_id', $toDelete)
@@ -276,7 +276,7 @@ class ProjectService
                 }
 
                 // Insert new locations
-                if (!empty($toAdd)) {
+                if (! empty($toAdd)) {
                     $locations = collect($toAdd)->map(fn ($districtId) => [
                         'company_id' => $companyId,
                         'project_id' => $projectId,
@@ -355,7 +355,7 @@ class ProjectService
             ->delete();
 
         foreach ($questions as $q) {
-            if (!empty($q['id'])) {
+            if (! empty($q['id'])) {
                 // Update existing
                 ProjectDescriptiveQuestion::where('id', $q['id'])
                     ->where('project_id', $projectId)
@@ -430,8 +430,10 @@ class ProjectService
 
         // Compute SLOI reliability analysis only for SLOI tab
         $sloiReliability = null;
+        $sloiAspectAnalysis = null;
         if ($assessmentType === 'SLOI') {
             $sloiReliability = $this->computeSloiReliabilityAnalysis($submissionIds, $templateId, $project->company->name);
+            $sloiAspectAnalysis = $this->computeSloiAspectAnalysis($submissionIds, $templateId);
         }
 
         return [
@@ -447,6 +449,7 @@ class ProjectService
             'respondents' => $this->computeRespondents($projectId, $assessmentType, $templateId, $respondentParams),
             'enumeratorList' => $this->computeEnumeratorList($project),
             'sloiReliability' => $sloiReliability,
+            'sloiAspectAnalysis' => $sloiAspectAnalysis,
         ];
     }
 
@@ -498,7 +501,7 @@ class ProjectService
             'endDate' => $project->end_date?->format('Y-m-d'),
             'locations' => $locations,
             'enumerators' => $enumerators,
-            'descriptiveQuestions' => $project->descriptiveQuestions->map(fn($q) => [
+            'descriptiveQuestions' => $project->descriptiveQuestions->map(fn ($q) => [
                 'id' => $q->id,
                 'title' => $q->title,
             ])->toArray(),
@@ -533,8 +536,8 @@ class ProjectService
         }
 
         // Score label
-        $scoreLabel = ($assessmentType === 'SLOI') 
-            ? $this->getSloiScoreLabel($avgScore) 
+        $scoreLabel = ($assessmentType === 'SLOI')
+            ? $this->getSloiScoreLabel($avgScore)
             : $this->getScoreLabel($avgScore);
 
         return [
@@ -749,7 +752,7 @@ class ProjectService
             ->get();
 
         // Split by category
-        $importanceQuestions  = $questions->where('category', 'ikm-kepentingan')->keyBy('code');
+        $importanceQuestions = $questions->where('category', 'ikm-kepentingan')->keyBy('code');
         $performanceQuestions = $questions->where('category', 'ikm-kinerja')->keyBy('code');
 
         // ── IKM Paired mode: kepentingan (Y) ↔ kinerja (X) by shared code ──
@@ -763,7 +766,7 @@ class ProjectService
 
             // dd($commonCodes);
 
-            $importanceQuestionIds  = $importanceQuestions->whereIn('code', $commonCodes)->pluck('id');
+            $importanceQuestionIds = $importanceQuestions->whereIn('code', $commonCodes)->pluck('id');
             $performanceQuestionIds = $performanceQuestions->whereIn('code', $commonCodes)->pluck('id');
 
             // dd($importanceQuestionIds, $performanceQuestionIds);
@@ -788,21 +791,20 @@ class ProjectService
                 $kepQ = $importanceQuestions[$code];   // kepentingan question
                 $kinQ = $performanceQuestions[$code];  // kinerja question (same code)
 
-                $imp  = (float) ($importanceAnswers[$kepQ->id] ?? 0);   // Y-axis
+                $imp = (float) ($importanceAnswers[$kepQ->id] ?? 0);   // Y-axis
                 $perf = (float) ($performanceAnswers[$kinQ->id] ?? 0);  // X-axis
 
                 $result[] = [
-                    'id'          => $code,
-                    'question'    => $kepQ->question_text,
-                    'score'       => round(($imp + $perf) / 2, 2),
-                    'importance'  => $imp,   // Y-axis (kepentingan)
+                    'id' => $code,
+                    'question' => $kepQ->question_text,
+                    'score' => round(($imp + $perf) / 2, 2),
+                    'importance' => $imp,   // Y-axis (kepentingan)
                     'performance' => $perf,  // X-axis (kinerja)
                 ];
             }
 
             // Sort by order_no of the kepentingan question
-            usort($result, fn ($a, $b) =>
-                $importanceQuestions[$a['id']]->order_no <=> $importanceQuestions[$b['id']]->order_no
+            usort($result, fn ($a, $b) => $importanceQuestions[$a['id']]->order_no <=> $importanceQuestions[$b['id']]->order_no
             );
 
             return $result;
@@ -825,10 +827,10 @@ class ProjectService
                 $avgScore = (float) ($averageScores[$question->id] ?? 0);
 
                 $result[] = [
-                    'id'          => $question->code,
-                    'question'    => $question->question_text,
-                    'score'       => $avgScore,
-                    'importance'  => $avgScore,  // For SLOI, use same value
+                    'id' => $question->code,
+                    'question' => $question->question_text,
+                    'score' => $avgScore,
+                    'importance' => $avgScore,  // For SLOI, use same value
                     'performance' => $avgScore,  // For SLOI, use same value
                 ];
             }
@@ -838,6 +840,121 @@ class ProjectService
 
         // If we don't have any questions, return empty array
         return [];
+    }
+
+    protected function computeSloiAspectAnalysis($submissionIds, ?int $templateId): ?array
+    {
+        if ($submissionIds->isEmpty() || ! $templateId) {
+            return null;
+        }
+
+        $aspects = TemplateQuestion::where('template_id', $templateId)
+            ->where('category', 'sloi')
+            ->orderBy('order_no')
+            ->pluck('aspect')
+            ->unique()
+            ->values();
+
+        if ($aspects->isEmpty()) {
+            return null;
+        }
+
+        $counts = DB::table('submission_template_answers')
+            ->join('template_questions', 'submission_template_answers.question_id', '=', 'template_questions.id')
+            ->whereIn('submission_template_answers.submission_id', $submissionIds)
+            ->where('submission_template_answers.type', 'sloi')
+            ->where('template_questions.template_id', $templateId)
+            ->where('template_questions.category', 'sloi')
+            ->whereNull('submission_template_answers.deleted_at')
+            ->whereNull('template_questions.deleted_at')
+            ->whereBetween('submission_template_answers.value', [1, 5])
+            ->selectRaw('template_questions.aspect, submission_template_answers.value, COUNT(*) as total')
+            ->groupBy('template_questions.aspect', 'submission_template_answers.value')
+            ->get();
+
+        $countsByAspect = [];
+        $aspectTotals = [];
+        $valueTotals = [];
+        $grandTotal = 0;
+
+        foreach ($aspects as $aspect) {
+            $countsByAspect[$aspect] = [];
+            $aspectTotals[$aspect] = 0;
+        }
+
+        foreach ($counts as $count) {
+            $aspect = (string) $count->aspect;
+            $value = (int) $count->value;
+            $total = (int) $count->total;
+
+            $countsByAspect[$aspect][$value] = $total;
+            $aspectTotals[$aspect] = ($aspectTotals[$aspect] ?? 0) + $total;
+            $valueTotals[$value] = ($valueTotals[$value] ?? 0) + $total;
+            $grandTotal += $total;
+        }
+
+        $scaleRows = [
+            1 => 'Sangat Tidak Setuju',
+            2 => 'Tidak Setuju',
+            3 => 'Ragu-Ragu',
+            4 => 'Setuju',
+            5 => 'Sangat setuju',
+        ];
+
+        $rows = [];
+        foreach ($scaleRows as $value => $label) {
+            $aspectCells = [];
+            foreach ($aspects as $aspect) {
+                $count = $countsByAspect[$aspect][$value] ?? 0;
+                $total = $aspectTotals[$aspect] ?? 0;
+                $aspectCells[$aspect] = [
+                    'count' => $count,
+                    'percentage' => $total > 0 ? round(($count / $total) * 100, 2) : 0,
+                ];
+            }
+
+            $totalCount = $valueTotals[$value] ?? 0;
+            $rows[] = [
+                'value' => $value,
+                'label' => $label,
+                'aspects' => $aspectCells,
+                'total' => [
+                    'count' => $totalCount,
+                    'percentage' => $grandTotal > 0 ? round(($totalCount / $grandTotal) * 100, 2) : 0,
+                ],
+            ];
+        }
+
+        $aspectSummary = [];
+        foreach ($aspects as $aspect) {
+            $aspectSummary[$aspect] = [
+                'count' => $aspectTotals[$aspect] ?? 0,
+                'percentage' => ($aspectTotals[$aspect] ?? 0) > 0 ? 100 : 0,
+            ];
+        }
+
+        $positiveCount = ($valueTotals[4] ?? 0) + ($valueTotals[5] ?? 0);
+        $doubtCount = $valueTotals[3] ?? 0;
+        $doubtfulAspect = $aspects
+            ->sortByDesc(fn ($aspect) => $countsByAspect[$aspect][3] ?? 0)
+            ->first();
+
+        return [
+            'aspects' => $aspects->all(),
+            'rows' => $rows,
+            'totals' => [
+                'aspects' => $aspectSummary,
+                'total' => [
+                    'count' => $grandTotal,
+                    'percentage' => $grandTotal > 0 ? 100 : 0,
+                ],
+            ],
+            'summary' => [
+                'positivePercentage' => $grandTotal > 0 ? round(($positiveCount / $grandTotal) * 100, 2) : 0,
+                'doubtPercentage' => $grandTotal > 0 ? round(($doubtCount / $grandTotal) * 100, 2) : 0,
+                'doubtfulAspect' => $doubtfulAspect,
+            ],
+        ];
     }
 
     /**
@@ -850,7 +967,7 @@ class ProjectService
      */
     protected function computeSloiReliabilityAnalysis($submissionIds, ?int $templateId, string $companyName): ?array
     {
-        if ($submissionIds->isEmpty() || !$templateId) {
+        if ($submissionIds->isEmpty() || ! $templateId) {
             return null;
         }
 
@@ -964,13 +1081,13 @@ class ProjectService
 
             // Replace {perusahaan} or {project} with project name
             $questionText = str_ireplace(
-                ['{perusahaan}'], 
-                "<strong>{$companyName}</strong>", 
+                ['{perusahaan}'],
+                "<strong>{$companyName}</strong>",
                 $question->question_text
             );
 
             $items[] = [
-                'code' => $questionIdToCode[$qId] ?? 'Q' . $qId,
+                'code' => $questionIdToCode[$qId] ?? 'Q'.$qId,
                 'question' => $questionText,
                 'raw_question' => $question->question_text, // For tooltip
                 'mean' => $mean,
@@ -1053,19 +1170,20 @@ class ProjectService
      */
     protected function getAllQuestions(?int $templateId, string $projectName): array
     {
-        if (!$templateId) {
+        if (! $templateId) {
             return [];
         }
 
         $questions = TemplateQuestion::where('template_id', $templateId)
             ->orderBy('order_no')
-            ->get(['id', 'code', 'category', 'question_text', 'order_no']);
+            ->get(['id', 'code', 'category', 'aspect', 'question_text', 'order_no']);
 
         return $questions->map(function ($question) use ($projectName) {
             return [
                 'id' => $question->code,
                 'code' => $question->code,
                 'category' => $question->category,
+                'aspect' => $question->aspect,
                 'question' => str_replace(
                     '{project}',
                     "<strong>{$projectName}</strong>",
@@ -1247,7 +1365,7 @@ class ProjectService
                 ->orderBy('order_no')
                 ->get()
                 ->map(fn ($q) => [
-                    'code'     => $q->code,
+                    'code' => $q->code,
                     'question' => $q->question_text,
                     'category' => $q->category ?? null,
                 ])

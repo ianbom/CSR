@@ -17,6 +17,7 @@ class TemplateQuestion extends Model
         'template_id',
         'category',
         'code',
+        'aspect',
         'question_text',
         'order_no',
     ];

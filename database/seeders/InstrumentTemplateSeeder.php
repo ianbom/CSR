@@ -23,6 +23,26 @@ class InstrumentTemplateSeeder extends Seeder
             'published_at' => now(),
         ]);
 
+        $ikmAspects = [
+            'IKM-1' => 'Persyaratan',
+            'IKM-2' => 'Sistem, Mekanisme, dan Prosedur',
+            'IKM-3' => 'Waktu / Durasi',
+            'IKM-4' => 'Anggaran dan Biaya',
+            'IKM-5' => 'Spesifikasi dan Jenis Pelayanan',
+            'IKM-6' => 'Kompetensi Fasilitator',
+            'IKM-7' => 'Perilaku Fasilitator',
+            'IKM-8' => 'Penanganan, Pengaduan, Saran dan Masukan',
+            'IKM-9' => 'Sarana dan Prasarana',
+            'IKM-10' => 'Monitoring dan Evaluasi',
+            'IKM-11' => 'Dampak yang diciptakan',
+            'IKM-12' => 'Keberlanjutan',
+            'IKM-13' => 'Penanganan, Pengaduan, Saran dan Masukan',
+            'IKM-14' => 'Sarana dan Prasarana',
+            'IKM-15' => 'Monitoring dan Evaluasi',
+            'IKM-16' => 'Dampak yang diciptakan',
+            'IKM-17' => 'Keberlanjutan',
+        ];
+
         $ikmQuestions = [
             // IKM Kepentingan
             [
@@ -127,7 +147,7 @@ class InstrumentTemplateSeeder extends Seeder
                 'question_text' => 'Menurut Bapak/Ibu seberapa penting keberlanjutan manfaat dari {project}?',
                 'order_no' => 17,
             ],
-            
+
             // IKM Kinerja
             [
                 'category' => 'ikm-kinerja',
@@ -236,6 +256,7 @@ class InstrumentTemplateSeeder extends Seeder
         foreach ($ikmQuestions as $question) {
             TemplateQuestion::create([
                 'template_id' => $ikmTemplate->id,
+                'aspect' => $ikmAspects[$question['code']],
                 ...$question,
             ]);
         }
@@ -249,6 +270,21 @@ class InstrumentTemplateSeeder extends Seeder
             'is_active' => true,
             'published_at' => now(),
         ]);
+
+        $sloiAspects = [
+            'SLOI-S1' => 'Interactional Trust',
+            'SLOI-S2' => 'Interactional Trust',
+            'SLOI-S3' => 'Interactional Trust',
+            'SLOI-S4' => 'Socio-Political Legitimacy',
+            'SLOI-S5' => 'Socio-Political Legitimacy',
+            'SLOI-S6' => 'Socio-Political Legitimacy',
+            'SLOI-S7' => 'Economy Legitimacy',
+            'SLOI-S8' => 'Economy Legitimacy',
+            'SLOI-S9' => 'Economy Legitimacy',
+            'SLOI-S10' => 'Institutional Trust',
+            'SLOI-S11' => 'Institutional Trust',
+            'SLOI-S12' => 'Institutional Trust',
+        ];
 
         $sloiQuestions = [
             [
@@ -328,6 +364,7 @@ class InstrumentTemplateSeeder extends Seeder
         foreach ($sloiQuestions as $question) {
             TemplateQuestion::create([
                 'template_id' => $sloiTemplate->id,
+                'aspect' => $sloiAspects[$question['code']],
                 ...$question,
             ]);
         }

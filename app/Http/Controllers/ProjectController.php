@@ -53,7 +53,7 @@ class ProjectController extends Controller
         }
 
         $provinces = $this->areaService->getAllProvinces();
-        // dd($projects); 
+        // dd($projects);
 
         return Inertia::render('Project/ListProject', [
             'projects' => $projects,
@@ -100,6 +100,7 @@ class ProjectController extends Controller
             'respondents' => $data['respondents'],
             'enumeratorList' => $data['enumeratorList'],
             'sloiReliability' => $data['sloiReliability'] ?? null,
+            'sloiAspectAnalysis' => $data['sloiAspectAnalysis'] ?? null,
             'respondentFilters' => [
                 'enumerator' => $request->input('enumerator', ''),
                 'resp_status' => $request->input('resp_status', ''),

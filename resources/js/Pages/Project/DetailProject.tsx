@@ -201,7 +201,6 @@ interface SloiReliabilityItem {
     question: string;
     raw_question: string;
     mean: number;
-    variance: number;
     pearson: number;
     isValid: boolean;
     validityLabel: string;
@@ -211,8 +210,6 @@ interface SloiReliabilityData {
     n: number;
     k: number;
     items: SloiReliabilityItem[];
-    sumItemVariances: number;
-    varTotal: number;
     alpha: number;
     alphaStatus: string;
     insufficientData: boolean;

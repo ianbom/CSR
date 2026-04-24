@@ -32,12 +32,10 @@ interface SubmissionItem {
     assessmentType: string;
     status: string;
     submittedAt: string | null;
+    submissionNumber: number;
     photoPath: string | null;
     latitude: number;
     longitude: number;
-    avgScore: number;
-    avgKepentingan: number | null;
-    avgKinerja: number | null;
     project: { id: number; name: string };
     respondent: RespondentData | null;
 }
@@ -93,12 +91,6 @@ const statusLabel: Record<string, string> = {
     rejected: 'Revisi',
 };
 
-function scoreColor(score: number): string {
-    if (score >= 4) return 'text-slate-900';
-    if (score >= 3) return 'text-slate-700';
-    return 'text-slate-500';
-}
-
 const formatDate = (dateString: string | null) => {
     if (!dateString) return '—';
     try {
@@ -132,7 +124,8 @@ export default function HistorySurvey({
         project_id: filters.project_id || '',
         status: filters.status || '',
         assessment_type: filters.assessment_type || '',
-        sort_by: filters.sort_by || 'submitted_at',
+        sort_by:
+            filters.sort_by === 'submitted_at' ? filters.sort_by : 'submitted_at',
         sort_order: filters.sort_order || 'desc',
         per_page: filters.per_page || 10,
     });
@@ -340,14 +333,6 @@ export default function HistorySurvey({
                         </span>
                     </div>
                     <div className="h-8 w-px bg-slate-200" />
-                    <div className="flex flex-col text-sm text-slate-600">
-                        <span className="text-2xl font-bold tabular-nums text-slate-800">
-                            {stats.overallAvg.toFixed(2)}
-                        </span>
-                        <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                            Rata-Rata Nilai
-                        </span>
-                    </div>
                 </div>
             </div>
 
@@ -446,7 +431,6 @@ export default function HistorySurvey({
 
                     <div className="flex gap-1.5">
                         <SortButton field="submitted_at">Tanggal</SortButton>
-                        <SortButton field="avg_score">Rerata</SortButton>
                     </div>
 
                     {hasActiveFilter && (
@@ -464,7 +448,6 @@ export default function HistorySurvey({
                 <div className="flex items-center gap-2 sm:hidden">
                     <div className="flex flex-1 gap-1.5">
                         <SortButton field="submitted_at">Tanggal</SortButton>
-                        <SortButton field="avg_score">Rerata</SortButton>
                     </div>
                     {hasActiveFilter && (
                         <button
@@ -502,21 +485,26 @@ export default function HistorySurvey({
                             {/* Card top */}
                             <div className="flex-1 p-5 pt-6">
                                 {/* Badges row */}
-                                <div className="mb-3 flex items-center gap-2">
-                                    <span className="rounded-md bg-slate-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                                        {item.assessmentType}
-                                    </span>
-                                    <span
-                                        className={`rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${
-                                            item.status === 'approved'
-                                                ? 'bg-emerald-700 text-white'
-                                                : item.status === 'rejected'
-                                                  ? 'bg-amber-600 text-white'
-                                                  : 'bg-indigo-600 text-white'
-                                        }`}
-                                    >
-                                        {statusLabel[item.status] ??
-                                            item.status}
+                                <div className="mb-3 flex items-start justify-between gap-3">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="rounded-md bg-slate-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                                            {item.assessmentType}
+                                        </span>
+                                        <span
+                                            className={`rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${
+                                                item.status === 'approved'
+                                                    ? 'bg-emerald-700 text-white'
+                                                    : item.status === 'rejected'
+                                                      ? 'bg-amber-600 text-white'
+                                                      : 'bg-indigo-600 text-white'
+                                            }`}
+                                        >
+                                            {statusLabel[item.status] ??
+                                                item.status}
+                                        </span>
+                                    </div>
+                                    <span className="shrink-0 rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                                        Pengiriman ke-{item.submissionNumber}
                                     </span>
                                 </div>
 
@@ -527,52 +515,6 @@ export default function HistorySurvey({
                                 <p className="mb-4 text-xs text-slate-500">
                                     {item.project.name}
                                 </p>
-
-                                {/* Score */}
-                                {item.assessmentType.toUpperCase() === 'IKM' ? (
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex flex-col">
-                                            <div className="flex items-baseline gap-1.5">
-                                                <span
-                                                    className={`text-3xl font-bold tabular-nums leading-none ${scoreColor(item.avgKepentingan ?? 0)}`}
-                                                >
-                                                    {(
-                                                        item.avgKepentingan ?? 0
-                                                    ).toFixed(2)}
-                                                </span>
-                                            </div>
-                                            <span className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                                                Kepentingan
-                                            </span>
-                                        </div>
-                                        <div className="h-8 w-px bg-slate-200"></div>
-                                        <div className="flex flex-col">
-                                            <div className="flex items-baseline gap-1.5">
-                                                <span
-                                                    className={`text-3xl font-bold tabular-nums leading-none ${scoreColor(item.avgKinerja ?? 0)}`}
-                                                >
-                                                    {(
-                                                        item.avgKinerja ?? 0
-                                                    ).toFixed(2)}
-                                                </span>
-                                            </div>
-                                            <span className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                                                Kinerja
-                                            </span>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="flex items-baseline gap-2">
-                                        <span
-                                            className={`text-3xl font-bold tabular-nums leading-none ${scoreColor(item.avgScore)}`}
-                                        >
-                                            {item.avgScore.toFixed(2)}
-                                        </span>
-                                        <span className="text-xs text-slate-400">
-                                            Rerata
-                                        </span>
-                                    </div>
-                                )}
                             </div>
 
                             {/* Card footer */}

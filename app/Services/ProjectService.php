@@ -958,12 +958,7 @@ class ProjectService
     }
 
     /**
-     * Compute SLOI reliability & validity analysis:
-     * - VAR: variance for each question item
-     * - VAR TOTAL: variance of total scores across respondents
-     * - ALPHA: Cronbach's Alpha
-     * - PEARSON: Pearson product-moment correlation of each item with total
-     * - VALIDITAS: validity check (Pearson r > 0.254)
+     * Compute SLOI reliability & validity analysis.
      */
     protected function computeSloiReliabilityAnalysis($submissionIds, ?int $templateId, string $companyName): ?array
     {
@@ -1015,9 +1010,8 @@ class ProjectService
                 'n' => $n,
                 'k' => $k,
                 'items' => [],
-                'varTotal' => 0,
                 'alpha' => 0,
-                'alphaStatus' => 'Tidak Reliabel',
+                'alphaStatus' => $this->getSloiReliabilityStatus(0),
                 'insufficientData' => true,
             ];
         }
@@ -1062,10 +1056,10 @@ class ProjectService
         }
         $alpha = round($alpha, 4);
 
-        $alphaStatus = $alpha >= 0.60 ? 'Reliabel' : 'Tidak Reliabel';
+        $alphaStatus = $this->getSloiReliabilityStatus($alpha);
 
         // ──── 6. PEARSON — Correlation of each item with total ────
-        // ──── 7. VALIDITAS — Validity check ────
+        // ──── 7. VALIDITAS — Categorize each item by Pearson score ────
         $items = [];
         foreach ($questions as $question) {
             $qId = $question->id;
@@ -1075,7 +1069,8 @@ class ProjectService
             $pearson = $this->computePearsonCorrelation($scores, $totalScoresArray);
             $pearson = round($pearson, 4);
 
-            $isValid = abs($pearson) > 0.254;
+            $validityLabel = $this->getSloiValidityLabel($pearson);
+            $isValid = $validityLabel !== 'Tidak valid';
 
             $mean = count($scores) > 0 ? round(array_sum($scores) / count($scores), 4) : 0;
 
@@ -1091,10 +1086,9 @@ class ProjectService
                 'question' => $questionText,
                 'raw_question' => $question->question_text, // For tooltip
                 'mean' => $mean,
-                'variance' => round($itemVariances[$qId], 4),
                 'pearson' => $pearson,
                 'isValid' => $isValid,
-                'validityLabel' => $isValid ? 'VALID' : 'TIDAK VALID',
+                'validityLabel' => $validityLabel,
             ];
         }
 
@@ -1102,12 +1096,52 @@ class ProjectService
             'n' => $n,
             'k' => $k,
             'items' => $items,
-            'sumItemVariances' => round($sumItemVariances, 4),
-            'varTotal' => round($varTotal, 4),
             'alpha' => $alpha,
             'alphaStatus' => $alphaStatus,
             'insufficientData' => false,
         ];
+    }
+
+    private function getSloiReliabilityStatus(float $alpha): string
+    {
+        if ($alpha >= 0.9) {
+            return 'Reliabilitas sangat tinggi';
+        }
+
+        if ($alpha >= 0.7) {
+            return 'Reliabilitas tinggi';
+        }
+
+        if ($alpha >= 0.6) {
+            return 'Reliabilitas sedang';
+        }
+
+        if ($alpha > 0.5) {
+            return 'Reliabilitas rendah';
+        }
+
+        return 'Tidak reliabel';
+    }
+
+    private function getSloiValidityLabel(float $pearson): string
+    {
+        if ($pearson >= 0.9) {
+            return 'Reliabilitas sangat tinggi';
+        }
+
+        if ($pearson >= 0.7) {
+            return 'Reliabilitas tinggi';
+        }
+
+        if ($pearson >= 0.6) {
+            return 'Reliabilitas sedang';
+        }
+
+        if ($pearson > 0.5) {
+            return 'Reliabilitas rendah';
+        }
+
+        return 'Tidak reliabel';
     }
 
     /**

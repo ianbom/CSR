@@ -24,6 +24,7 @@ class SurveyService
         if ($project->project_code == $projectCode) {
             return true;
         }
+
         return false;
     }
 
@@ -34,12 +35,12 @@ class SurveyService
     public function getQuestionsBySurveyType(Project $project, string $surveyType)
     {
         $templateId = match (strtoupper($surveyType)) {
-            'IKM'  => $project->ikm_template_id,
+            'IKM' => $project->ikm_template_id,
             'SLOI' => $project->sloi_template_id,
             default => null,
         };
 
-        if (!$templateId) {
+        if (! $templateId) {
             return collect([]);
         }
 
@@ -49,7 +50,7 @@ class SurveyService
 
         // Replace {project} and {perusahaan} placeholders with actual names (bold)
         $projectName = $project->name;
-        
+
         // Ensure we handle missing company relation gracefully
         $companyName = $project->company ? $project->company->name : 'Perusahaan';
 
@@ -72,19 +73,19 @@ class SurveyService
         return DB::transaction(function () use ($data, $project, $enumeratorId) {
             $respondentData = $data['respondent'];
             $submissionData = $data['submission'];
-            $answers        = $data['answers'];
+            $answers = $data['answers'];
             $assessmentType = $data['assessment_type'] ?? ($project->enable_ikm ? 'IKM' : ($project->enable_sloi ? 'SLOI' : 'SROI'));
 
             // 1. Respondent — sekali saja per project + phone
             $uniqueKeys = [
                 'project_id' => $project->id,
-                'phone'      => $respondentData['phone'] ?? null,
+                'phone' => $respondentData['phone'] ?? null,
             ];
 
             if (empty($uniqueKeys['phone'])) {
                 $uniqueKeys = [
                     'project_id' => $project->id,
-                    'name'       => $respondentData['name'],
+                    'name' => $respondentData['name'],
                 ];
             }
 
@@ -106,47 +107,47 @@ class SurveyService
                 return [
                     'respondent' => $respondent,
                     'submission' => $existingSubmission,
-                    'is_new'     => false,
+                    'is_new' => false,
                 ];
             }
 
             /** @var UploadedFile $photo */
-            $photo     = $submissionData['photo'];
+            $photo = $submissionData['photo'];
             $photoPath = $photo->store('submissions', 'public');
 
             $submission = Submission::create([
-                'company_id'       => $project->company_id,
-                'project_id'       => $project->id,
-                'assessment_type'  => $assessmentType,
-                'respondent_id'    => $respondent->id,
-                'enumerator_id'    => $enumeratorId,
-                'status'           => 'submitted',
-                'photo_path'       => $photoPath,
-                'photo_mime'       => $photo->getClientMimeType(),
+                'company_id' => $project->company_id,
+                'project_id' => $project->id,
+                'assessment_type' => $assessmentType,
+                'respondent_id' => $respondent->id,
+                'enumerator_id' => $enumeratorId,
+                'status' => 'submitted',
+                'photo_path' => $photoPath,
+                'photo_mime' => $photo->getClientMimeType(),
                 'photo_size_bytes' => $photo->getSize(),
-                'latitude'         => $submissionData['latitude'],
-                'longitude'        => $submissionData['longitude'],
+                'latitude' => $submissionData['latitude'],
+                'longitude' => $submissionData['longitude'],
             ]);
 
             // 3. Submission template answers — bisa banyak
-            $answerRecords = array_map(fn($ans) => [
+            $answerRecords = array_map(fn ($ans) => [
                 'submission_id' => $submission->id,
-                'question_id'   => $ans['question_id'],
-                'type'          => $ans['type'],
-                'value'         => $ans['value'],
-                'created_at'    => now(),
+                'question_id' => $ans['question_id'],
+                'type' => $ans['type'],
+                'value' => $ans['value'],
+                'created_at' => now(),
             ], $answers);
 
             SubmissionTemplateAnswer::insert($answerRecords);
 
             // 4. Submission descriptive answers (optional)
             $descriptiveAnswers = $data['descriptive_answers'] ?? [];
-            if (!empty($descriptiveAnswers)) {
-                $descriptiveRecords = array_map(fn($da) => [
-                    'submission_id'                   => $submission->id,
+            if (! empty($descriptiveAnswers)) {
+                $descriptiveRecords = array_map(fn ($da) => [
+                    'submission_id' => $submission->id,
                     'project_descriptive_question_id' => $da['question_id'],
-                    'answer'                          => $da['answer'],
-                    'created_at'                      => now(),
+                    'answer' => $da['answer'],
+                    'created_at' => now(),
                 ], $descriptiveAnswers);
                 SubmissionDescriptiveAnswer::insert($descriptiveRecords);
             }
@@ -154,7 +155,7 @@ class SurveyService
             return [
                 'respondent' => $respondent,
                 'submission' => $submission,
-                'is_new'     => true,
+                'is_new' => true,
             ];
         });
     }
@@ -165,43 +166,39 @@ class SurveyService
      */
     public function getEnumeratorHistory(int $enumeratorId, array $params): array
     {
-        $projectId      = $params['project_id'] ?? null;
-        $sortBy         = $params['sort_by'] ?? 'submitted_at';
-        $sortOrder      = $params['sort_order'] ?? 'desc';
-        $perPage        = (int) ($params['per_page'] ?? 12);
-        $status         = $params['status'] ?? null;
+        $projectId = $params['project_id'] ?? null;
+        $sortBy = $params['sort_by'] ?? 'submitted_at';
+        $sortOrder = $params['sort_order'] ?? 'desc';
+        $perPage = (int) ($params['per_page'] ?? 12);
+        $status = $params['status'] ?? null;
         $assessmentType = $params['assessment_type'] ?? null;
 
         // Allowed sort columns
-        $allowedSorts = ['submitted_at', 'avg_score', 'assessment_type', 'status'];
-        if (!in_array($sortBy, $allowedSorts)) {
+        $allowedSorts = ['submitted_at', 'assessment_type', 'status'];
+        if (! in_array($sortBy, $allowedSorts)) {
             $sortBy = 'submitted_at';
         }
         $sortOrder = $sortOrder === 'asc' ? 'asc' : 'desc';
 
-        // Base query with avg_score subquery
+        // Base query for submission history cards
         $query = Submission::query()
             ->where('enumerator_id', $enumeratorId)
             ->whereNull('deleted_at')
             ->with(['project:id,name', 'respondent:id,name,phone,address,gender,age'])
-            ->selectRaw('submissions.*, (
-                SELECT ROUND(AVG(sta.value), 2)
-                FROM submission_template_answers sta
-                WHERE sta.submission_id = submissions.id
-                  AND sta.deleted_at IS NULL
-            ) as avg_score, (
-                SELECT ROUND(AVG(sta.value), 2)
-                FROM submission_template_answers sta
-                WHERE sta.submission_id = submissions.id
-                  AND sta.type = \'ikm-kepentingan\'
-                  AND sta.deleted_at IS NULL
-            ) as avg_kepentingan, (
-                SELECT ROUND(AVG(sta.value), 2)
-                FROM submission_template_answers sta
-                WHERE sta.submission_id = submissions.id
-                  AND sta.type = \'ikm-kinerja\'
-                  AND sta.deleted_at IS NULL
-            ) as avg_kinerja');
+            ->select('submissions.*')
+            ->selectRaw('(
+                SELECT COUNT(*)
+                FROM submissions sequence_submissions
+                WHERE sequence_submissions.enumerator_id = submissions.enumerator_id
+                  AND sequence_submissions.deleted_at IS NULL
+                  AND (
+                      sequence_submissions.submitted_at < submissions.submitted_at
+                      OR (
+                          sequence_submissions.submitted_at = submissions.submitted_at
+                          AND sequence_submissions.id <= submissions.id
+                      )
+                  )
+            ) as submission_number');
 
         // Filter by project
         if ($projectId) {
@@ -236,9 +233,9 @@ class SurveyService
             ->whereNull('deleted_at');
 
         $totalSubmissions = (clone $statsQuery)->count();
-        $approvedCount    = (clone $statsQuery)->where('status', 'approved')->count();
-        $submittedCount   = (clone $statsQuery)->where('status', 'submitted')->count();
-        $rejectedCount    = (clone $statsQuery)->where('status', 'rejected')->count();
+        $approvedCount = (clone $statsQuery)->where('status', 'approved')->count();
+        $submittedCount = (clone $statsQuery)->where('status', 'submitted')->count();
+        $rejectedCount = (clone $statsQuery)->where('status', 'rejected')->count();
 
         // Overall average
         $overallAvg = DB::table('submissions')
@@ -250,12 +247,12 @@ class SurveyService
 
         return [
             'submissions' => $paginated,
-            'projects'    => $projects,
-            'stats'       => [
-                'total'      => $totalSubmissions,
-                'approved'   => $approvedCount,
-                'submitted'  => $submittedCount,
-                'rejected'   => $rejectedCount,
+            'projects' => $projects,
+            'stats' => [
+                'total' => $totalSubmissions,
+                'approved' => $approvedCount,
+                'submitted' => $submittedCount,
+                'rejected' => $rejectedCount,
                 'overallAvg' => round((float) $overallAvg, 2),
             ],
         ];
@@ -300,10 +297,10 @@ class SurveyService
         }
 
         return [
-            'submission'           => $submission,
-            'questions'            => $questions,
-            'answersMap'           => $answersMap,
-            'descriptiveAnswersMap'=> $descriptiveAnswersMap,
+            'submission' => $submission,
+            'questions' => $questions,
+            'answersMap' => $answersMap,
+            'descriptiveAnswersMap' => $descriptiveAnswersMap,
         ];
     }
 
@@ -320,38 +317,38 @@ class SurveyService
                 abort(403, 'Submission yang sudah disetujui tidak dapat diedit.');
             }
 
-            $respondent     = $submission->respondent;
+            $respondent = $submission->respondent;
             $respondentData = $data['respondent'];
             $submissionData = $data['submission'];
-            $answers        = $data['answers'];
+            $answers = $data['answers'];
 
             // 1. Update respondent
             if ($respondent) {
                 $respondent->update([
-                    'name'              => $respondentData['name'],
-                    'address'           => $respondentData['address'] ?? null,
-                    'phone'             => $respondentData['phone'] ?? null,
-                    'age'               => $respondentData['age'] ?? null,
-                    'gender'            => $respondentData['gender'] ?? null,
+                    'name' => $respondentData['name'],
+                    'address' => $respondentData['address'] ?? null,
+                    'phone' => $respondentData['phone'] ?? null,
+                    'age' => $respondentData['age'] ?? null,
+                    'gender' => $respondentData['gender'] ?? null,
                     'respondent_status' => $respondentData['respondent_status'] ?? null,
-                    'education_level'   => $respondentData['education_level'] ?? null,
-                    'main_occupation'   => $respondentData['main_occupation'] ?? null,
-                    'monthly_income'    => $respondentData['monthly_income'] ?? null,
+                    'education_level' => $respondentData['education_level'] ?? null,
+                    'main_occupation' => $respondentData['main_occupation'] ?? null,
+                    'monthly_income' => $respondentData['monthly_income'] ?? null,
                 ]);
             }
 
             // 2. Update photo (only if a new file was uploaded)
             $updateFields = [
-                'latitude'  => $submissionData['latitude'],
+                'latitude' => $submissionData['latitude'],
                 'longitude' => $submissionData['longitude'],
-                'status'    => 'submitted', // reset to submitted after edit
+                'status' => 'submitted', // reset to submitted after edit
             ];
 
-            if (!empty($submissionData['photo'])) {
+            if (! empty($submissionData['photo'])) {
                 /** @var \Illuminate\Http\UploadedFile $photo */
-                $photo                     = $submissionData['photo'];
-                $updateFields['photo_path']       = $photo->store('submissions', 'public');
-                $updateFields['photo_mime']       = $photo->getClientMimeType();
+                $photo = $submissionData['photo'];
+                $updateFields['photo_path'] = $photo->store('submissions', 'public');
+                $updateFields['photo_mime'] = $photo->getClientMimeType();
                 $updateFields['photo_size_bytes'] = $photo->getSize();
             }
 
@@ -360,12 +357,12 @@ class SurveyService
             // 3. Replace answers: soft-delete old, insert new
             SubmissionTemplateAnswer::where('submission_id', $submissionId)->delete();
 
-            $answerRecords = array_map(fn($ans) => [
+            $answerRecords = array_map(fn ($ans) => [
                 'submission_id' => $submissionId,
-                'question_id'   => $ans['question_id'],
-                'type'          => $ans['type'],
-                'value'         => $ans['value'],
-                'created_at'    => now(),
+                'question_id' => $ans['question_id'],
+                'type' => $ans['type'],
+                'value' => $ans['value'],
+                'created_at' => now(),
             ], $answers);
 
             SubmissionTemplateAnswer::insert($answerRecords);
@@ -374,12 +371,12 @@ class SurveyService
             SubmissionDescriptiveAnswer::where('submission_id', $submissionId)->delete();
 
             $descriptiveAnswers = $data['descriptive_answers'] ?? [];
-            if (!empty($descriptiveAnswers)) {
-                $descriptiveRecords = array_map(fn($da) => [
-                    'submission_id'                   => $submissionId,
+            if (! empty($descriptiveAnswers)) {
+                $descriptiveRecords = array_map(fn ($da) => [
+                    'submission_id' => $submissionId,
                     'project_descriptive_question_id' => $da['question_id'],
-                    'answer'                          => $da['answer'],
-                    'created_at'                      => now(),
+                    'answer' => $da['answer'],
+                    'created_at' => now(),
                 ], $descriptiveAnswers);
                 SubmissionDescriptiveAnswer::insert($descriptiveRecords);
             }
@@ -399,6 +396,7 @@ class SurveyService
         }
 
         $respondent = Respondent::create($allData);
+
         return [$respondent, true];
     }
 }

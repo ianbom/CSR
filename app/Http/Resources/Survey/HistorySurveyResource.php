@@ -15,26 +15,24 @@ class HistorySurveyResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'              => $this->id,
-            'assessmentType'  => $this->assessment_type,
-            'status'          => $this->status,
-            'submittedAt'     => $this->submitted_at?->format('Y-m-d H:i'),
-            'photoPath'       => $this->photo_path,
-            'latitude'        => (float) $this->latitude,
-            'longitude'       => (float) $this->longitude,
-            'avgScore'        => round((float) $this->avg_score, 2),
-            'avgKepentingan'  => $this->avg_kepentingan !== null ? round((float) $this->avg_kepentingan, 2) : null,
-            'avgKinerja'      => $this->avg_kinerja !== null ? round((float) $this->avg_kinerja, 2) : null,
-            'project'         => [
-                'id'   => $this->project->id,
+            'id' => $this->id,
+            'assessmentType' => $this->assessment_type,
+            'status' => $this->status,
+            'submittedAt' => $this->submitted_at?->format('Y-m-d H:i'),
+            'submissionNumber' => (int) $this->submission_number,
+            'photoPath' => $this->photo_path,
+            'latitude' => (float) $this->latitude,
+            'longitude' => (float) $this->longitude,
+            'project' => [
+                'id' => $this->project->id,
                 'name' => $this->project->name,
             ],
-            'respondent'      => $this->respondent ? [
-                'name'    => $this->respondent->name,
-                'phone'   => $this->respondent->phone,
+            'respondent' => $this->respondent ? [
+                'name' => $this->respondent->name,
+                'phone' => $this->respondent->phone,
                 'address' => $this->respondent->address,
-                'gender'  => $this->respondent->gender,
-                'age'     => $this->respondent->age,
+                'gender' => $this->respondent->gender,
+                'age' => $this->respondent->age,
             ] : null,
         ];
     }

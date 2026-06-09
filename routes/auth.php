@@ -22,6 +22,11 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
+    Route::get('login-enum', [AuthenticatedSessionController::class, 'createEnum'])
+        ->name('login.enum');
+
+    Route::post('login-enum', [AuthenticatedSessionController::class, 'storeEnum']);
+
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
 

@@ -2,7 +2,7 @@ import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { Head, useForm } from '@inertiajs/react';
-import { Eye, EyeOff, LogIn } from 'lucide-react';
+import { Eye, EyeOff, Leaf } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 export default function LoginEnum({ status }: { status?: string }) {
@@ -22,24 +22,30 @@ export default function LoginEnum({ status }: { status?: string }) {
     };
 
     return (
-        <div className="min-h-screen w-full bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-700 flex items-center justify-center p-4">
+        <div
+            className="min-h-screen w-full flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative"
+            style={{ backgroundImage: 'url("/img/bg-team.jpeg")' }}
+        >
+            {/* Dark overlay to make text readable */}
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
+
             <Head title="Enumerator Login" />
-            
-            <div className="w-full max-w-md overflow-hidden rounded-3xl bg-white/10 p-8 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] backdrop-blur-xl border border-white/20 transition-all duration-300 hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.5)]">
+
+            <div className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl bg-white/10 p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] backdrop-blur-xl border border-white/20 transition-all duration-300">
                 <div className="mb-8 text-center">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/20 shadow-inner">
-                        <LogIn className="h-8 w-8 text-white" />
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-lg overflow-hidden">
+                        <img src="/img/LogoTab.png" alt="SocialImpact Logo" className="h-10 w-10 object-contain" />
                     </div>
-                    <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-sm">
-                        Enumerator
+                    <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-md">
+                        Impact Report Management
                     </h1>
-                    <p className="mt-2 text-sm text-emerald-100">
-                        Masuk untuk melanjutkan ke dashboard.
+                    <p className="mt-2 text-sm text-green-100 font-medium">
+                        Enumerator Mobile Access
                     </p>
                 </div>
 
                 {status && (
-                    <div className="mb-6 rounded-xl border border-emerald-400/50 bg-emerald-500/20 px-4 py-3 text-sm font-medium text-white backdrop-blur-md">
+                    <div className="mb-6 rounded-xl border border-green-400/50 bg-green-500/30 px-4 py-3 text-sm font-medium text-white backdrop-blur-md">
                         {status}
                     </div>
                 )}
@@ -48,7 +54,7 @@ export default function LoginEnum({ status }: { status?: string }) {
                     <div className="space-y-2 relative group">
                         <Label
                             htmlFor="email"
-                            className="text-emerald-50 ml-1 text-sm font-medium transition-colors group-focus-within:text-white"
+                            className="text-green-50 ml-1 text-sm font-medium transition-colors group-focus-within:text-white drop-shadow-sm"
                         >
                             Email
                         </Label>
@@ -64,7 +70,7 @@ export default function LoginEnum({ status }: { status?: string }) {
                             className="h-12 rounded-xl border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:border-white/50 focus:bg-white/20 focus:ring-0 focus:outline-none transition-all duration-300"
                         />
                         {errors.email && (
-                            <p className="mt-1 ml-1 text-sm font-medium text-red-300 bg-red-900/30 px-2 py-1 rounded-md inline-block">
+                            <p className="mt-1 ml-1 text-sm font-medium text-red-300 bg-red-900/40 px-2 py-1 rounded-md inline-block backdrop-blur-md">
                                 {errors.email}
                             </p>
                         )}
@@ -73,7 +79,7 @@ export default function LoginEnum({ status }: { status?: string }) {
                     <div className="space-y-2 relative group">
                         <Label
                             htmlFor="password"
-                            className="text-emerald-50 ml-1 text-sm font-medium transition-colors group-focus-within:text-white"
+                            className="text-green-50 ml-1 text-sm font-medium transition-colors group-focus-within:text-white drop-shadow-sm"
                         >
                             Password
                         </Label>
@@ -102,7 +108,7 @@ export default function LoginEnum({ status }: { status?: string }) {
                             </button>
                         </div>
                         {errors.password && (
-                            <p className="mt-1 ml-1 text-sm font-medium text-red-300 bg-red-900/30 px-2 py-1 rounded-md inline-block">
+                            <p className="mt-1 ml-1 text-sm font-medium text-red-300 bg-red-900/40 px-2 py-1 rounded-md inline-block backdrop-blur-md">
                                 {errors.password}
                             </p>
                         )}
@@ -111,15 +117,15 @@ export default function LoginEnum({ status }: { status?: string }) {
                     <Button
                         type="submit"
                         disabled={processing}
-                        className="mt-8 h-12 w-full rounded-xl bg-white text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 hover:scale-[1.02] active:scale-95 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl"
+                        className="mt-8 h-12 w-full rounded-xl bg-green-600 text-white hover:bg-green-500 hover:scale-[1.02] active:scale-95 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl border border-green-500/50"
                     >
                         {processing ? 'Memproses...' : 'Masuk'}
                     </Button>
                 </form>
             </div>
-            
-            <div className="fixed bottom-6 text-center w-full pointer-events-none">
-                <p className="text-white/60 text-sm drop-shadow-sm font-medium">Aplikasi Mobile Enumerator CSR</p>
+
+            <div className="fixed bottom-6 text-center w-full pointer-events-none z-10">
+                <p className="text-white/80 text-xs font-medium drop-shadow-md tracking-wider uppercase">CSR Management System</p>
             </div>
         </div>
     );

@@ -5,10 +5,11 @@ import {
     SLOIEducationChart,
     SLOIGenderPieChart,
     SLOIHeader,
+    SLOIAspectTable,
     SLOIQuestionScores,
     SLOIScoreGauge,
-    SLOITrendChart,
 } from './SLOI';
+import SLOICalculationScores from './SLOI/SLOICalculationScores';
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -67,12 +68,59 @@ interface TrendDataItem {
     height: number;
 }
 
+interface SloiReliabilityItem {
+    code: string;
+    question: string;
+    raw_question: string;
+    mean: number;
+    pearson: number;
+    isValid: boolean;
+    validityLabel: string;
+}
+
+interface SloiReliabilityData {
+    n: number;
+    k: number;
+    items: SloiReliabilityItem[];
+    alpha: number;
+    alphaStatus: string;
+    insufficientData: boolean;
+}
+
+interface AspectCell {
+    count: number;
+    percentage: number;
+}
+
+interface SloiAspectRow {
+    value: number;
+    label: string;
+    aspects: Record<string, AspectCell>;
+    total: AspectCell;
+}
+
+interface SloiAspectAnalysis {
+    aspects: string[];
+    rows: SloiAspectRow[];
+    totals: {
+        aspects: Record<string, AspectCell>;
+        total: AspectCell;
+    };
+    summary: {
+        positivePercentage: number;
+        doubtPercentage: number;
+        doubtfulAspect: string | null;
+    };
+}
+
 interface ProjectSLOIProps {
     stats: StatsData;
     demographics: DemographicsData;
     questionScores: QuestionScoreItem[];
     auditLog: AuditLogItem[];
     trendData: TrendDataItem[];
+    sloiReliability?: SloiReliabilityData | null;
+    sloiAspectAnalysis?: SloiAspectAnalysis | null;
 }
 
 export default function ProjectSLOI({
@@ -80,6 +128,8 @@ export default function ProjectSLOI({
     demographics,
     questionScores,
     auditLog,
+    sloiReliability,
+    sloiAspectAnalysis,
 }: ProjectSLOIProps): ReactNode {
     // Transform gender data for GenderPieChart
     const genderData = (() => {
@@ -116,12 +166,29 @@ export default function ProjectSLOI({
                 targetResponses={stats.targetResponses}
             />
 
-            {/* Main Score */}
-            <SLOIScoreGauge
-                sloiScore={stats.score}
-                trustLevel={stats.scoreLabel}
-            />
+            {/* Main Score & Aspect Analysis */}
+            <div className="grid gap-6 xl:grid-cols-5">
+                <div className="xl:col-span-2">
+                    <SLOIScoreGauge
+                        sloiScore={stats.score}
+                        trustLevel={stats.scoreLabel}
+                    />
+                </div>
+                <div className="xl:col-span-3">
+                    <SLOIAspectTable data={sloiAspectAnalysis ?? null} />
+                </div>
+            </div>
             {/* <SLOITrendChart questionScores={questionScores} /> */}
+
+            {/* Question Scores */}
+            <SLOIQuestionScores
+                scores={questionScores.map((q) => ({
+                    id: q.id,
+                    score: q.score,
+                }))}
+            />
+
+            <SLOICalculationScores data={sloiReliability ?? null} />
 
             {/* Demographics Row */}
             <div className="grid gap-6 lg:grid-cols-2">
@@ -132,14 +199,6 @@ export default function ProjectSLOI({
                     <SLOIAgeRangeChart ageRange={demographics.ageRange} />
                 </div>
             </div>
-
-            {/* Question Scores */}
-            <SLOIQuestionScores
-                scores={questionScores.map((q) => ({
-                    id: q.id,
-                    score: q.score,
-                }))}
-            />
 
             {/* Audit Log */}
             {/* <SLOIAuditLog

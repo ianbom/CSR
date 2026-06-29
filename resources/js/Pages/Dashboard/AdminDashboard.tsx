@@ -16,14 +16,8 @@ import {
     type RecentActivity,
     type SubmissionTrend,
     type SubmissionTypeData,
-    type User,
 } from '@/Components/Admin/Dashboard';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/Components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import AppLayout from '@/Layouts/AppLayout';
 import { Head, Link } from '@inertiajs/react';
 import {
@@ -41,7 +35,6 @@ interface Props {
     stats: DashboardStats;
     recentCompanies: Company[];
     recentProjects: Project[];
-    recentUsers: User[];
     submissionTrends: SubmissionTrend[];
     projectsByStatus: ChartDataItem[];
     submissionsByType: SubmissionTypeData[];
@@ -51,150 +44,31 @@ interface Props {
 
 export default function AdminDashboard({
     stats = {
-        totalCompanies: 24,
-        activeCompanies: 18,
-        totalUsers: 156,
-        totalEnumerators: 89,
-        totalProjects: 67,
-        activeProjects: 23,
-        totalSubmissions: 4521,
-        totalRespondents: 3847,
-        pendingSubmissions: 127,
-        approvedSubmissions: 4280,
-        rejectedSubmissions: 114,
+        totalCompanies: 0,
+        activeCompanies: 0,
+        totalUsers: 0,
+        totalEnumerators: 0,
+        totalProjects: 0,
+        activeProjects: 0,
+        totalSubmissions: 0,
+        totalRespondents: 0,
+        pendingSubmissions: 0,
+        approvedSubmissions: 0,
+        rejectedSubmissions: 0,
         trends: {
-            companiesGrowth: 12,
-            usersGrowth: 8,
-            projectsGrowth: 15,
-            submissionsGrowth: 23,
+            companiesGrowth: 0,
+            usersGrowth: 0,
+            projectsGrowth: 0,
+            submissionsGrowth: 0,
         },
     },
-    recentCompanies = [
-        {
-            id: 1,
-            name: 'PT Pertamina Persero',
-            status: 'active' as const,
-            projects_count: 8,
-            users_count: 24,
-        },
-        {
-            id: 2,
-            name: 'PT PLN Indonesia',
-            status: 'active' as const,
-            projects_count: 5,
-            users_count: 15,
-        },
-        {
-            id: 3,
-            name: 'PT Telkom Indonesia',
-            status: 'pending' as const,
-            projects_count: 3,
-            users_count: 8,
-        },
-        {
-            id: 4,
-            name: 'PT Bank Mandiri',
-            status: 'active' as const,
-            projects_count: 6,
-            users_count: 18,
-        },
-    ],
-    recentProjects = [
-        {
-            id: 1,
-            name: 'CSR Pendidikan Desa Makmur',
-            project_code: 'PROJ-EDU001',
-            status: 'active' as const,
-            company: { name: 'PT Pertamina' },
-            submissions_count: 145,
-            target_ikm_count: 200,
-            target_sloi_count: 100,
-        },
-        {
-            id: 2,
-            name: 'Program Kesehatan Masyarakat',
-            project_code: 'PROJ-HLT002',
-            status: 'active' as const,
-            company: { name: 'PT PLN' },
-            submissions_count: 89,
-            target_ikm_count: 150,
-            target_sloi_count: 50,
-        },
-        {
-            id: 3,
-            name: 'Pemberdayaan UMKM Lokal',
-            project_code: 'PROJ-SME003',
-            status: 'draft' as const,
-            company: { name: 'PT Telkom' },
-            submissions_count: 0,
-            target_ikm_count: 100,
-            target_sloi_count: 100,
-        },
-    ],
-    submissionTrends = [
-        { date: '1 Mar', ikm: 45, sloi: 30, sroi: 15 },
-        { date: '5 Mar', ikm: 52, sloi: 38, sroi: 20 },
-        { date: '10 Mar', ikm: 61, sloi: 42, sroi: 28 },
-        { date: '15 Mar', ikm: 78, sloi: 55, sroi: 35 },
-        { date: '20 Mar', ikm: 85, sloi: 62, sroi: 40 },
-        { date: '25 Mar', ikm: 92, sloi: 70, sroi: 48 },
-        { date: '30 Mar', ikm: 110, sloi: 85, sroi: 55 },
-    ],
-    projectsByStatus = [
-        { status: 'Active', count: 23 },
-        { status: 'Draft', count: 18 },
-        { status: 'Closed', count: 15 },
-        { status: 'Archived', count: 11 },
-    ],
-    submissionsByType = [
-        { type: 'IKM', count: 2340 },
-        { type: 'SLOI', count: 1520 },
-        { type: 'SROI', count: 661 },
-    ],
-    recentActivities = [
-        {
-            id: 1,
-            type: 'submission' as const,
-            action: 'Submission baru disetujui',
-            description: 'Survey IKM #4521 oleh Budi Santoso',
-            time: '2 menit lalu',
-        },
-        {
-            id: 2,
-            type: 'project' as const,
-            action: 'Proyek baru dibuat',
-            description: 'CSR Lingkungan Hijau - PT Pertamina',
-            time: '15 menit lalu',
-        },
-        {
-            id: 3,
-            type: 'company' as const,
-            action: 'Perusahaan baru terdaftar',
-            description: 'PT Astra International',
-            time: '1 jam lalu',
-        },
-        {
-            id: 4,
-            type: 'user' as const,
-            action: 'Enumerator baru ditambahkan',
-            description: '5 enumerator baru untuk PT PLN',
-            time: '2 jam lalu',
-        },
-        {
-            id: 5,
-            type: 'submission' as const,
-            action: 'Submission ditolak',
-            description: 'Survey SLOI #3892 - data tidak lengkap',
-            time: '3 jam lalu',
-        },
-    ],
-    topProvinces = [
-        { name: 'Jawa Barat', count: 1245 },
-        { name: 'Jawa Timur', count: 987 },
-        { name: 'Jawa Tengah', count: 876 },
-        { name: 'Sumatra Utara', count: 654 },
-        { name: 'Kalimantan Timur', count: 432 },
-    ],
+    recentCompanies = [],
+    recentProjects = [],
+    submissionTrends = [],
+    projectsByStatus = [],
+    submissionsByType = [],
+    recentActivities = [],
+    topProvinces = [],
 }: Props) {
     return (
         <AppLayout breadcrumb={{ parent: 'Dashboard', current: 'Admin' }}>
@@ -213,14 +87,14 @@ export default function AdminDashboard({
                                 aktivitas platform.
                             </p>
                         </div>
-                        <div className="flex items-center gap-3">
+                        {/* <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-2 dark:bg-slate-700">
                                 <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
                                 <span className="text-sm text-slate-600 dark:text-slate-300">
                                     Sistem berjalan normal
                                 </span>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
 
@@ -371,12 +245,6 @@ export default function AdminDashboard({
                                         <Activity className="h-5 w-5 text-primary" />
                                         Aktivitas Terbaru
                                     </CardTitle>
-                                    <Link
-                                        href="/admin/activities"
-                                        className="text-xs font-medium text-primary hover:underline"
-                                    >
-                                        Lihat semua
-                                    </Link>
                                 </div>
                             </CardHeader>
                             <CardContent>

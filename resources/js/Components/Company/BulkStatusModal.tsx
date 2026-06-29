@@ -4,7 +4,6 @@ import {
     CheckCircle2,
     FileText,
     Loader2,
-    RotateCcw,
     X,
     XCircle,
 } from 'lucide-react';
@@ -13,7 +12,7 @@ import { createPortal } from 'react-dom';
 
 // ─── Types ─────────────────────────────────────────────────
 
-type SubmissionStatus = 'approved' | 'rejected' | 'submitted';
+type SubmissionStatus = 'approved' | 'rejected';
 
 interface Props {
     selectedIds: number[];
@@ -50,16 +49,6 @@ const STATUS_OPTIONS: {
         bg: 'bg-orange-50',
         border: 'border-orange-200',
         ring: 'ring-orange-500/20',
-    },
-    {
-        value: 'submitted',
-        label: 'Kembalikan',
-        description: 'Kembalikan ke status submitted',
-        icon: <RotateCcw className="size-5" />,
-        color: 'text-amber-700',
-        bg: 'bg-amber-50',
-        border: 'border-amber-200',
-        ring: 'ring-amber-500/20',
     },
 ];
 
@@ -138,7 +127,7 @@ export default function BulkStatusModal({
                         <label className="mb-2.5 block text-sm font-semibold text-slate-700">
                             Pilih Status Baru
                         </label>
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 gap-3">
                             {STATUS_OPTIONS.map((opt) => {
                                 const isSelected = status === opt.value;
                                 return (
@@ -234,8 +223,8 @@ export default function BulkStatusModal({
                                 ? 'bg-emerald-600 hover:bg-emerald-700'
                                 : status === 'rejected'
                                   ? 'bg-orange-600 hover:bg-orange-700'
-                                  : 'bg-amber-600 hover:bg-amber-700'
-                        } ${!status ? 'bg-slate-400' : ''}`}
+                                  : 'bg-slate-400'
+                        }`}
                     >
                         {processing && (
                             <Loader2 className="size-4 animate-spin" />

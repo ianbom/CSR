@@ -3,7 +3,6 @@ import { Link } from '@inertiajs/react';
 import {
     ArrowUpRight,
     Database,
-    Github,
     Instagram,
     Leaf,
     Linkedin,
@@ -11,8 +10,8 @@ import {
     MapPin,
     Phone,
     TrendingUp,
-    Twitter,
     Users,
+    Youtube,
 } from 'lucide-react';
 
 export default function FooterSection() {
@@ -29,7 +28,7 @@ export default function FooterSection() {
                         <div className="lg:col-span-1">
                             <div className="flex items-center gap-2.5">
                                 <img
-                                    src="/img/LogoHeader.png"
+                                    src="/img/LogoHeader.svg"
                                     alt="Impact Report Manajemen Apps"
                                     className="h-12 w-auto"
                                 />
@@ -43,24 +42,19 @@ export default function FooterSection() {
                             <div className="mt-6 flex items-center gap-3">
                                 {[
                                     {
-                                        icon: Twitter,
-                                        label: 'Twitter',
-                                        href: '#',
-                                    },
-                                    {
                                         icon: Linkedin,
                                         label: 'LinkedIn',
-                                        href: '#',
+                                        href: 'https://www.linkedin.com/company/78847969/admin/dashboard/',
                                     },
                                     {
                                         icon: Instagram,
                                         label: 'Instagram',
-                                        href: '#',
+                                        href: 'https://www.instagram.com/socialimpact_id/',
                                     },
                                     {
-                                        icon: Github,
-                                        label: 'GitHub',
-                                        href: '#',
+                                        icon: Youtube,
+                                        label: 'YouTube',
+                                        href: 'https://www.youtube.com/@CreativeImpactSocial/videos',
                                     },
                                 ].map(({ icon: Icon, label, href }) => (
                                     <a
@@ -136,28 +130,28 @@ export default function FooterSection() {
                             <ul className="mt-4 space-y-3">
                                 <li>
                                     <a
-                                        href="mailto:hello@socialimpact.id"
+                                        href="mailto:info@socialimpact.id"
                                         className="flex items-start gap-2.5 text-sm text-gray-500 transition-colors hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400"
                                     >
                                         <Mail className="mt-0.5 size-4 shrink-0 text-green-500" />
-                                        hello@socialimpact.id
+                                        info@socialimpact.id
                                     </a>
                                 </li>
                                 <li>
                                     <a
-                                        href="tel:+6221000000"
+                                        href="tel:+62811106066"
                                         className="flex items-start gap-2.5 text-sm text-gray-500 transition-colors hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400"
                                     >
                                         <Phone className="mt-0.5 size-4 shrink-0 text-green-500" />
-                                        +62 21 0000 0000
+                                        +62 811 106 066
                                     </a>
                                 </li>
                                 <li className="flex items-start gap-2.5 text-sm text-gray-500 dark:text-gray-400">
                                     <MapPin className="mt-0.5 size-4 shrink-0 text-green-500" />
                                     <span>
-                                        Jl. Sudirman No. 1,
-                                        <br />
-                                        Jakarta Pusat, 10220
+                                        Jl. Raya Panggung No.66a, Jatibening,
+                                        <br /> Kec. Pd. Gede, Kota Bks, Jawa
+                                        Barat 17412
                                     </span>
                                 </li>
                             </ul>

@@ -4,10 +4,12 @@ namespace App\Services;
 
 use App\Models\InstrumentTemplate;
 use App\Models\Project;
+use App\Models\ProjectDescriptiveQuestion;
 use App\Models\ProjectEnumeratorAssignment;
 use App\Models\ProjectLocation;
 use App\Models\Respondent;
 use App\Models\Submission;
+use App\Models\TemplateQuestion;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,6 +27,50 @@ class ProjectService
         $query = Project::query()->where('company_id', $companyId);
 
         return $this->buildProjectListQuery($query, $params);
+    }
+
+    public function getAllProjectsForAdmin(array $params = []): LengthAwarePaginator
+    {
+        $query = Project::query();
+
+        // Filter by company
+        if (! empty($params['company_id'])) {
+            $query->where('company_id', $params['company_id']);
+        }
+
+        // Filter by province (via project_locations → districts → cities → provinces)
+        if (! empty($params['province_id'])) {
+            $query->whereHas('locations.district.city.province', function ($q) use ($params) {
+                $q->where('id', $params['province_id']);
+            });
+        }
+
+        return $this->buildProjectListQuery($query, $params);
+    }
+
+    public function getAdminProjectSummary(array $params = []): array
+    {
+        $query = Project::query();
+
+        if (! empty($params['company_id'])) {
+            $query->where('company_id', $params['company_id']);
+        }
+
+        if (! empty($params['province_id'])) {
+            $query->whereHas('locations.district.city.province', function ($q) use ($params) {
+                $q->where('id', $params['province_id']);
+            });
+        }
+
+        $projects = $query->get();
+
+        return [
+            'totalProjects' => $projects->count(),
+            'activeProjects' => $projects->where('status', 'active')->count(),
+            'draftProjects' => $projects->where('status', 'draft')->count(),
+            'closedProjects' => $projects->where('status', 'closed')->count(),
+            'totalRespondents' => $projects->sum(fn ($p) => $p->submissions()->count()),
+        ];
     }
 
     public function getProjectsByEnumerator(int $enumeratorId, array $params = []): LengthAwarePaginator
@@ -99,6 +145,7 @@ class ProjectService
         return DB::transaction(function () use ($data, $companyId, $userId) {
             $project = $this->storeProject($data, $companyId, $userId);
             $this->storeProjectLocations($data['district_ids'] ?? [], $project->id, $companyId);
+            $this->syncDescriptiveQuestions($project->id, $data['descriptive_questions'] ?? []);
 
             return $project->load('locations.district.city.province');
         });
@@ -130,11 +177,124 @@ class ProjectService
 
             // Sync locations if provided
             if (isset($data['district_ids'])) {
-                ProjectLocation::where('project_id', $projectId)->delete();
-                $this->storeProjectLocations($data['district_ids'], $projectId, $companyId);
+                DB::table('project_locations')
+                    ->where('project_id', $projectId)
+                    ->delete();
+
+                if (! empty($data['district_ids'])) {
+                    $uniqueDistrictIds = array_unique($data['district_ids']);
+                    $this->storeProjectLocations($uniqueDistrictIds, $projectId, $companyId);
+                }
             }
 
+            // Sync descriptive questions
+            $this->syncDescriptiveQuestions($projectId, $data['descriptive_questions'] ?? null);
+
             return $project->load('locations.district.city.province');
+        });
+    }
+
+    public function patchProject(int $projectId, array $data, int $companyId): Project
+    {
+        return DB::transaction(function () use ($projectId, $data, $companyId) {
+            $project = Project::where('id', $projectId)
+                ->where('company_id', $companyId)
+                ->firstOrFail();
+
+            // Build update array only with provided fields
+            $updateData = [];
+
+            // Basic fields
+            if (array_key_exists('name', $data)) {
+                $updateData['name'] = $data['name'];
+            }
+            if (array_key_exists('description', $data)) {
+                $updateData['description'] = $data['description'];
+            }
+            if (array_key_exists('status', $data)) {
+                $updateData['status'] = $data['status'];
+            }
+            if (array_key_exists('target_ikm_count', $data)) {
+                $updateData['target_ikm_count'] = $data['target_ikm_count'] ?? 0;
+            }
+            if (array_key_exists('target_sloi_count', $data)) {
+                $updateData['target_sloi_count'] = $data['target_sloi_count'] ?? 0;
+            }
+            if (array_key_exists('enable_ikm', $data)) {
+                $updateData['enable_ikm'] = $data['enable_ikm'];
+            }
+            if (array_key_exists('enable_sloi', $data)) {
+                $updateData['enable_sloi'] = $data['enable_sloi'];
+            }
+            if (array_key_exists('enable_sroi', $data)) {
+                $updateData['enable_sroi'] = $data['enable_sroi'];
+            }
+            if (array_key_exists('start_date', $data)) {
+                $updateData['start_date'] = $data['start_date'];
+            }
+            if (array_key_exists('end_date', $data)) {
+                $updateData['end_date'] = $data['end_date'];
+            }
+
+            // Handle template IDs
+            if (array_key_exists('ikm_template_id', $data) || array_key_exists('sloi_template_id', $data)) {
+                $templateIds = $this->resolveTemplateIds($data, $project);
+                if (array_key_exists('ikm_template_id', $data)) {
+                    $updateData['ikm_template_id'] = $templateIds['ikm'];
+                }
+                if (array_key_exists('sloi_template_id', $data)) {
+                    $updateData['sloi_template_id'] = $templateIds['sloi'];
+                }
+            }
+
+            // Update project if there are changes
+            if (! empty($updateData)) {
+                $project->update($updateData);
+            }
+
+            // Sync locations if provided
+            if (array_key_exists('district_ids', $data)) {
+                // Ensure unique district IDs
+                $uniqueDistrictIds = array_unique(array_filter($data['district_ids']));
+
+                // Get current district IDs
+                $currentDistrictIds = DB::table('project_locations')
+                    ->where('project_id', $projectId)
+                    ->pluck('district_id')
+                    ->toArray();
+
+                // Find what to delete and what to add
+                $toDelete = array_diff($currentDistrictIds, $uniqueDistrictIds);
+                $toAdd = array_diff($uniqueDistrictIds, $currentDistrictIds);
+
+                // Delete locations that are not in the new list
+                if (! empty($toDelete)) {
+                    DB::table('project_locations')
+                        ->where('project_id', $projectId)
+                        ->whereIn('district_id', $toDelete)
+                        ->delete();
+                }
+
+                // Insert new locations
+                if (! empty($toAdd)) {
+                    $locations = collect($toAdd)->map(fn ($districtId) => [
+                        'company_id' => $companyId,
+                        'project_id' => $projectId,
+                        'district_id' => $districtId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ])->toArray();
+
+                    DB::table('project_locations')->insert($locations);
+                }
+            }
+
+            // Sync descriptive questions if provided
+            if (array_key_exists('descriptive_questions', $data)) {
+                $this->syncDescriptiveQuestions($projectId, $data['descriptive_questions']);
+            }
+
+            return $project->fresh()->load('locations.district.city.province');
         });
     }
 
@@ -142,7 +302,7 @@ class ProjectService
     {
         $project = Project::where('id', $projectId)
             ->where('company_id', $companyId)
-            ->with('locations.district.city.province')
+            ->with(['locations.district.city.province', 'descriptiveQuestions'])
             ->firstOrFail();
 
         $locations = $project->locations->map(function ($loc) {
@@ -161,15 +321,53 @@ class ProjectService
             'status' => $project->status ?? 'draft',
             'target_ikm_count' => $project->target_ikm_count,
             'target_sloi_count' => $project->target_sloi_count,
-            'start_date' => $project->start_date?->format('Y-m-d') ?? '',
-            'end_date' => $project->end_date?->format('Y-m-d') ?? '',
+            'startDate' => $project->start_date?->format('Y-m-d') ?? '',
+            'endDate' => $project->end_date?->format('Y-m-d') ?? '',
             'enable_ikm' => $project->enable_ikm,
             'enable_sloi' => $project->enable_sloi,
             'enable_sroi' => $project->enable_sroi,
             'ikm_template_id' => $project->ikm_template_id,
             'sloi_template_id' => $project->sloi_template_id,
             'locations' => $locations,
+            'descriptive_questions' => $project->descriptiveQuestions
+                ->map(fn ($q) => ['id' => $q->id, 'title' => $q->title])
+                ->values()
+                ->toArray(),
         ];
+    }
+
+    /**
+     * Sync descriptive questions for a project.
+     * Handles create, update, and delete.
+     */
+    protected function syncDescriptiveQuestions(int $projectId, ?array $questions): void
+    {
+        if ($questions === null) {
+            return;
+        }
+
+        $incoming = collect($questions);
+        $incomingIds = $incoming->pluck('id')->filter()->values();
+
+        // Delete removed ones
+        ProjectDescriptiveQuestion::where('project_id', $projectId)
+            ->whereNotIn('id', $incomingIds)
+            ->delete();
+
+        foreach ($questions as $q) {
+            if (! empty($q['id'])) {
+                // Update existing
+                ProjectDescriptiveQuestion::where('id', $q['id'])
+                    ->where('project_id', $projectId)
+                    ->update(['title' => $q['title']]);
+            } else {
+                // Create new
+                ProjectDescriptiveQuestion::create([
+                    'project_id' => $projectId,
+                    'title' => $q['title'],
+                ]);
+            }
+        }
     }
 
     // ─── PROJECT DETAIL ───────────────────────────────────────────
@@ -182,6 +380,7 @@ class ProjectService
             'enumeratorAssignments.enumerator',
             'ikmTemplate',
             'sloiTemplate',
+            'descriptiveQuestions',
         ])->findOrFail($projectId);
 
         $assessmentType = $this->resolveAssessmentType($detailType);
@@ -209,7 +408,7 @@ class ProjectService
             $templateId = $project->sloi_template_id;
         }
 
-        // Compute per-type stats for overview metric cards
+        // Compute per-type stats for overview metric cards AND for the IKM tab gauge
         $ikmStats = null;
         $sloiStats = null;
         if ($assessmentType === null) {
@@ -222,8 +421,19 @@ class ProjectService
                 ->where('assessment_type', 'SLOI')
                 ->approved()
                 ->get();
-            $ikmStats = $this->computeStats($project, $ikmSubmissions, 'IKM');
+            $ikmStats = $this->computeIkmStats($project, $ikmSubmissions);
             $sloiStats = $this->computeStats($project, $sloiSubmissions, 'SLOI');
+        } elseif ($assessmentType === 'IKM') {
+            // For IKM tab: compute per-type averages from already-filtered submissions
+            $ikmStats = $this->computeIkmStats($project, $submissions);
+        }
+
+        // Compute SLOI reliability analysis only for SLOI tab
+        $sloiReliability = null;
+        $sloiAspectAnalysis = null;
+        if ($assessmentType === 'SLOI') {
+            $sloiReliability = $this->computeSloiReliabilityAnalysis($submissionIds, $templateId, $project->company->name);
+            $sloiAspectAnalysis = $this->computeSloiAspectAnalysis($submissionIds, $templateId);
         }
 
         return [
@@ -233,10 +443,13 @@ class ProjectService
             'sloiStats' => $sloiStats,
             'demographics' => $this->computeDemographics($respondentIds),
             'questionScores' => $this->computeQuestionScores($submissionIds, $templateId),
+            'allQuestions' => $this->getAllQuestions($templateId, $project->name),
             'auditLog' => $this->computeAuditLog($projectId, $assessmentType, $detailType),
             'trendData' => $this->computeTrendData($projectId, $assessmentType, $detailType),
             'respondents' => $this->computeRespondents($projectId, $assessmentType, $templateId, $respondentParams),
             'enumeratorList' => $this->computeEnumeratorList($project),
+            'sloiReliability' => $sloiReliability,
+            'sloiAspectAnalysis' => $sloiAspectAnalysis,
         ];
     }
 
@@ -288,6 +501,10 @@ class ProjectService
             'endDate' => $project->end_date?->format('Y-m-d'),
             'locations' => $locations,
             'enumerators' => $enumerators,
+            'descriptiveQuestions' => $project->descriptiveQuestions->map(fn ($q) => [
+                'id' => $q->id,
+                'title' => $q->title,
+            ])->toArray(),
         ];
     }
 
@@ -319,7 +536,9 @@ class ProjectService
         }
 
         // Score label
-        $scoreLabel = $this->getScoreLabel($avgScore);
+        $scoreLabel = ($assessmentType === 'SLOI')
+            ? $this->getSloiScoreLabel($avgScore)
+            : $this->getScoreLabel($avgScore);
 
         return [
             'totalResponses' => $totalResponses,
@@ -350,6 +569,74 @@ class ProjectService
         }
 
         return 'Belum Ada Data';
+    }
+
+    protected function getSloiScoreLabel(float $score): string
+    {
+        if ($score > 4.30) {
+            return 'Full Trust';
+        }
+        if ($score > 3.93) {
+            return 'High Approval';
+        }
+        if ($score > 3.56) {
+            return 'Low Approval';
+        }
+        if ($score > 3.08) {
+            return 'High Acceptance / Tolerance';
+        }
+        if ($score > 2.40) {
+            return 'Low Acceptance / Tolerance';
+        }
+        if ($score > 0) {
+            return 'Withheld / Withdrawn';
+        }
+
+        return 'Belum Ada Data';
+    }
+
+    protected function computeIkmStats(Project $project, $submissions): array
+    {
+        $totalResponses = $submissions->count();
+        $targetResponses = $project->target_ikm_count;
+
+        $progress = $targetResponses > 0
+            ? round(($totalResponses / $targetResponses) * 100, 1)
+            : 0;
+
+        $submissionIds = $submissions->pluck('id');
+
+        // Calculate average for kepentingan
+        $avgScoreKepentingan = 0;
+        if ($submissionIds->isNotEmpty()) {
+            $avgScoreKepentingan = round(
+                \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+                    ->where('type', 'ikm-kepentingan')
+                    ->avg('value') ?? 0,
+                2
+            );
+        }
+
+        // Calculate average for kinerja
+        $avgScoreKinerja = 0;
+        if ($submissionIds->isNotEmpty()) {
+            $avgScoreKinerja = round(
+                \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+                    ->where('type', 'ikm-kinerja')
+                    ->avg('value') ?? 0,
+                2
+            );
+        }
+
+        return [
+            'totalResponses' => $totalResponses,
+            'targetResponses' => $targetResponses ?: 0,
+            'progress' => $progress,
+            'scoreKepentingan' => $avgScoreKepentingan,
+            'scoreKinerja' => $avgScoreKinerja,
+            'scoreLabelKepentingan' => $this->getScoreLabel($avgScoreKepentingan),
+            'scoreLabelKinerja' => $this->getScoreLabel($avgScoreKinerja),
+        ];
     }
 
     protected function computeDemographics($respondentIds): array
@@ -460,42 +747,483 @@ class ProjectService
         }
 
         // Get all questions for this template
-        $questions = \App\Models\TemplateQuestion::where('template_id', $templateId)
+        $questions = TemplateQuestion::where('template_id', $templateId)
             ->orderBy('order_no')
             ->get();
 
-        $questionIds = $questions->pluck('id');
+        // Split by category
+        $importanceQuestions = $questions->where('category', 'ikm-kepentingan')->keyBy('code');
+        $performanceQuestions = $questions->where('category', 'ikm-kinerja')->keyBy('code');
 
-        // Average score per question — overall
-        $avgAll = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+        // ── IKM Paired mode: kepentingan (Y) ↔ kinerja (X) by shared code ──
+        if ($importanceQuestions->isNotEmpty() && $performanceQuestions->isNotEmpty()) {
+
+            // Find codes that exist in BOTH categories
+            $commonCodes = $importanceQuestions->keys()
+                ->intersect($performanceQuestions->keys())
+                ->values()
+                ->toArray(); // plain array required by ->only()
+
+            // dd($commonCodes);
+
+            $importanceQuestionIds = $importanceQuestions->whereIn('code', $commonCodes)->pluck('id');
+            $performanceQuestionIds = $performanceQuestions->whereIn('code', $commonCodes)->pluck('id');
+
+            // dd($importanceQuestionIds, $performanceQuestionIds);
+
+            // Avg per question_id — kepentingan → Y-axis (importance)
+            $importanceAnswers = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+                ->whereIn('question_id', $importanceQuestionIds)
+                ->groupBy('question_id')
+                ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
+                ->pluck('avg_score', 'question_id');
+
+            // Avg per question_id — kinerja → X-axis (performance)
+            $performanceAnswers = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+                ->whereIn('question_id', $performanceQuestionIds)
+                ->groupBy('question_id')
+                ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
+                ->pluck('avg_score', 'question_id');
+
+            // Build one data point per shared code
+            $result = [];
+            foreach ($commonCodes as $code) {
+                $kepQ = $importanceQuestions[$code];   // kepentingan question
+                $kinQ = $performanceQuestions[$code];  // kinerja question (same code)
+
+                $imp = (float) ($importanceAnswers[$kepQ->id] ?? 0);   // Y-axis
+                $perf = (float) ($performanceAnswers[$kinQ->id] ?? 0);  // X-axis
+
+                $result[] = [
+                    'id' => $code,
+                    'question' => $kepQ->question_text,
+                    'score' => round(($imp + $perf) / 2, 2),
+                    'importance' => $imp,   // Y-axis (kepentingan)
+                    'performance' => $perf,  // X-axis (kinerja)
+                ];
+            }
+
+            // Sort by order_no of the kepentingan question
+            usort($result, fn ($a, $b) => $importanceQuestions[$a['id']]->order_no <=> $importanceQuestions[$b['id']]->order_no
+            );
+
+            return $result;
+        }
+
+        // ── SLOI or other single-category mode: just compute average per question ──
+        if ($questions->isNotEmpty()) {
+            $questionIds = $questions->pluck('id');
+
+            // Get average score per question
+            $averageScores = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
+                ->whereIn('question_id', $questionIds)
+                ->groupBy('question_id')
+                ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
+                ->pluck('avg_score', 'question_id');
+
+            // Build result with all questions
+            $result = [];
+            foreach ($questions as $question) {
+                $avgScore = (float) ($averageScores[$question->id] ?? 0);
+
+                $result[] = [
+                    'id' => $question->code,
+                    'question' => $question->question_text,
+                    'score' => $avgScore,
+                    'importance' => $avgScore,  // For SLOI, use same value
+                    'performance' => $avgScore,  // For SLOI, use same value
+                ];
+            }
+
+            return $result;
+        }
+
+        // If we don't have any questions, return empty array
+        return [];
+    }
+
+    protected function computeSloiAspectAnalysis($submissionIds, ?int $templateId): ?array
+    {
+        if ($submissionIds->isEmpty() || ! $templateId) {
+            return null;
+        }
+
+        $aspects = TemplateQuestion::where('template_id', $templateId)
+            ->where('category', 'sloi')
+            ->orderBy('order_no')
+            ->pluck('aspect')
+            ->unique()
+            ->values();
+
+        if ($aspects->isEmpty()) {
+            return null;
+        }
+
+        $counts = DB::table('submission_template_answers')
+            ->join('template_questions', 'submission_template_answers.question_id', '=', 'template_questions.id')
+            ->whereIn('submission_template_answers.submission_id', $submissionIds)
+            ->where('submission_template_answers.type', 'sloi')
+            ->where('template_questions.template_id', $templateId)
+            ->where('template_questions.category', 'sloi')
+            ->whereNull('submission_template_answers.deleted_at')
+            ->whereNull('template_questions.deleted_at')
+            ->whereBetween('submission_template_answers.value', [1, 5])
+            ->selectRaw('template_questions.aspect, submission_template_answers.value, COUNT(*) as total')
+            ->groupBy('template_questions.aspect', 'submission_template_answers.value')
+            ->get();
+
+        $countsByAspect = [];
+        $aspectTotals = [];
+        $valueTotals = [];
+        $grandTotal = 0;
+
+        foreach ($aspects as $aspect) {
+            $countsByAspect[$aspect] = [];
+            $aspectTotals[$aspect] = 0;
+        }
+
+        foreach ($counts as $count) {
+            $aspect = (string) $count->aspect;
+            $value = (int) $count->value;
+            $total = (int) $count->total;
+
+            $countsByAspect[$aspect][$value] = $total;
+            $aspectTotals[$aspect] = ($aspectTotals[$aspect] ?? 0) + $total;
+            $valueTotals[$value] = ($valueTotals[$value] ?? 0) + $total;
+            $grandTotal += $total;
+        }
+
+        $scaleRows = [
+            1 => 'Sangat Tidak Setuju',
+            2 => 'Tidak Setuju',
+            3 => 'Ragu-Ragu',
+            4 => 'Setuju',
+            5 => 'Sangat setuju',
+        ];
+
+        $rows = [];
+        foreach ($scaleRows as $value => $label) {
+            $aspectCells = [];
+            foreach ($aspects as $aspect) {
+                $count = $countsByAspect[$aspect][$value] ?? 0;
+                $total = $aspectTotals[$aspect] ?? 0;
+                $aspectCells[$aspect] = [
+                    'count' => $count,
+                    'percentage' => $total > 0 ? round(($count / $total) * 100, 2) : 0,
+                ];
+            }
+
+            $totalCount = $valueTotals[$value] ?? 0;
+            $rows[] = [
+                'value' => $value,
+                'label' => $label,
+                'aspects' => $aspectCells,
+                'total' => [
+                    'count' => $totalCount,
+                    'percentage' => $grandTotal > 0 ? round(($totalCount / $grandTotal) * 100, 2) : 0,
+                ],
+            ];
+        }
+
+        $aspectSummary = [];
+        foreach ($aspects as $aspect) {
+            $aspectSummary[$aspect] = [
+                'count' => $aspectTotals[$aspect] ?? 0,
+                'percentage' => ($aspectTotals[$aspect] ?? 0) > 0 ? 100 : 0,
+            ];
+        }
+
+        $positiveCount = ($valueTotals[4] ?? 0) + ($valueTotals[5] ?? 0);
+        $doubtCount = $valueTotals[3] ?? 0;
+        $doubtfulAspect = $aspects
+            ->sortByDesc(fn ($aspect) => $countsByAspect[$aspect][3] ?? 0)
+            ->first();
+
+        return [
+            'aspects' => $aspects->all(),
+            'rows' => $rows,
+            'totals' => [
+                'aspects' => $aspectSummary,
+                'total' => [
+                    'count' => $grandTotal,
+                    'percentage' => $grandTotal > 0 ? 100 : 0,
+                ],
+            ],
+            'summary' => [
+                'positivePercentage' => $grandTotal > 0 ? round(($positiveCount / $grandTotal) * 100, 2) : 0,
+                'doubtPercentage' => $grandTotal > 0 ? round(($doubtCount / $grandTotal) * 100, 2) : 0,
+                'doubtfulAspect' => $doubtfulAspect,
+            ],
+        ];
+    }
+
+    /**
+     * Compute SLOI reliability & validity analysis.
+     */
+    protected function computeSloiReliabilityAnalysis($submissionIds, ?int $templateId, string $companyName): ?array
+    {
+        if ($submissionIds->isEmpty() || ! $templateId) {
+            return null;
+        }
+
+        // Get all SLOI questions for this template
+        $questions = TemplateQuestion::where('template_id', $templateId)
+            ->orderBy('order_no')
+            ->get(['id', 'code', 'question_text', 'order_no']);
+
+        if ($questions->isEmpty()) {
+            return null;
+        }
+
+        $questionIds = $questions->pluck('id')->toArray();
+        $questionIdToCode = $questions->pluck('code', 'id')->toArray();
+
+        // Fetch all raw answers: submission_id, question_id, value
+        $rawAnswers = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
             ->whereIn('question_id', $questionIds)
-            ->groupBy('question_id')
-            ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
-            ->pluck('avg_score', 'question_id');
+            ->whereNull('deleted_at')
+            ->get(['submission_id', 'question_id', 'value']);
 
-        // Average score per question — type ikm-kepentingan
-        $avgKepentingan = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
-            ->whereIn('question_id', $questionIds)
-            ->where('type', 'ikm-kepentingan')
-            ->groupBy('question_id')
-            ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
-            ->pluck('avg_score', 'question_id');
+        if ($rawAnswers->isEmpty()) {
+            return null;
+        }
 
-        // Average score per question — type ikm-kinerja
-        $avgKinerja = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
-            ->whereIn('question_id', $questionIds)
-            ->where('type', 'ikm-kinerja')
-            ->groupBy('question_id')
-            ->selectRaw('question_id, ROUND(AVG(value), 2) as avg_score')
-            ->pluck('avg_score', 'question_id');
+        // Build respondent × question matrix
+        // matrix[submissionId][questionId] = value
+        $matrix = [];
+        foreach ($rawAnswers as $answer) {
+            $matrix[$answer->submission_id][$answer->question_id] = (float) $answer->value;
+        }
 
-        return $questions->map(function ($q) use ($avgAll, $avgKepentingan, $avgKinerja) {
+        // Filter only complete respondents (those who answered ALL questions)
+        $k = count($questionIds); // number of items
+        $completeMatrix = [];
+        foreach ($matrix as $subId => $answers) {
+            if (count($answers) >= $k) {
+                $completeMatrix[$subId] = $answers;
+            }
+        }
+
+        $n = count($completeMatrix); // number of valid respondents
+        if ($n < 2 || $k < 2) {
             return [
-                'id' => $q->code,
-                'question' => $q->question_text,
-                'score' => (float) ($avgAll[$q->id] ?? 0),
-                'importance' => (float) ($avgKepentingan[$q->id] ?? 0),
-                'performance' => (float) ($avgKinerja[$q->id] ?? 0),
+                'n' => $n,
+                'k' => $k,
+                'items' => [],
+                'alpha' => 0,
+                'alphaStatus' => $this->getSloiReliabilityStatus(0),
+                'insufficientData' => true,
+            ];
+        }
+
+        // ──── 1. Compute item scores and total scores ────
+        // itemScores[questionId] = [val1, val2, ...]  (one per respondent)
+        $itemScores = [];
+        foreach ($questionIds as $qId) {
+            $itemScores[$qId] = [];
+        }
+        $totalScores = []; // totalScores[submissionId] = sum of all item values
+
+        foreach ($completeMatrix as $subId => $answers) {
+            $total = 0;
+            foreach ($questionIds as $qId) {
+                $val = $answers[$qId] ?? 0;
+                $itemScores[$qId][] = $val;
+                $total += $val;
+            }
+            $totalScores[$subId] = $total;
+        }
+
+        $totalScoresArray = array_values($totalScores);
+
+        // ──── 2. VAR — Item Variance (population variance) ────
+        $itemVariances = [];
+        foreach ($questionIds as $qId) {
+            $itemVariances[$qId] = $this->computeVariance($itemScores[$qId]);
+        }
+
+        // ──── 3. VAR TOTAL — Total Score Variance ────
+        $varTotal = $this->computeVariance($totalScoresArray);
+
+        // ──── 4. Sum of item variances ────
+        $sumItemVariances = array_sum($itemVariances);
+
+        // ──── 5. ALPHA — Cronbach's Alpha ────
+        // α = (k / (k - 1)) * (1 - Σσ²ᵢ / σ²total)
+        $alpha = 0;
+        if ($varTotal > 0) {
+            $alpha = ($k / ($k - 1)) * (1 - ($sumItemVariances / $varTotal));
+        }
+        $alpha = round($alpha, 4);
+
+        $alphaStatus = $this->getSloiReliabilityStatus($alpha);
+
+        // ──── 6. PEARSON — Correlation of each item with total ────
+        // ──── 7. VALIDITAS — Categorize each item by Pearson score ────
+        $items = [];
+        foreach ($questions as $question) {
+            $qId = $question->id;
+            $scores = $itemScores[$qId];
+
+            // Compute Pearson correlation between item scores and total scores
+            $pearson = $this->computePearsonCorrelation($scores, $totalScoresArray);
+            $pearson = round($pearson, 4);
+
+            $validityLabel = $this->getSloiValidityLabel($pearson);
+            $isValid = $validityLabel !== 'Tidak valid';
+
+            $mean = count($scores) > 0 ? round(array_sum($scores) / count($scores), 4) : 0;
+
+            // Replace {perusahaan} or {project} with project name
+            $questionText = str_ireplace(
+                ['{perusahaan}'],
+                "<strong>{$companyName}</strong>",
+                $question->question_text
+            );
+
+            $items[] = [
+                'code' => $questionIdToCode[$qId] ?? 'Q'.$qId,
+                'question' => $questionText,
+                'raw_question' => $question->question_text, // For tooltip
+                'mean' => $mean,
+                'pearson' => $pearson,
+                'isValid' => $isValid,
+                'validityLabel' => $validityLabel,
+            ];
+        }
+
+        return [
+            'n' => $n,
+            'k' => $k,
+            'items' => $items,
+            'alpha' => $alpha,
+            'alphaStatus' => $alphaStatus,
+            'insufficientData' => false,
+        ];
+    }
+
+    private function getSloiReliabilityStatus(float $alpha): string
+    {
+        if ($alpha >= 0.9) {
+            return 'Reliabilitas sangat tinggi';
+        }
+
+        if ($alpha >= 0.7) {
+            return 'Reliabilitas tinggi';
+        }
+
+        if ($alpha >= 0.6) {
+            return 'Reliabilitas sedang';
+        }
+
+        if ($alpha > 0.5) {
+            return 'Reliabilitas rendah';
+        }
+
+        return 'Tidak reliabel';
+    }
+
+    private function getSloiValidityLabel(float $pearson): string
+    {
+        if ($pearson >= 0.9) {
+            return 'Reliabilitas sangat tinggi';
+        }
+
+        if ($pearson >= 0.7) {
+            return 'Reliabilitas tinggi';
+        }
+
+        if ($pearson >= 0.6) {
+            return 'Reliabilitas sedang';
+        }
+
+        if ($pearson > 0.5) {
+            return 'Reliabilitas rendah';
+        }
+
+        return 'Tidak reliabel';
+    }
+
+    /**
+     * Compute population variance for an array of numbers.
+     */
+    private function computeVariance(array $values): float
+    {
+        $n = count($values);
+        if ($n < 2) {
+            return 0.0;
+        }
+
+        $mean = array_sum($values) / $n;
+        $sumSquaredDiffs = 0;
+        foreach ($values as $val) {
+            $sumSquaredDiffs += ($val - $mean) ** 2;
+        }
+
+        // Population variance (σ²) — consistent with Cronbach's Alpha formula
+        return $sumSquaredDiffs / $n;
+    }
+
+    /**
+     * Compute Pearson product-moment correlation between two arrays.
+     */
+    private function computePearsonCorrelation(array $x, array $y): float
+    {
+        $n = count($x);
+        if ($n < 2 || $n !== count($y)) {
+            return 0.0;
+        }
+
+        $sumX = array_sum($x);
+        $sumY = array_sum($y);
+        $sumXY = 0;
+        $sumX2 = 0;
+        $sumY2 = 0;
+
+        for ($i = 0; $i < $n; $i++) {
+            $sumXY += $x[$i] * $y[$i];
+            $sumX2 += $x[$i] ** 2;
+            $sumY2 += $y[$i] ** 2;
+        }
+
+        $numerator = ($n * $sumXY) - ($sumX * $sumY);
+        $denominator = sqrt(
+            (($n * $sumX2) - ($sumX ** 2)) *
+            (($n * $sumY2) - ($sumY ** 2))
+        );
+
+        if ($denominator == 0) {
+            return 0.0;
+        }
+
+        return $numerator / $denominator;
+    }
+
+    /**
+     * Get all questions for a template with {project} replaced by project name (bold)
+     */
+    protected function getAllQuestions(?int $templateId, string $projectName): array
+    {
+        if (! $templateId) {
+            return [];
+        }
+
+        $questions = TemplateQuestion::where('template_id', $templateId)
+            ->orderBy('order_no')
+            ->get(['id', 'code', 'category', 'aspect', 'question_text', 'order_no']);
+
+        return $questions->map(function ($question) use ($projectName) {
+            return [
+                'id' => $question->code,
+                'code' => $question->code,
+                'category' => $question->category,
+                'aspect' => $question->aspect,
+                'question' => str_replace(
+                    '{project}',
+                    "<strong>{$projectName}</strong>",
+                    $question->question_text
+                ),
+                'order_no' => $question->order_no,
             ];
         })->toArray();
     }
@@ -575,7 +1303,7 @@ class ProjectService
     protected function computeRespondents(int $projectId, ?string $assessmentType, ?int $templateId, array $params = []): array
     {
         $query = Submission::where('project_id', $projectId)
-            ->with(['respondent', 'enumerator', 'templateAnswers.question', 'timelines.decidedBy']);
+            ->with(['respondent', 'enumerator', 'templateAnswers.question', 'timelines.decidedBy', 'descriptiveAnswers.projectDescriptiveQuestion']);
 
         if ($assessmentType) {
             $query->where('assessment_type', $assessmentType);
@@ -673,6 +1401,7 @@ class ProjectService
                 ->map(fn ($q) => [
                     'code' => $q->code,
                     'question' => $q->question_text,
+                    'category' => $q->category ?? null,
                 ])
                 ->toArray();
         }
@@ -745,6 +1474,10 @@ class ProjectService
                     'decidedBy' => $t->decidedBy?->name ?? '-',
                     'notes' => $t->notes,
                 ])->toArray(),
+                'descriptiveAnswers' => $sub->descriptiveAnswers->map(fn ($ans) => [
+                    'question' => $ans->projectDescriptiveQuestion?->title ?? '-',
+                    'answer' => $ans->answer,
+                ])->toArray(),
             ];
         })->toArray();
 
@@ -782,7 +1515,6 @@ class ProjectService
             ->get();
 
         $allSubmissions = Submission::where('project_id', $project->id)
-            ->with('respondent')
             ->get()
             ->groupBy('enumerator_id');
 
@@ -791,14 +1523,9 @@ class ProjectService
             $submissions = $allSubmissions->get($enumerator->id, collect());
 
             $totalSubmissions = $submissions->count();
+            $ikmSubmissions = $submissions->where('assessment_type', 'IKM')->count();
+            $sloiSubmissions = $submissions->where('assessment_type', 'SLOI')->count();
             $latestSubmission = $submissions->sortByDesc('submitted_at')->first();
-            $avgScore = 0;
-            if ($totalSubmissions > 0) {
-                $submissionIds = $submissions->pluck('id');
-                $avg = \App\Models\SubmissionTemplateAnswer::whereIn('submission_id', $submissionIds)
-                    ->avg('value');
-                $avgScore = round((float) $avg, 2);
-            }
 
             return [
                 'id' => $enumerator->id,
@@ -807,17 +1534,9 @@ class ProjectService
                 'phone' => $enumerator->phone,
                 'isActive' => $enumerator->is_active,
                 'totalSubmissions' => $totalSubmissions,
-                'avgScore' => $avgScore,
+                'ikmSubmissions' => $ikmSubmissions,
+                'sloiSubmissions' => $sloiSubmissions,
                 'lastSubmittedAt' => $latestSubmission?->submitted_at?->format('Y-m-d H:i'),
-                'submissions' => $submissions->map(function ($sub) {
-                    return [
-                        'id' => $sub->id,
-                        'respondentName' => $sub->respondent?->name ?? '-',
-                        'assessmentType' => $sub->assessment_type,
-                        'status' => $sub->status,
-                        'submittedAt' => $sub->submitted_at?->format('Y-m-d H:i'),
-                    ];
-                })->values()->toArray(),
             ];
         })->toArray();
     }
@@ -880,6 +1599,13 @@ class ProjectService
             return $city ? $city->name : ($district?->name ?? '-');
         })->unique()->take(2)->implode(', ');
 
+        // Get first city and province for separate display
+        $firstLocation = $project->locations->first();
+        $firstCity = $firstLocation?->district?->city;
+        $firstProvince = $firstCity?->province;
+        $cityName = $firstCity?->name ?? '-';
+        $provinceName = $firstProvince?->name ?? '-';
+
         $fullLocations = $project->locations->map(function ($loc) {
             return [
                 'id' => $loc->id,
@@ -890,8 +1616,18 @@ class ProjectService
         })->toArray();
 
         $type = $this->determineProjectType($project);
+
+        // Total responses (all types)
         $currentResponses = $project->submissions->count();
         $targetResponses = $project->target_ikm_count + $project->target_sloi_count;
+
+        // Separate IKM responses
+        $ikmCurrentResponses = $project->submissions->where('assessment_type', 'IKM')->count();
+        $ikmTargetResponses = $project->target_ikm_count;
+
+        // Separate SLOI responses
+        $sloiCurrentResponses = $project->submissions->where('assessment_type', 'SLOI')->count();
+        $sloiTargetResponses = $project->target_sloi_count;
 
         return [
             'id' => $project->id,
@@ -901,6 +1637,8 @@ class ProjectService
             'type' => $type,
             'typeLabel' => $this->getTypeLabel($project),
             'location' => $locationsString ?: '-',
+            'city' => $cityName,
+            'province' => $provinceName,
             'status' => $project->status,
             'description' => $project->description,
             'target_ikm_count' => $project->target_ikm_count,
@@ -913,6 +1651,10 @@ class ProjectService
             'locations' => $fullLocations,
             'currentResponses' => $currentResponses,
             'targetResponses' => $targetResponses ?: 0,
+            'ikmCurrentResponses' => $ikmCurrentResponses,
+            'ikmTargetResponses' => $ikmTargetResponses,
+            'sloiCurrentResponses' => $sloiCurrentResponses,
+            'sloiTargetResponses' => $sloiTargetResponses,
             'startDate' => $project->start_date?->format('Y-m-d'),
             'endDate' => $project->end_date?->format('Y-m-d'),
         ];
@@ -972,21 +1714,31 @@ class ProjectService
         ]);
     }
 
-    protected function resolveTemplateIds(array $data): array
+    protected function resolveTemplateIds(array $data, ?Project $existingProject = null): array
     {
-        $ikmTemplateId = null;
-        $sloiTemplateId = null;
+        $ikmTemplateId = $existingProject?->ikm_template_id ?? null;
+        $sloiTemplateId = $existingProject?->sloi_template_id ?? null;
 
-        if (! empty($data['enable_ikm'])) {
-            $ikmTemplateId = InstrumentTemplate::where('type', 'IKM')
-                ->where('is_active', true)
-                ->value('id');
+        // Only update if enable_ikm is explicitly set
+        if (array_key_exists('enable_ikm', $data)) {
+            if (! empty($data['enable_ikm'])) {
+                $ikmTemplateId = InstrumentTemplate::where('type', 'IKM')
+                    ->where('is_active', true)
+                    ->value('id');
+            } else {
+                $ikmTemplateId = null;
+            }
         }
 
-        if (! empty($data['enable_sloi'])) {
-            $sloiTemplateId = InstrumentTemplate::where('type', 'SLOI')
-                ->where('is_active', true)
-                ->value('id');
+        // Only update if enable_sloi is explicitly set
+        if (array_key_exists('enable_sloi', $data)) {
+            if (! empty($data['enable_sloi'])) {
+                $sloiTemplateId = InstrumentTemplate::where('type', 'SLOI')
+                    ->where('is_active', true)
+                    ->value('id');
+            } else {
+                $sloiTemplateId = null;
+            }
         }
 
         return [
@@ -1001,7 +1753,10 @@ class ProjectService
             return;
         }
 
-        $locations = collect($districtIds)->map(fn ($districtId) => [
+        // Ensure unique district IDs
+        $uniqueDistrictIds = array_unique($districtIds);
+
+        $locations = collect($uniqueDistrictIds)->map(fn ($districtId) => [
             'company_id' => $companyId,
             'project_id' => $projectId,
             'district_id' => $districtId,

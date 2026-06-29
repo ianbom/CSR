@@ -26,7 +26,7 @@ class ProjectController extends Controller
     public function listProjectPage(Request $request)
     {
         $user = Auth::user();
-        $companyId = $user->company_id;
+        $isAdmin = in_array($user->role, ['admin', 'superadmin']);
 
         $params = [
             'search' => $request->input('search'),
@@ -36,10 +36,24 @@ class ProjectController extends Controller
             'per_page' => $request->input('per_page', 10),
         ];
 
-        $projects = $this->projectService->getAllProjectsByCompany($companyId, $params);
-        $summary = $this->projectService->getProjectSummary($companyId);
-        $enumerators = $this->projectService->getEnumeratorsByCompany($companyId);
+        if ($isAdmin) {
+            $params['company_id'] = $request->input('company_id');
+            $params['province_id'] = $request->input('province_id');
+
+            $projects = $this->projectService->getAllProjectsForAdmin($params);
+            $summary = $this->projectService->getAdminProjectSummary($params);
+            $enumerators = [];
+            $companies = \App\Models\Company::select('id', 'name')->orderBy('name')->get()->toArray();
+        } else {
+            $companyId = $user->company_id;
+            $projects = $this->projectService->getAllProjectsByCompany($companyId, $params);
+            $summary = $this->projectService->getProjectSummary($companyId);
+            $enumerators = $this->projectService->getEnumeratorsByCompany($companyId);
+            $companies = [];
+        }
+
         $provinces = $this->areaService->getAllProvinces();
+        // dd($projects);
 
         return Inertia::render('Project/ListProject', [
             'projects' => $projects,
@@ -47,11 +61,16 @@ class ProjectController extends Controller
             'enumerators' => $enumerators,
             'filters' => $params,
             'provinces' => $provinces,
+            'canEdit' => ! $isAdmin,
+            'companies' => $companies,
         ]);
     }
 
     public function detailProject(Request $request, int $id)
     {
+        $user = Auth::user();
+        $isAdmin = in_array($user->role, ['admin', 'superadmin']);
+
         $detailType = $request->input('detailType', 'overview');
 
         $respondentParams = [
@@ -75,10 +94,13 @@ class ProjectController extends Controller
             'sloiStats' => $data['sloiStats'],
             'demographics' => $data['demographics'],
             'questionScores' => $data['questionScores'],
+            'allQuestions' => $data['allQuestions'],
             'auditLog' => $data['auditLog'],
             'trendData' => $data['trendData'],
             'respondents' => $data['respondents'],
             'enumeratorList' => $data['enumeratorList'],
+            'sloiReliability' => $data['sloiReliability'] ?? null,
+            'sloiAspectAnalysis' => $data['sloiAspectAnalysis'] ?? null,
             'respondentFilters' => [
                 'enumerator' => $request->input('enumerator', ''),
                 'resp_status' => $request->input('resp_status', ''),
@@ -88,6 +110,7 @@ class ProjectController extends Controller
                 'sort_order' => $request->input('sort_order', 'desc'),
                 'per_page' => $request->input('per_page', 10),
             ],
+            'canEdit' => ! $isAdmin,
         ]);
     }
 
@@ -139,13 +162,66 @@ class ProjectController extends Controller
         }
     }
 
-    // public function getProjectForEdit(int $id)
-    // {
-    //     $user = Auth::user();
-    //     $data = $this->projectService->getProjectForEdit($id, $user->company_id);
+    public function patchProject(Request $request, int $id)
+    {
+        try {
+            $user = Auth::user();
+            $companyId = $user->company_id;
 
-    //     return response()->json($data);
-    // }
+            // Validate only fields that are present
+            $validated = $request->validate([
+                'name' => ['sometimes', 'string', 'max:200'],
+                'description' => ['sometimes', 'nullable', 'string'],
+                'status' => ['sometimes', 'string', 'in:draft,active'],
+                'start_date' => ['sometimes', 'nullable', 'date'],
+                'end_date' => ['sometimes', 'nullable', 'date', 'after_or_equal:start_date'],
+                'target_ikm_count' => ['sometimes', 'nullable', 'integer', 'min:0'],
+                'target_sloi_count' => ['sometimes', 'nullable', 'integer', 'min:0'],
+                'enable_ikm' => ['sometimes', 'boolean'],
+                'enable_sloi' => ['sometimes', 'boolean'],
+                'enable_sroi' => ['sometimes', 'boolean'],
+                'ikm_template_id' => ['sometimes', 'nullable', 'integer', 'exists:instrument_templates,id'],
+                'sloi_template_id' => ['sometimes', 'nullable', 'integer', 'exists:instrument_templates,id'],
+                'district_ids' => ['sometimes', 'array'],
+                'district_ids.*' => ['integer', 'exists:districts,id'],
+                'descriptive_questions' => ['sometimes', 'nullable', 'array'],
+                'descriptive_questions.*.id' => ['nullable', 'integer'],
+                'descriptive_questions.*.title' => ['required', 'string', 'max:500'],
+            ], [
+                'name.max' => 'Nama proyek maksimal 200 karakter.',
+                'end_date.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai.',
+                'district_ids.*.exists' => 'Kecamatan yang dipilih tidak valid.',
+            ]);
+
+            // Clean up empty values
+            $cleanData = [];
+            foreach ($validated as $key => $value) {
+                if ($value === '' && in_array($key, ['description', 'start_date', 'end_date', 'ikm_template_id', 'sloi_template_id'])) {
+                    $cleanData[$key] = null;
+                } else {
+                    $cleanData[$key] = $value;
+                }
+            }
+
+            $this->projectService->patchProject(
+                $id,
+                $cleanData,
+                $companyId
+            );
+
+            return redirect()->back()->with('success', 'Proyek berhasil diperbarui.');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: '.$th->getMessage());
+        }
+    }
+
+    public function getProjectForEdit(int $id)
+    {
+        $user = Auth::user();
+        $data = $this->projectService->getProjectForEdit($id, $user->company_id);
+
+        return response()->json($data);
+    }
 
     public function getProjectEnumerators(int $projectId)
     {

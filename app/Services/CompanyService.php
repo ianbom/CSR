@@ -79,4 +79,12 @@ class CompanyService
             'suspendedCompanies' => $suspended,
         ];
     }
+
+    /**
+     * Create a new company.
+     */
+    public function createCompany(array $data): Company
+    {
+        return Company::create($data);
+    }
 }

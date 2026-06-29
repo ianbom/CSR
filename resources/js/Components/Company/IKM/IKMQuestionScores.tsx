@@ -44,11 +44,11 @@ const DEFAULT_KIN: QuestionScore[] = [
 
 const chartConfig = {
     kepentingan: {
-        label: 'Kepentingan',
+        label: 'Kepentingan ',
         color: '#3b82f6',
     },
     kinerja: {
-        label: 'Kinerja',
+        label: 'Kinerja ',
         color: '#10b981',
     },
 } satisfies ChartConfig;
@@ -128,10 +128,10 @@ export default function IKMQuestionScores({
 
             {/* Scale reference */}
             <div className="mt-4 flex items-center justify-end gap-6 border-t border-slate-100 pt-3 text-[10px] text-slate-400">
-                <span>1 = Tidak Penting / Tidak Baik</span>
-                <span>2 = Kurang Penting / Kurang Baik</span>
-                <span>3 = Penting / Baik</span>
-                <span>4 = Sangat Penting / Sangat Baik</span>
+                <span>1 = Tidak Penting / Tidak Puas</span>
+                <span>2 = Kurang Penting / Kurang Puas</span>
+                <span>3 = Penting / Puas</span>
+                <span>4 = Sangat Penting / Sangat Puas</span>
             </div>
         </div>
     );

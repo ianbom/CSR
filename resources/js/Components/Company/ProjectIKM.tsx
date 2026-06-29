@@ -6,8 +6,10 @@ import {
     IKMGenderPieChart,
     IKMHeader,
     IKMQuestionScores,
+    IKMQuestionTable,
     IKMScoreGauge,
     IKMTrendChart,
+    ServingQuality,
 } from './IKM';
 
 // ─── Types ─────────────────────────────────────────────────
@@ -51,6 +53,15 @@ interface QuestionScoreItem {
     performance: number;
 }
 
+interface AllQuestionItem {
+    id: string;
+    code: string;
+    category: string;
+    aspect: string;
+    question: string;
+    order_no: number;
+}
+
 interface AuditLogItem {
     id: string;
     respondentName: string;
@@ -67,18 +78,34 @@ interface TrendDataItem {
     height: number;
 }
 
+interface IkmStatsData {
+    scoreKepentingan: number;
+    scoreKinerja: number;
+    scoreLabelKepentingan: string;
+    scoreLabelKinerja: string;
+    totalResponses: number;
+    targetResponses: number;
+    progress: number;
+}
+
 interface ProjectIKMProps {
+    projectName: string;
     stats: StatsData;
+    ikmStats: IkmStatsData | null;
     demographics: DemographicsData;
     questionScores: QuestionScoreItem[];
+    allQuestions?: AllQuestionItem[];
     auditLog: AuditLogItem[];
     trendData: TrendDataItem[];
 }
 
 export default function ProjectIKM({
+    projectName,
     stats,
+    ikmStats,
     demographics,
     questionScores,
+    allQuestions = [],
 }: ProjectIKMProps): ReactNode {
     // Transform gender data for GenderPieChart
     const genderData = (() => {
@@ -106,6 +133,11 @@ export default function ProjectIKM({
         };
     })();
 
+    // Use backend-computed averages when available (correct per-type averages).
+    // Fallback to 0 if ikmStats not passed (e.g. non-IKM context).
+    const avgKepentingan = ikmStats?.scoreKepentingan ?? 0;
+    const avgKinerja = ikmStats?.scoreKinerja ?? 0;
+
     return (
         <div className="space-y-6">
             {/* Header Section */}
@@ -118,20 +150,15 @@ export default function ProjectIKM({
             {/* Main Score & Trend Row */}
             <div className="grid gap-6 lg:grid-cols-5">
                 <IKMScoreGauge
-                    IKMScore={stats.score}
-                    trustLevel={stats.scoreLabel}
+                    avgKepentingan={avgKepentingan}
+                    avgKinerja={avgKinerja}
                 />
-                <IKMTrendChart questionScores={questionScores} />
-            </div>
-
-            {/* Demographics Row */}
-            <div className="grid gap-6 lg:grid-cols-2">
-                <IKMGenderPieChart data={genderData} />
-
-                <div className="space-y-6">
-                    <IKMEducationChart data={demographics.educationLevel} />
-                    <IKMAgeRangeChart ageRange={demographics.ageRange} />
-                </div>
+                <IKMTrendChart
+                    questionScores={questionScores}
+                    allQuestions={allQuestions}
+                    avgKepentingan={avgKepentingan}
+                    avgKinerja={avgKinerja}
+                />
             </div>
 
             {/* Question Scores */}
@@ -145,6 +172,24 @@ export default function ProjectIKM({
                     score: q.performance,
                 }))}
             />
+
+            <ServingQuality questionScores={questionScores} />
+
+            <IKMQuestionTable
+                questionScores={questionScores}
+                allQuestions={allQuestions}
+                projectName={projectName}
+            />
+
+            {/* Demographics Row */}
+            <div className="grid gap-6 lg:grid-cols-2">
+                <IKMGenderPieChart data={genderData} />
+
+                <div className="space-y-6">
+                    <IKMEducationChart data={demographics.educationLevel} />
+                    <IKMAgeRangeChart ageRange={demographics.ageRange} />
+                </div>
+            </div>
 
             {/* Audit Log */}
             {/* <IKMAuditLog

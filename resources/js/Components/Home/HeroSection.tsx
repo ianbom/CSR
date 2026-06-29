@@ -13,7 +13,7 @@ export default function HeroSection() {
                 playsInline
                 className="absolute inset-0 z-0 h-full w-full object-cover"
             >
-                <source src="/img/animation.mp4" type="video/mp4" />
+                <source src="/img/animation.webm" type="video/webm" />
             </video>
             <div className="absolute inset-0 z-0 bg-black/40 backdrop-blur-sm dark:bg-black/60"></div>
 
@@ -29,7 +29,7 @@ export default function HeroSection() {
                                 </div>
                             </div> */}
 
-                <h1 className="text-5xl font-extrabold tracking-tight text-white drop-shadow-xl sm:text-7xl">
+                <h1 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-xl sm:text-6xl">
                     Evaluasi Dampak Program Keberlanjutan{' '}
                     <br className="hidden sm:block" />
                     <span className="bg-gradient-to-r from-green-300 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg">

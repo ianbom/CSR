@@ -75,6 +75,8 @@ class CreateProjectRequest extends FormRequest
             'enable_sroi' => ['boolean'],
             'district_ids' => ['required', 'array', 'min:1'],
             'district_ids.*' => ['integer', 'exists:districts,id'],
+            'descriptive_questions' => ['nullable', 'array'],
+            'descriptive_questions.*.title' => ['required', 'string', 'max:500'],
         ];
     }
 

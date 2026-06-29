@@ -1,9 +1,4 @@
-import {
-    Icon,
-    Pagination,
-    SearchInput,
-    SummaryCard,
-} from '@/Components/Company';
+import { Icon, Pagination, SearchInput } from '@/Components/Company';
 import CreateInstrumentTemplateModal from '@/Components/Company/CreateInstrumentTemplateModal';
 import EditInstrumentTemplateModal, {
     type EditTemplateData,
@@ -201,7 +196,7 @@ export default function ListInstrument({ templates, summary, filters }: Props) {
                 </div>
 
                 {/* Summary Cards */}
-                <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {/* <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <SummaryCard
                         icon="folder"
                         iconBgColor="bg-blue-50"
@@ -234,7 +229,7 @@ export default function ListInstrument({ templates, summary, filters }: Props) {
                         value={summary.sloiTemplates}
                         subtitle="Social Life Outcome Index"
                     />
-                </div>
+                </div> */}
 
                 {/* Filters */}
                 <div className="mb-6 flex flex-wrap items-center gap-4">

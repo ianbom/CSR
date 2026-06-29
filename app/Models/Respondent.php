@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Respondent extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'company_id',
         'project_id',
@@ -22,6 +25,14 @@ class Respondent extends Model
         'monthly_income',
         'created_by',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'age' => 'integer',
+            'monthly_income' => 'integer',
+        ];
+    }
 
     /**
      * Get the company that owns the respondent.

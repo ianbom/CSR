@@ -1,20 +1,9 @@
 import { Icon } from '@/Components/Company';
-import ProjectForm from '@/Components/Company/ProjectForm';
-import { createProjectData } from '@/data';
+import ProjectForm, { type Province } from '@/Components/Company/ProjectForm';
 import CompanyLayout from '@/Layouts/AppLayout';
+import { PageProps } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-
-import { PageProps } from '@/types';
-
-// Types
-interface Province {
-    id: number;
-    code: string;
-    name: string;
-}
-
-const formSteps = createProjectData.formSteps;
 
 export default function CreateProject() {
     const { provinces } = usePage<PageProps<{ provinces: Province[] }>>().props;
@@ -33,6 +22,7 @@ export default function CreateProject() {
         ikm_template_id: null as number | null,
         sloi_template_id: null as number | null,
         district_ids: [] as number[],
+        descriptive_questions: [] as { id: number | null; title: string }[],
     });
 
     const handleSubmit = () => {

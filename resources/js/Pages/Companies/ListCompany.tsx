@@ -4,10 +4,12 @@ import {
     SearchInput,
     SummaryCard,
 } from '@/Components/Company';
+import PrimaryButton from '@/Components/PrimaryButton';
 import AppLayout from '@/Layouts/AppLayout';
 import { Head, router } from '@inertiajs/react';
 import debounce from 'lodash/debounce';
 import { useCallback, useState } from 'react';
+import ModalCompany from './components/ModalCompany';
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -93,6 +95,7 @@ const perPageOptions = [10, 25, 50, 100];
 
 export default function ListCompany({ companies, summary, filters }: Props) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedSearch = useCallback(
@@ -162,6 +165,13 @@ export default function ListCompany({ companies, summary, filters }: Props) {
                             Kelola semua perusahaan yang terdaftar dalam sistem.
                         </p>
                     </div>
+                    <PrimaryButton
+                        className="flex items-center gap-2"
+                        onClick={() => setIsModalOpen(true)}
+                    >
+                        <Icon name="add" className="text-sm" />
+                        Tambah Perusahaan
+                    </PrimaryButton>
                 </div>
 
                 {/* Summary Cards */}
@@ -387,6 +397,12 @@ export default function ListCompany({ companies, summary, filters }: Props) {
                     </div>
                 )}
             </div>
+
+            {/* Modal */}
+            <ModalCompany
+                show={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+            />
         </AppLayout>
     );
 }

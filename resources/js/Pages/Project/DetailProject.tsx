@@ -41,6 +41,10 @@ interface ProjectData {
     endDate: string | null;
     locations: LocationItem[];
     enumerators: EnumeratorItem[];
+    descriptiveQuestions: {
+        id: number;
+        title: string;
+    }[];
 }
 
 interface StatsData {
@@ -49,6 +53,16 @@ interface StatsData {
     progress: number;
     score: number;
     scoreLabel: string;
+}
+
+interface IkmStatsData {
+    totalResponses: number;
+    targetResponses: number;
+    progress: number;
+    scoreKepentingan: number;
+    scoreKinerja: number;
+    scoreLabelKepentingan: string;
+    scoreLabelKinerja: string;
 }
 
 interface GenderItem {
@@ -81,6 +95,15 @@ interface QuestionScoreItem {
     score: number;
     importance: number;
     performance: number;
+}
+
+interface AllQuestionItem {
+    id: string;
+    code: string;
+    category: string;
+    aspect: string;
+    question: string;
+    order_no: number;
 }
 
 interface AuditLogItem {
@@ -135,6 +158,7 @@ interface RespondentsData {
             decidedBy: string;
             notes: string | null;
         }[];
+        descriptiveAnswers?: { question: string; answer: string | null }[];
     }[];
     pagination: {
         currentPage: number;
@@ -167,36 +191,84 @@ interface EnumeratorListItem {
     phone: string | null;
     isActive: boolean;
     totalSubmissions: number;
-    avgScore: number;
+    ikmSubmissions: number;
+    sloiSubmissions: number;
     lastSubmittedAt: string | null;
-    submissions: {
-        id: number;
-        respondentName: string;
-        assessmentType: string;
-        status: string;
-        submittedAt: string | null;
-    }[];
+}
+
+interface SloiReliabilityItem {
+    code: string;
+    question: string;
+    raw_question: string;
+    mean: number;
+    pearson: number;
+    isValid: boolean;
+    validityLabel: string;
+}
+
+interface SloiReliabilityData {
+    n: number;
+    k: number;
+    items: SloiReliabilityItem[];
+    alpha: number;
+    alphaStatus: string;
+    insufficientData: boolean;
+}
+
+interface AspectCell {
+    count: number;
+    percentage: number;
+}
+
+interface SloiAspectRow {
+    value: number;
+    label: string;
+    aspects: Record<string, AspectCell>;
+    total: AspectCell;
+}
+
+interface SloiAspectAnalysis {
+    aspects: string[];
+    rows: SloiAspectRow[];
+    totals: {
+        aspects: Record<string, AspectCell>;
+        total: AspectCell;
+    };
+    summary: {
+        positivePercentage: number;
+        doubtPercentage: number;
+        doubtfulAspect: string | null;
+    };
 }
 
 interface Props {
     project: ProjectData;
     detailType: string;
     stats: StatsData;
-    ikmStats: StatsData | null;
+    ikmStats: IkmStatsData | null;
     sloiStats: StatsData | null;
     demographics: DemographicsData;
     questionScores: QuestionScoreItem[];
+    allQuestions: AllQuestionItem[];
     auditLog: AuditLogItem[];
     trendData: TrendDataItem[];
     respondents: RespondentsData;
     enumeratorList: EnumeratorListItem[];
+    sloiReliability: SloiReliabilityData | null;
+    sloiAspectAnalysis: SloiAspectAnalysis | null;
     respondentFilters: RespondentFilters;
+    canEdit?: boolean;
 }
 
 // ─── Tab Config ────────────────────────────────────────────
 
 function buildTabs(project: ProjectData) {
     const tabs = [{ key: 'overview', label: 'Overview', icon: 'dashboard' }];
+    tabs.push({
+        key: 'enumerator',
+        label: 'Enumerator',
+        icon: 'badge',
+    });
     if (project.enableIkm) {
         tabs.push({ key: 'ikm', label: 'IKM', icon: 'sentiment_satisfied' });
         tabs.push({
@@ -215,11 +287,6 @@ function buildTabs(project: ProjectData) {
     }
     if (project.enableSroi)
         tabs.push({ key: 'sroi', label: 'SROI', icon: 'payments' });
-    tabs.push({
-        key: 'enumerator',
-        label: 'Enumerator',
-        icon: 'badge',
-    });
     return tabs;
 }
 
@@ -233,11 +300,15 @@ export default function DetailProject({
     sloiStats,
     demographics,
     questionScores,
+    allQuestions,
     auditLog,
     trendData,
     respondents,
     enumeratorList,
+    sloiReliability,
+    sloiAspectAnalysis,
     respondentFilters,
+    canEdit = true,
 }: Props) {
     const activeTab = detailType || 'overview';
     const tabs = buildTabs(project);
@@ -270,12 +341,27 @@ export default function DetailProject({
                         auditLog={auditLog}
                     />
                 );
+            case 'enumerator':
+                return (
+                    <ProjectEnumeratorList
+                        enumeratorList={enumeratorList}
+                        project={{
+                            id: project.id,
+                            name: project.name,
+                            code: project.projectCode,
+                        }}
+                        canEdit={canEdit}
+                    />
+                );
             case 'ikm':
                 return (
                     <ProjectIKM
+                        projectName={project.name}
                         stats={stats}
+                        ikmStats={ikmStats}
                         demographics={demographics}
                         questionScores={questionScores}
+                        allQuestions={allQuestions}
                         auditLog={auditLog}
                         trendData={trendData}
                     />
@@ -288,6 +374,8 @@ export default function DetailProject({
                         questionScores={questionScores}
                         auditLog={auditLog}
                         trendData={trendData}
+                        sloiReliability={sloiReliability}
+                        sloiAspectAnalysis={sloiAspectAnalysis}
                     />
                 );
             case 'ikm_respondent':
@@ -296,6 +384,7 @@ export default function DetailProject({
                         respondents={respondents}
                         projectId={project.id}
                         filters={respondentFilters}
+                        canEdit={canEdit}
                     />
                 );
             case 'sloi_respondent':
@@ -304,21 +393,12 @@ export default function DetailProject({
                         respondents={respondents}
                         projectId={project.id}
                         filters={respondentFilters}
+                        canEdit={canEdit}
                     />
                 );
             case 'sroi':
                 return <ProjectSROI />;
-            case 'enumerator':
-                return (
-                    <ProjectEnumeratorList
-                        enumeratorList={enumeratorList}
-                        project={{
-                            id: project.id,
-                            name: project.name,
-                            code: project.projectCode,
-                        }}
-                    />
-                );
+            
             default:
                 return (
                     <ProjectOverview
@@ -382,31 +462,33 @@ export default function DetailProject({
                     activeTab={activeTab}
                     onTabChange={handleTabChange}
                     actions={
-                        <button
-                            onClick={() => setShowStatusModal(true)}
-                            className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
-                                project.status === 'active'
-                                    ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-                                    : 'bg-green-100 text-green-700 hover:bg-green-200'
-                            }`}
-                        >
-                            {project.status === 'active' ? (
-                                <>
-                                    <PauseCircle className="size-3.5" />
-                                    Jadikan Draft
-                                </>
-                            ) : (
-                                <>
-                                    <CheckCircle className="size-3.5" />
-                                    Aktifkan Proyek
-                                </>
-                            )}
-                        </button>
+                        canEdit ? (
+                            <button
+                                onClick={() => setShowStatusModal(true)}
+                                className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
+                                    project.status === 'active'
+                                        ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                }`}
+                            >
+                                {project.status === 'active' ? (
+                                    <>
+                                        <PauseCircle className="size-3.5" />
+                                        Jadikan Draft
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircle className="size-3.5" />
+                                        Aktifkan Proyek
+                                    </>
+                                )}
+                            </button>
+                        ) : undefined
                     }
                 />
 
                 {/* Konfirmasi Status Modal */}
-                {showStatusModal && (
+                {canEdit && showStatusModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center">
                         {/* Backdrop */}
                         <div

@@ -63,28 +63,18 @@ export default function WhyChooseUsSection() {
                         </div>
 
                         <div className="relative flex items-center justify-center">
-                            <div className="relative aspect-[4/3] w-full max-w-lg overflow-hidden rounded-3xl shadow-2xl">
-                                <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900" />
-                                <img
-                                    src="img/aurora.jpg"
-                                    alt="Professional coaching"
-                                    className="absolute inset-0 h-full w-full object-cover"
-                                />
-                                {/* Play button overlay */}
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <button className="group relative flex h-20 w-20 items-center justify-center rounded-full bg-white/95 shadow-xl transition-all duration-300 hover:scale-110 hover:bg-white">
-                                        <svg
-                                            className="ml-1 h-8 w-8 text-gray-900"
-                                            fill="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path d="M8 5v14l11-7z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                {/* Decorative elements */}
-                                <div className="absolute -bottom-4 -left-4 h-24 w-24 rounded-full bg-gradient-to-br from-lime-400 to-green-500 opacity-40 blur-2xl" />
-                                <div className="absolute -right-4 -top-4 h-32 w-32 rounded-full bg-gradient-to-br from-lime-300 to-green-400 opacity-30 blur-3xl" />
+                            {/* Decorative elements */}
+                            <div className="absolute -bottom-4 -left-4 h-24 w-24 rounded-full bg-gradient-to-br from-lime-400 to-green-500 opacity-40 blur-2xl" />
+                            <div className="absolute -right-4 -top-4 h-32 w-32 rounded-full bg-gradient-to-br from-lime-300 to-green-400 opacity-30 blur-3xl" />
+
+                            <div className="relative z-10 aspect-video w-full max-w-lg overflow-hidden rounded-3xl shadow-2xl">
+                                <iframe
+                                    className="pointer-events-none absolute inset-0 h-full w-full"
+                                    src="https://www.youtube.com/embed/Ha4ik5XtQvA?autoplay=1&mute=1&loop=1&playlist=Ha4ik5XtQvA&controls=0&showinfo=0&rel=0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    title="YouTube video player"
+                                ></iframe>
                             </div>
                         </div>
                     </div>

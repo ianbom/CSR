@@ -24,9 +24,9 @@ interface DashboardStats {
 
 interface ProjectData {
     name: string;
-    ikmHeight: string;
-    sloiHeight: string;
-    sroiHeight: string;
+    ikmKepentingan: number;
+    ikmKinerja: number;
+    sloi: number;
 }
 
 interface ActivityData {
@@ -43,10 +43,16 @@ interface ScoreItem {
     value: string;
 }
 
-interface ScoreDistributionData {
+interface ScoreDistributionTypeData {
     percentage: number;
     percentageLabel: string;
+    totalSubmissions: number;
     scores: ScoreItem[];
+}
+
+interface ScoreDistributionData {
+    ikm: ScoreDistributionTypeData;
+    sloi: ScoreDistributionTypeData;
 }
 
 interface TrendDataPoint {
@@ -69,12 +75,6 @@ interface Props {
     projectList: ProjectListItem[];
     selectedProjectId: number | null;
 }
-
-const chartLegend = [
-    { label: 'IKM', color: 'bg-primary' },
-    { label: 'SLOI', color: 'bg-primary/50' },
-    { label: 'SROI', color: 'bg-slate-200' },
-];
 
 export default function CompanyDashboard({
     stats,
@@ -156,16 +156,13 @@ export default function CompanyDashboard({
                 <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     <BarChart
                         title="Ringkasan Performa Proyek"
-                        description="Perbandingan skor IKM, SLOI, dan SROI per proyek aktif."
-                        legend={chartLegend}
+                        description="Perbandingan rata-rata skor IKM (Kepentingan & Kinerja) dan SLOI per proyek aktif terbaru."
                         projects={projects}
                     />
                     <ScoreDistribution
                         title="Distribusi Skor"
-                        description="Sentimen agregat di seluruh proyek."
-                        percentage={scoreDistribution.percentage}
-                        percentageLabel={scoreDistribution.percentageLabel}
-                        scores={scoreDistribution.scores}
+                        ikm={scoreDistribution.ikm}
+                        sloi={scoreDistribution.sloi}
                     />
                 </section>
 
@@ -183,7 +180,6 @@ export default function CompanyDashboard({
                     <ActivityFeed
                         title="Aktivitas Terbaru"
                         activities={activities}
-                        viewAllLink="/activities"
                     />
                 </section>
             </div>

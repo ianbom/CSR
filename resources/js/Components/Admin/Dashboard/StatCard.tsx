@@ -7,12 +7,7 @@ interface StatCardProps {
     trend?: { value: number; label: string };
 }
 
-export function StatCard({
-    icon: Icon,
-    label,
-    value,
-    trend,
-}: StatCardProps) {
+export function StatCard({ icon: Icon, label, value, trend }: StatCardProps) {
     const isPositive = trend && trend.value >= 0;
 
     return (
@@ -23,11 +18,12 @@ export function StatCard({
                 </div>
                 {trend && (
                     <div
-                        className={`+lex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium +`+(
-                            isPositive
+                        className={
+                            `+ lex + items-center gap-1 rounded-md px-2 py-1 text-xs font-medium` +
+                            (isPositive
                                 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'
-                                : 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400'
-                        )}
+                                : 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400')
+                        }
                     >
                         {isPositive ? (
                             <ArrowUpRight className="h-3.5 w-3.5" />
@@ -44,9 +40,7 @@ export function StatCard({
                     {label}
                 </p>
                 <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
-                    {typeof value === 'number'
-                        ? value.toLocaleString()
-                        : value}
+                    {typeof value === 'number' ? value.toLocaleString() : value}
                 </p>
                 {trend && (
                     <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">

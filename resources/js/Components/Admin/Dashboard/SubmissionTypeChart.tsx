@@ -1,9 +1,4 @@
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/Components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { FileText } from 'lucide-react';
 import type { SubmissionTypeData } from './types';
 
@@ -31,7 +26,9 @@ export function SubmissionTypeChart({ data }: SubmissionTypeChartProps) {
             <CardContent>
                 <div className="space-y-3">
                     {data.map((item) => {
-                        const percentage = Math.round((item.count / total) * 100);
+                        const percentage = Math.round(
+                            (item.count / total) * 100,
+                        );
                         return (
                             <div key={item.type} className="space-y-1.5">
                                 <div className="flex justify-between text-sm">
@@ -39,13 +36,17 @@ export function SubmissionTypeChart({ data }: SubmissionTypeChartProps) {
                                         {item.type}
                                     </span>
                                     <span className="text-slate-500">
-                                        {item.count.toLocaleString()} ({percentage}
+                                        {item.count.toLocaleString()} (
+                                        {percentage}
                                         %)
                                     </span>
                                 </div>
                                 <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
                                     <div
-                                        className={'h-full rounded-full transition-all ' + colors[item.type]}
+                                        className={
+                                            'h-full rounded-full transition-all ' +
+                                            colors[item.type]
+                                        }
                                         style={{ width: `${percentage}%` }}
                                     />
                                 </div>

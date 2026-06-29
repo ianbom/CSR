@@ -14,8 +14,6 @@ interface SidebarProps {
     userName?: string;
     isOnline?: boolean;
     onLogout?: () => void;
-    isMobileOpen?: boolean;
-    onMobileClose?: () => void;
 }
 
 export default function Sidebar({
@@ -23,23 +21,11 @@ export default function Sidebar({
     userName = 'Enumerator',
     isOnline = true,
     onLogout,
-    isMobileOpen = false,
-    onMobileClose,
 }: SidebarProps) {
     return (
         <>
-            {/* Mobile Overlay */}
-            {isMobileOpen && (
-                <div
-                    className="fixed inset-0 z-40 bg-black/50 md:hidden"
-                    onClick={onMobileClose}
-                />
-            )}
-
             {/* Sidebar */}
-            <aside
-                className={`fixed inset-y-0 left-0 z-50 h-full w-64 transform flex-col border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out md:static md:bg-gray-50 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} md:flex md:translate-x-0 ${isMobileOpen ? 'flex' : 'hidden md:flex'} `}
-            >
+            <aside className="hidden h-full w-64 flex-col border-r border-gray-200 bg-gray-50 md:flex">
                 {/* Logo */}
                 <div className="flex items-center gap-3 p-6">
                     <div className="flex size-8 items-center justify-center text-primary">
@@ -104,14 +90,6 @@ export default function Sidebar({
                         <p className="text-sm font-medium">Log Out</p>
                     </button>
                 </div>
-
-                {/* Mobile Close Button */}
-                <button
-                    onClick={onMobileClose}
-                    className="absolute right-4 top-4 p-2 text-gray-500 hover:text-gray-700 md:hidden"
-                >
-                    <MaterialIcon name="close" />
-                </button>
             </aside>
         </>
     );

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
-            $table->unique(['type', 'version']);
+            $table->unique(['type', 'version', 'deleted_at'], 'inst_temp_type_ver_del_unique');
         });
     }
 

@@ -121,7 +121,8 @@ export default function LineChart({
                     {trendData.map((point, index) => {
                         const x = index * pointSpacing;
                         const y =
-                            chartHeight - (point.count / maxCount) * chartHeight;
+                            chartHeight -
+                            (point.count / maxCount) * chartHeight;
 
                         return (
                             <g key={index}>
@@ -131,7 +132,7 @@ export default function LineChart({
                                     cy={y}
                                     r="5"
                                     fill="#16a249"
-                                    className="transition-all hover:r-7"
+                                    className="hover:r-7 transition-all"
                                 />
                                 {/* Count label above point */}
                                 <text

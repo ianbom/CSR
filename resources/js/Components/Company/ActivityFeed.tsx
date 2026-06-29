@@ -13,7 +13,6 @@ interface ActivityItemProps {
 interface ActivityFeedProps {
     title: string;
     activities: ActivityItemProps[];
-    viewAllLink?: string;
 }
 
 function ActivityItem({
@@ -45,7 +44,6 @@ function ActivityItem({
 export default function ActivityFeed({
     title,
     activities,
-    viewAllLink = '#',
 }: ActivityFeedProps): ReactNode {
     return (
         <div className="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-card-light shadow-sm">
@@ -62,12 +60,6 @@ export default function ActivityFeed({
                     ))}
                 </div>
             </div>
-            <a
-                href={viewAllLink}
-                className="bg-slate-50 p-4 text-center text-xs font-bold text-primary transition-colors hover:bg-primary/5"
-            >
-                View All Activity
-            </a>
         </div>
     );
 }

@@ -20,7 +20,10 @@ export default function ReviewItem({
                     {label}
                 </span>
                 <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900">{value}</span>
+                    <span
+                        className="font-medium text-gray-900"
+                        dangerouslySetInnerHTML={{ __html: value }}
+                    />
                     {badge}
                 </div>
             </div>

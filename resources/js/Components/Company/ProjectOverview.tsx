@@ -31,6 +31,10 @@ interface ProjectData {
     endDate: string | null;
     locations: LocationItem[];
     enumerators: EnumeratorItem[];
+    descriptiveQuestions: {
+        id: number;
+        title: string;
+    }[];
 }
 
 interface StatsData {
@@ -39,6 +43,16 @@ interface StatsData {
     progress: number;
     score: number;
     scoreLabel: string;
+}
+
+interface IkmStatsData {
+    totalResponses: number;
+    targetResponses: number;
+    progress: number;
+    scoreKepentingan: number;
+    scoreKinerja: number;
+    scoreLabelKepentingan: string;
+    scoreLabelKinerja: string;
 }
 
 interface AuditLogItem {
@@ -54,7 +68,7 @@ interface AuditLogItem {
 interface ProjectOverviewProps {
     project: ProjectData;
     stats: StatsData;
-    ikmStats: StatsData | null;
+    ikmStats: IkmStatsData | null;
     sloiStats: StatsData | null;
     auditLog: AuditLogItem[];
 }
@@ -98,7 +112,6 @@ export default function ProjectOverview({
     sloiStats,
     auditLog,
 }: ProjectOverviewProps): ReactNode {
-    const effectiveIkmStats = ikmStats ?? stats;
     const effectiveSloiStats = sloiStats ?? stats;
     const assessmentTypes = [
         {
@@ -117,44 +130,61 @@ export default function ProjectOverview({
             color: 'text-amber-600',
             bg: 'bg-amber-50',
         },
-        {
-            key: 'sroi',
-            enabled: project.enableSroi,
-            label: 'SROI',
-            icon: 'payments',
-            color: 'text-primary',
-            bg: 'bg-primary/10',
-        },
     ];
 
     return (
         <>
             {/* ─── Metric Cards ─────────────────────────────── */}
             <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-                {project.enableIkm && (
-                    <MetricCard
-                        icon="sentiment_satisfied"
-                        iconBgColor="bg-blue-50"
-                        iconColor="text-blue-600"
-                        label="IKM Score"
-                        value={effectiveIkmStats.score}
-                        unit="/ 4.0"
-                        badge={{
-                            text: effectiveIkmStats.scoreLabel,
-                            type:
-                                effectiveIkmStats.score >= 4
-                                    ? 'positive'
-                                    : 'stable',
-                        }}
-                        footer={
-                            <p className="text-xs text-slate-500">
-                                Kualitas layanan dinilai{' '}
-                                <span className="font-bold text-blue-600">
-                                    {effectiveIkmStats.scoreLabel}
-                                </span>
-                            </p>
-                        }
-                    />
+                {project.enableIkm && ikmStats && (
+                    <>
+                        <MetricCard
+                            icon="star"
+                            iconBgColor="bg-blue-50"
+                            iconColor="text-blue-600"
+                            label="IKM Kepentingan"
+                            value={ikmStats.scoreKepentingan}
+                            unit="/ 4.0"
+                            badge={{
+                                text: ikmStats.scoreLabelKepentingan,
+                                type:
+                                    ikmStats.scoreKepentingan >= 4
+                                        ? 'positive'
+                                        : 'stable',
+                            }}
+                            footer={
+                                <p className="text-xs text-slate-500">
+                                    Tingkat kepentingan dinilai{' '}
+                                    <span className="font-bold text-blue-600">
+                                        {ikmStats.scoreLabelKepentingan}
+                                    </span>
+                                </p>
+                            }
+                        />
+                        <MetricCard
+                            icon="sentiment_satisfied"
+                            iconBgColor="bg-indigo-50"
+                            iconColor="text-indigo-600"
+                            label="IKM Kinerja"
+                            value={ikmStats.scoreKinerja}
+                            unit="/ 4.0"
+                            badge={{
+                                text: ikmStats.scoreLabelKinerja,
+                                type:
+                                    ikmStats.scoreKinerja >= 4
+                                        ? 'positive'
+                                        : 'stable',
+                            }}
+                            footer={
+                                <p className="text-xs text-slate-500">
+                                    Kualitas kinerja dinilai{' '}
+                                    <span className="font-bold text-indigo-600">
+                                        {ikmStats.scoreLabelKinerja}
+                                    </span>
+                                </p>
+                            }
+                        />
+                    </>
                 )}
                 {project.enableSloi && (
                     <MetricCard
@@ -169,29 +199,14 @@ export default function ProjectOverview({
                                 {[1, 2, 3, 4, 5].map((i) => (
                                     <div
                                         key={i}
-                                        className={`h-1.5 flex-1 rounded-full ${
-                                            i <=
-                                            Math.ceil(effectiveSloiStats.score)
+                                        className={`h-1.5 flex-1 rounded-full ${i <=
+                                                Math.ceil(effectiveSloiStats.score)
                                                 ? 'bg-primary'
                                                 : 'bg-slate-200'
-                                        }`}
+                                            }`}
                                     />
                                 ))}
                             </div>
-                        }
-                    />
-                )}
-                {project.enableSroi && (
-                    <MetricCard
-                        icon="payments"
-                        iconBgColor="bg-primary/10"
-                        iconColor="text-primary"
-                        label="SROI Ratio"
-                        value="-"
-                        footer={
-                            <p className="text-xs text-slate-500">
-                                Data SROI belum tersedia
-                            </p>
                         }
                     />
                 )}
@@ -251,13 +266,13 @@ export default function ProjectOverview({
                             Jadwal & Target
                         </h3>
                     </div>
-                    <div className="space-y-4 p-6">
+                    <div className="space-y-4 p-6 font-bold">
                         <InfoRow
-                            label="Tanggal Mulai"
+                            label="Tanggal Mulai Project"
                             value={formatDate(project.startDate)}
                         />
                         <InfoRow
-                            label="Tanggal Selesai"
+                            label="Tanggal Selesai Project"
                             value={formatDate(project.endDate)}
                         />
                         <InfoRow
@@ -276,10 +291,10 @@ export default function ProjectOverview({
                                     : '-'
                             }
                         />
-                        <InfoRow
+                        {/* <InfoRow
                             label="Total Responden"
                             value={`${stats.totalResponses.toLocaleString()} / ${stats.targetResponses.toLocaleString()}`}
-                        />
+                        /> */}
                     </div>
                 </div>
             </div>
@@ -299,11 +314,10 @@ export default function ProjectOverview({
                     {assessmentTypes.map((at) => (
                         <div
                             key={at.key}
-                            className={`flex items-center gap-3 rounded-lg border p-4 ${
-                                at.enabled
+                            className={`flex items-center gap-3 rounded-lg border p-4 ${at.enabled
                                     ? 'border-primary/20 bg-primary/5'
                                     : 'border-slate-100 bg-slate-50 opacity-50'
-                            }`}
+                                }`}
                         >
                             <div
                                 className={`flex size-10 items-center justify-center rounded-lg ${at.bg}`}
@@ -329,6 +343,45 @@ export default function ProjectOverview({
                             )}
                         </div>
                     ))}
+                </div>
+            </div>
+
+            {/* ─── Pertanyaan Kualitatif ───────────────────────── */}
+            <div className="mb-8 rounded-xl border border-slate-100 bg-white shadow-sm">
+                <div className="border-b border-slate-100 px-6 py-4">
+                    <h3 className="flex items-center gap-2 text-base font-bold text-slate-900">
+                        <Icon
+                            name="help_outline"
+                            className="text-lg text-primary"
+                        />
+                        Pertanyaan Kualitatif
+                        <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+                            {project.descriptiveQuestions.length}
+                        </span>
+                    </h3>
+                </div>
+                <div className="p-6">
+                    {project.descriptiveQuestions.length === 0 ? (
+                        <p className="text-center text-sm text-slate-400">
+                            Belum ada Pertanyaan Kualitatif.
+                        </p>
+                    ) : (
+                        <div className="flex flex-col gap-3">
+                            {project.descriptiveQuestions.map((q, i) => (
+                                <div
+                                    key={q.id}
+                                    className="flex items-start gap-4 rounded-lg border border-slate-100 bg-slate-50/50 p-4"
+                                >
+                                    <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                                        {i + 1}
+                                    </div>
+                                    <p className="text-sm font-medium leading-relaxed text-slate-800">
+                                        {q.title}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -432,7 +485,7 @@ export default function ProjectOverview({
             </div>
 
             {/* ─── Recent Submissions ──────────────────────── */}
-            <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm">
+            {/* <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm">
                 <div className="border-b border-slate-100 px-6 py-4">
                     <h3 className="flex items-center gap-2 text-base font-bold text-slate-900">
                         <Icon name="history" className="text-lg text-primary" />
@@ -493,26 +546,24 @@ export default function ProjectOverview({
                                     </td>
                                     <td className="px-6 py-4">
                                         <span
-                                            className={`text-sm font-bold ${
-                                                log.score >= 4
+                                            className={`text-sm font-bold ${log.score >= 4
                                                     ? 'text-green-600'
                                                     : log.score >= 3
-                                                      ? 'text-amber-600'
-                                                      : 'text-red-600'
-                                            }`}
+                                                        ? 'text-amber-600'
+                                                        : 'text-red-600'
+                                                }`}
                                         >
                                             {log.score}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
                                         <span
-                                            className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase ${
-                                                log.status === 'approved'
+                                            className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase ${log.status === 'approved'
                                                     ? 'bg-green-100 text-green-700'
                                                     : log.status === 'submitted'
-                                                      ? 'bg-amber-100 text-amber-700'
-                                                      : 'bg-red-100 text-red-700'
-                                            }`}
+                                                        ? 'bg-amber-100 text-amber-700'
+                                                        : 'bg-red-100 text-red-700'
+                                                }`}
                                         >
                                             {log.status}
                                         </span>
@@ -522,7 +573,7 @@ export default function ProjectOverview({
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div> */}
         </>
     );
 }

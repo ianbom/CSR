@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('enumerator_id')->constrained('users')->cascadeOnDelete()->comment('role=enumerator');
             $table->timestamp('created_at')->useCurrent();
             $table->softDeletes();
-            $table->unique(['project_id', 'enumerator_id']);
+            $table->unique(['project_id', 'enumerator_id', 'deleted_at'], 'proj_enum_deleted_unique');
         });
     }
 

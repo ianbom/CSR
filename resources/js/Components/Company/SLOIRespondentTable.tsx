@@ -55,6 +55,7 @@ export interface SLOIRespondentRow {
         string,
         { kepentingan: number | null; kinerja: number | null }
     >;
+    descriptiveAnswers?: { question: string; answer: string | null }[];
     timelines: TimelineEntry[];
 }
 
@@ -93,12 +94,14 @@ interface Props {
     respondents: SLOIRespondentsData;
     filters: RespondentFilters;
     onNavigate: (params: Record<string, string | number>) => void;
+    canEdit?: boolean;
 }
 
 export default function SLOIRespondentTable({
     respondents,
     filters,
     onNavigate,
+    canEdit = true,
 }: Props): ReactNode {
     const { questions, rows, pagination, filterOptions } = respondents;
     const [selected, setSelected] = useState<SLOIRespondentRow | null>(null);
@@ -309,7 +312,7 @@ export default function SLOIRespondentTable({
             </div>
 
             {/* Bulk Action Bar */}
-            {selectedIds.length > 0 && (
+            {canEdit && selectedIds.length > 0 && (
                 <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 px-5 py-3">
                     <div className="flex items-center gap-3">
                         <CheckSquare className="size-5 text-primary" />
@@ -341,18 +344,20 @@ export default function SLOIRespondentTable({
                         <thead>
                             <tr className="border-b border-slate-100 bg-slate-50/80">
                                 <th className="sticky left-0 z-10 bg-slate-50/80 px-3 py-3 text-center">
-                                    <button
-                                        onClick={toggleSelectAll}
-                                        className="text-slate-400 transition-colors hover:text-primary"
-                                    >
-                                        {isAllSelected ? (
-                                            <CheckSquare className="size-4 text-primary" />
-                                        ) : isPartialSelected ? (
-                                            <MinusSquare className="size-4 text-primary" />
-                                        ) : (
-                                            <Square className="size-4" />
-                                        )}
-                                    </button>
+                                    {canEdit && (
+                                        <button
+                                            onClick={toggleSelectAll}
+                                            className="text-slate-400 transition-colors hover:text-primary"
+                                        >
+                                            {isAllSelected ? (
+                                                <CheckSquare className="size-4 text-primary" />
+                                            ) : isPartialSelected ? (
+                                                <MinusSquare className="size-4 text-primary" />
+                                            ) : (
+                                                <Square className="size-4" />
+                                            )}
+                                        </button>
+                                    )}
                                 </th>
                                 <th className="bg-slate-50/80 px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                     No
@@ -390,10 +395,10 @@ export default function SLOIRespondentTable({
                                         {q.code}
                                     </th>
                                 ))}
-                                <th className="min-w-[80px] px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                <th className="sticky right-[100px] z-10 min-w-[80px] bg-slate-50 px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400 shadow-[-12px_0_15px_-5px_rgba(0,0,0,0.05)]">
                                     Lihat
                                 </th>
-                                <th className="min-w-[80px] px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                <th className="sticky right-0 z-10 min-w-[100px] bg-slate-50 px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                                     Status
                                 </th>
                             </tr>
@@ -409,103 +414,128 @@ export default function SLOIRespondentTable({
                                     </td>
                                 </tr>
                             )}
-                            {rows.map((row, idx) => (
-                                <tr
-                                    key={row.submissionId}
-                                    className={`transition-colors hover:bg-slate-50/50 ${selectedIds.includes(row.submissionId) ? 'bg-primary/5' : ''}`}
-                                >
-                                    <td className="sticky left-0 z-10 bg-white px-3 py-3 text-center">
-                                        <button
-                                            onClick={() =>
-                                                toggleSelect(row.submissionId)
-                                            }
-                                            className="text-slate-400 transition-colors hover:text-primary"
+                            {rows.map((row, idx) => {
+                                const isSelected = selectedIds.includes(
+                                    row.submissionId,
+                                );
+                                const rowBg = isSelected
+                                    ? 'bg-primary/5'
+                                    : 'bg-white group-hover:bg-slate-50';
+
+                                return (
+                                    <tr
+                                        key={row.submissionId}
+                                        className={`group transition-colors hover:bg-slate-50 ${isSelected ? 'bg-primary/5' : ''}`}
+                                    >
+                                        <td
+                                            className={`sticky left-0 z-10 px-3 py-3 text-center transition-colors ${rowBg}`}
                                         >
-                                            {selectedIds.includes(
-                                                row.submissionId,
-                                            ) ? (
-                                                <CheckSquare className="size-4 text-primary" />
-                                            ) : (
-                                                <Square className="size-4" />
+                                            {canEdit && (
+                                                <button
+                                                    onClick={() =>
+                                                        toggleSelect(
+                                                            row.submissionId,
+                                                        )
+                                                    }
+                                                    className="text-slate-400 transition-colors hover:text-primary"
+                                                >
+                                                    {selectedIds.includes(
+                                                        row.submissionId,
+                                                    ) ? (
+                                                        <CheckSquare className="size-4 text-primary" />
+                                                    ) : (
+                                                        <Square className="size-4" />
+                                                    )}
+                                                </button>
                                             )}
-                                        </button>
-                                    </td>
-                                    <td className="bg-white px-4 py-3 font-medium text-slate-500">
-                                        {startItem + idx}
-                                    </td>
-                                    <td className="sticky left-10 z-10 bg-white px-4 py-3">
-                                        <div className="font-medium text-slate-900">
-                                            {row.respondent?.name ?? '-'}
-                                        </div>
-                                        {row.respondent?.phone && (
-                                            <div className="text-[11px] text-slate-400">
-                                                {row.respondent.phone}
+                                        </td>
+                                        <td
+                                            className={`px-4 py-3 font-medium text-slate-500 transition-colors ${rowBg}`}
+                                        >
+                                            {startItem + idx}
+                                        </td>
+                                        <td
+                                            className={`sticky left-10 z-10 px-4 py-3 transition-colors ${rowBg}`}
+                                        >
+                                            <div className="font-medium text-slate-900">
+                                                {row.respondent?.name ?? '-'}
                                             </div>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3 text-slate-600">
-                                        {row.enumerator}
-                                    </td>
-                                    <td className="px-4 py-3 text-slate-500">
-                                        {row.submittedAt ?? '-'}
-                                    </td>
-                                    <td className="px-4 py-3 text-center">
-                                        <span
-                                            className={`font-bold ${
-                                                row.avgScore >= 4
-                                                    ? 'text-green-600'
-                                                    : row.avgScore >= 3
-                                                      ? 'text-amber-600'
-                                                      : 'text-red-500'
-                                            }`}
-                                        >
-                                            {row.avgScore}
-                                        </span>
-                                    </td>
-                                    {questions.map((q) => {
-                                        const ans = row.answers[q.code];
-                                        const val =
-                                            ans?.kepentingan ?? ans?.kinerja;
-                                        return (
-                                            <td
-                                                key={q.code}
-                                                className="px-3 py-3 text-center text-slate-600"
+                                            {row.respondent?.phone && (
+                                                <div className="text-[11px] text-slate-400">
+                                                    {row.respondent.phone}
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3 text-slate-600">
+                                            {row.enumerator}
+                                        </td>
+                                        <td className="px-4 py-3 text-slate-500">
+                                            {row.submittedAt ?? '-'}
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            <span
+                                                className={`font-bold ${
+                                                    row.avgScore >= 4
+                                                        ? 'text-green-600'
+                                                        : row.avgScore >= 3
+                                                          ? 'text-amber-600'
+                                                          : 'text-red-500'
+                                                }`}
                                             >
-                                                {val ?? '-'}
-                                            </td>
-                                        );
-                                    })}
-                                    {/* Lihat */}
-                                    <td className="px-4 py-3 text-center">
-                                        <button
-                                            onClick={() => setSelected(row)}
-                                            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary"
-                                        >
-                                            <span className="material-symbols-outlined text-sm leading-none">
-                                                visibility
+                                                {row.avgScore}
                                             </span>
-                                            Lihat
-                                        </button>
-                                    </td>
-                                    <td className="px-4 py-3 text-center">
-                                        <span
-                                            className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
-                                                row.status === 'approved'
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : row.status === 'submitted'
-                                                      ? 'bg-amber-100 text-amber-700'
-                                                      : 'bg-orange-100 text-orange-700'
-                                            }`}
+                                        </td>
+                                        {questions.map((q) => {
+                                            const ans = row.answers[q.code];
+                                            const val =
+                                                ans?.kepentingan ??
+                                                ans?.kinerja;
+                                            return (
+                                                <td
+                                                    key={q.code}
+                                                    className="px-3 py-3 text-center text-slate-600"
+                                                >
+                                                    {val ?? '-'}
+                                                </td>
+                                            );
+                                        })}
+                                        {/* Lihat */}
+                                        <td
+                                            className={`sticky right-[100px] z-10 px-4 py-3 text-center shadow-[-12px_0_15px_-5px_rgba(0,0,0,0.05)] transition-colors ${rowBg}`}
                                         >
-                                            {row.status === 'rejected'
-                                                ? 'Revisi'
-                                                : row.status === 'approved'
-                                                  ? 'Approved'
-                                                  : 'Submitted'}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
+                                            <button
+                                                onClick={() => setSelected(row)}
+                                                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary"
+                                            >
+                                                <span className="material-symbols-outlined text-sm leading-none">
+                                                    visibility
+                                                </span>
+                                                Lihat
+                                            </button>
+                                        </td>
+                                        <td
+                                            className={`sticky right-0 z-10 px-4 py-3 text-center transition-colors ${rowBg}`}
+                                        >
+                                            <span
+                                                className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
+                                                    row.status === 'approved'
+                                                        ? 'bg-green-100 text-green-700'
+                                                        : row.status ===
+                                                            'submitted'
+                                                          ? 'bg-amber-100 text-amber-700'
+                                                          : 'bg-orange-100 text-orange-700'
+                                                }`}
+                                            >
+                                                {row.status === 'rejected'
+                                                    ? 'Revisi'
+                                                    : row.status === 'approved'
+                                                      ? 'Approved'
+                                                      : 'Submitted'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -634,13 +664,14 @@ export default function SLOIRespondentTable({
                               }
                             : null,
                         timelines: selected.timelines,
+                        descriptiveAnswers: selected.descriptiveAnswers,
                     }}
                     onClose={() => setSelected(null)}
                 />
             )}
 
             {/* ── Bulk Status Modal ── */}
-            {showBulkModal && (
+            {canEdit && showBulkModal && (
                 <BulkStatusModal
                     selectedIds={selectedIds}
                     onClose={() => setShowBulkModal(false)}

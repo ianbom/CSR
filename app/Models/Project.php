@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'company_id',
         'name',
@@ -120,6 +123,14 @@ class Project extends Model
     public function sroiQuestions(): HasMany
     {
         return $this->hasMany(SroiQuestion::class);
+    }
+
+    /**
+     * Get the descriptive questions for the project.
+     */
+    public function descriptiveQuestions(): HasMany
+    {
+        return $this->hasMany(ProjectDescriptiveQuestion::class);
     }
 
     /**

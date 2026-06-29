@@ -1,5 +1,6 @@
 import { Icon } from '@/Components/Company';
 import ProjectForm, {
+    type DescriptiveQuestion,
     type LocationEntry,
     type ProjectFormData,
     type Province,
@@ -22,6 +23,7 @@ export interface EditProjectData {
     ikm_template_id: number | null;
     sloi_template_id: number | null;
     locations: LocationEntry[];
+    descriptive_questions: DescriptiveQuestion[];
 }
 
 interface EditProjectModalProps {
@@ -39,6 +41,7 @@ export default function EditProjectModal({
 }: EditProjectModalProps): ReactNode {
     const [submitting, setSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [touched, setTouched] = useState(false);
     const [initialLocations, setInitialLocations] = useState<LocationEntry[]>(
         [],
     );
@@ -56,12 +59,14 @@ export default function EditProjectModal({
         ikm_template_id: null,
         sloi_template_id: null,
         district_ids: [],
+        descriptive_questions: [],
     });
 
     // Populate form when project data changes
     useEffect(() => {
         if (isOpen && project) {
             setErrors({});
+            setTouched(false);
             setDataState({
                 name: project.name || '',
                 description: project.description || '',
@@ -76,6 +81,7 @@ export default function EditProjectModal({
                 ikm_template_id: project.ikm_template_id,
                 sloi_template_id: project.sloi_template_id,
                 district_ids: project.locations.map((l) => l.district.id),
+                descriptive_questions: project.descriptive_questions ?? [],
             });
             setInitialLocations(project.locations);
         }
@@ -86,24 +92,107 @@ export default function EditProjectModal({
         value: ProjectFormData[K],
     ) => {
         setDataState((prev) => ({ ...prev, [key]: value }));
+        // Clear error for this field when user types
+        if (errors[key]) {
+            setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors[key];
+                return newErrors;
+            });
+        }
+    };
+
+    const validateForm = (): boolean => {
+        const newErrors: Record<string, string> = {};
+
+        // Validate nama proyek
+        if (!data.name || data.name.trim() === '') {
+            newErrors.name = 'Nama proyek wajib diisi';
+        }
+
+        // Validate deskripsi
+        if (!data.description || data.description.trim() === '') {
+            newErrors.description = 'Deskripsi proyek wajib diisi';
+        }
+
+        // Validate tanggal mulai
+        if (!data.start_date || data.start_date.trim() === '') {
+            newErrors.start_date = 'Tanggal mulai proyek wajib diisi';
+        }
+
+        // Validate tanggal selesai
+        if (!data.end_date || data.end_date.trim() === '') {
+            newErrors.end_date = 'Tanggal selesai proyek wajib diisi';
+        }
+
+        // Validate target IKM jika enable_ikm aktif
+        if (data.enable_ikm) {
+            if (!data.target_ikm_count || data.target_ikm_count <= 0) {
+                newErrors.target_ikm_count =
+                    'Target responden IKM harus lebih dari 0';
+            }
+        }
+
+        // Validate target SLOI jika enable_sloi aktif
+        if (data.enable_sloi) {
+            if (!data.target_sloi_count || data.target_sloi_count <= 0) {
+                newErrors.target_sloi_count =
+                    'Target responden SLOI harus lebih dari 0';
+            }
+        }
+
+        // Validate lokasi proyek
+        if (!data.district_ids || data.district_ids.length === 0) {
+            newErrors.district_ids = 'Minimal harus ada 1 lokasi proyek';
+        }
+
+        // Validate at least one assessment type is enabled
+        if (!data.enable_ikm && !data.enable_sloi && !data.enable_sroi) {
+            newErrors.enable_ikm =
+                'Minimal harus memilih 1 jenis penilaian (IKM, SLOI, atau SROI)';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = () => {
         if (!project) return;
+
+        // Mark form as touched
+        setTouched(true);
+
+        // Validate form before submit
+        if (!validateForm()) {
+            // Scroll to first error
+            const firstError = document.querySelector('.text-red-500');
+            if (firstError) {
+                firstError.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                });
+            }
+            return;
+        }
+
         setSubmitting(true);
         setErrors({});
 
-        router.put(`/projects/${project.id}`, data as any, {
-            preserveScroll: true,
-            onSuccess: () => {
-                setSubmitting(false);
-                onClose();
+        router.patch(
+            `/projects/${project.id}`,
+            data as unknown as Parameters<typeof router.patch>[1],
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setSubmitting(false);
+                    onClose();
+                },
+                onError: (errs) => {
+                    setErrors(errs as Record<string, string>);
+                    setSubmitting(false);
+                },
             },
-            onError: (errs) => {
-                setErrors(errs as Record<string, string>);
-                setSubmitting(false);
-            },
-        });
+        );
     };
 
     if (!isOpen) return null;
@@ -142,28 +231,31 @@ export default function EditProjectModal({
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-end gap-3 border-t border-slate-200 bg-slate-50 px-8 py-5">
-                    <button
-                        onClick={onClose}
-                        disabled={submitting}
-                        className="rounded-lg px-6 py-2.5 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-200 disabled:opacity-50"
-                    >
-                        Batal
-                    </button>
-                    <button
-                        onClick={handleSubmit}
-                        disabled={submitting}
-                        className="flex items-center gap-2 rounded-lg bg-primary-btn px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary-btn/20 transition-all hover:bg-primary-btn-hover active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        {submitting ? (
-                            'Menyimpan...'
-                        ) : (
-                            <>
-                                Simpan Perubahan
-                                <Icon name="save" className="text-sm" />
-                            </>
-                        )}
-                    </button>
+                <div className="border-t border-slate-200 bg-slate-50">
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-end gap-3 px-8 py-5">
+                        <button
+                            onClick={onClose}
+                            disabled={submitting}
+                            className="rounded-lg px-6 py-2.5 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-200 disabled:opacity-50"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            onClick={handleSubmit}
+                            disabled={submitting}
+                            className="flex items-center gap-2 rounded-lg bg-primary-btn px-8 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary-btn/20 transition-all hover:bg-primary-btn-hover active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {submitting ? (
+                                'Menyimpan...'
+                            ) : (
+                                <>
+                                    Simpan Perubahan
+                                    <Icon name="save" className="text-sm" />
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

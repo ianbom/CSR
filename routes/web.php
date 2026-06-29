@@ -25,18 +25,21 @@ Route::get('/', function () {
     ]);
 });
 
-Route::prefix('enumerator')->name('enumerator.')->group(function () {
+Route::prefix('enumerator')->middleware('auth')->name('enumerator.')->group(function () {
     Route::get('/list', [EnumeratorProjectController::class, 'listProjectPage'])->name('list-survey');
     Route::get('/survey/respondent/{projectId}', [EnumeratorSurveyController::class, 'surveyRespondentPage'])->name('survey.respondent');
     Route::post('/survey/respondent/{projectId}/store', [EnumeratorSurveyController::class, 'storeDataSurvey'])->name('survey.store');
+    Route::get('/survey/history', [EnumeratorSurveyController::class, 'historyPage'])->name('survey.history');
+    Route::get('/survey/{submissionId}/edit', [EnumeratorSurveyController::class, 'editPage'])->name('survey.edit');
+    Route::put('/survey/{submissionId}', [EnumeratorSurveyController::class, 'updateDataSurvey'])->name('survey.update');
 
-    Route::get('/survey/questions', function () {
-        return Inertia::render('Enumerator/Survey/QuestionSurvey');
-    })->name('survey.questions');
+    // Route::get('/survey/questions', function () {
+    //     return Inertia::render('Enumerator/Survey/QuestionSurvey');
+    // })->name('survey.questions');
 
-    Route::get('/survey/review', function () {
-        return Inertia::render('Enumerator/Survey/ReviewSurvey');
-    })->name('survey.review');
+    // Route::get('/survey/review', function () {
+    //     return Inertia::render('Enumerator/Survey/ReviewSurvey');
+    // })->name('survey.review');
 });
 
 Route::prefix('api/area')->name('api.area.')->group(function () {
@@ -46,6 +49,7 @@ Route::prefix('api/area')->name('api.area.')->group(function () {
 });
 Route::prefix('api/projects')->name('api.projects.')->group(function () {
     Route::get('/{id}/enumerators', [ProjectController::class, 'getProjectEnumerators'])->name('enumerators');
+    Route::get('/{id}/edit-data', [ProjectController::class, 'getProjectForEdit'])->name('edit-data');
 });
 
 // Company Routes
@@ -57,6 +61,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects', [ProjectController::class, 'storeProject'])->name('projects.store');
     Route::post('/projects/{id}/assign-enumerators', [ProjectController::class, 'assignEnumerators'])->name('projects.assign-enumerators');
     Route::put('/projects/{id}', [ProjectController::class, 'updateProject'])->name('projects.update');
+    Route::patch('/projects/{id}', [ProjectController::class, 'patchProject'])->name('projects.patch');
     Route::patch('/projects/{id}/status', [ProjectController::class, 'updateStatus'])->name('projects.update-status');
     Route::patch('/submissions/bulk-status', [SubmissionController::class, 'bulkUpdateStatus'])->name('submissions.bulk-status');
     Route::get('/projects/{id}/export-respondents', [ExcelController::class, 'exportRespondents'])->name('projects.export-respondents');
@@ -69,6 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/enumerators/{id}', [EnumeratorController::class, 'show'])->name('enumerators.show');
     // Companies
     Route::get('/companies', [CompanyController::class, 'index'])->name('companies.index');
+    Route::post('/companies', [CompanyController::class, 'store'])->name('companies.store');
     // Users
 
     // Templates
@@ -83,6 +89,8 @@ Route::middleware('auth')->group(function () {
 
     Route::group(['middleware' => 'role:admin,superadmin,company'], function () {
         Route::get('/users', [UserController::class, 'index'])->middleware('role:admin,superadmin')->name('users.index');
+        Route::post('/users', [UserController::class, 'store'])->middleware('role:admin,superadmin')->name('users.store');
+        Route::patch('/users/{id}', [UserController::class, 'update'])->middleware('role:admin,superadmin')->name('users.update');
     });
 
 });

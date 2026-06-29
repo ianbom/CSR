@@ -36,6 +36,11 @@ export interface LocationEntry {
     district: District;
 }
 
+export interface DescriptiveQuestion {
+    id?: number | null;
+    title: string;
+}
+
 export interface ProjectFormData {
     name: string;
     description: string;
@@ -50,6 +55,7 @@ export interface ProjectFormData {
     ikm_template_id: number | null;
     sloi_template_id: number | null;
     district_ids: number[];
+    descriptive_questions: DescriptiveQuestion[];
 }
 
 export interface ProjectFormErrors {
@@ -162,10 +168,10 @@ export default function ProjectForm({
 
     // Update district_ids when selectedLocations changes
     useEffect(() => {
-        setData(
-            'district_ids',
-            selectedLocations.map((loc) => loc.district.id),
+        const uniqueDistrictIds = Array.from(
+            new Set(selectedLocations.map((loc) => loc.district.id)),
         );
+        setData('district_ids', uniqueDistrictIds);
     }, [selectedLocations]);
 
     const handleAssessmentTypeChange = (typeId: string, checked: boolean) => {
@@ -316,8 +322,8 @@ export default function ProjectForm({
                                 type.id === 'ikm'
                                     ? data.enable_ikm
                                     : type.id === 'sloi'
-                                      ? data.enable_sloi
-                                      : data.enable_sroi
+                                        ? data.enable_sloi
+                                        : data.enable_sroi
                             }
                             onChange={(checked) =>
                                 handleAssessmentTypeChange(type.id, checked)
@@ -532,6 +538,105 @@ export default function ProjectForm({
                     <p className="text-sm text-red-500">
                         {errors.district_ids}
                     </p>
+                )}
+            </div>
+
+            {/* Pertanyaan Kualitatif */}
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <label className="block text-sm font-bold text-slate-900">
+                        Pertanyaan Kualitatif
+                        <span className="ml-1 font-normal text-slate-400">
+                            (Opsional)
+                        </span>
+                    </label>
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setData('descriptive_questions', [
+                                ...data.descriptive_questions,
+                                { id: null, title: '' },
+                            ])
+                        }
+                        className="flex items-center gap-1.5 rounded-lg border border-primary px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-primary hover:text-white"
+                    >
+                        <Icon name="add" className="text-sm" />
+                        Tambah Pertanyaan
+                    </button>
+                </div>
+
+                {data.descriptive_questions.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 py-8 text-center">
+                        <Icon
+                            name="help_outline"
+                            className="mb-2 text-3xl text-slate-300"
+                        />
+                        <p className="text-sm text-slate-400">
+                            Belum ada Pertanyaan Kualitatif. Klik &quot;Tambah
+                            Pertanyaan&quot; untuk menambahkan.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        {data.descriptive_questions.map((q, idx) => (
+                            <div
+                                key={idx}
+                                className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4"
+                            >
+                                <span className="mt-2.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                                    {idx + 1}
+                                </span>
+                                <div className="flex-1">
+                                    <input
+                                        type="text"
+                                        placeholder="Tulis Pertanyaan Kualitatif di sini..."
+                                        value={q.title}
+                                        onChange={(e) => {
+                                            const updated = [
+                                                ...data.descriptive_questions,
+                                            ];
+                                            updated[idx] = {
+                                                ...updated[idx],
+                                                title: e.target.value,
+                                            };
+                                            setData(
+                                                'descriptive_questions',
+                                                updated,
+                                            );
+                                        }}
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                                    />
+                                    {errors[
+                                        `descriptive_questions.${idx}.title`
+                                    ] && (
+                                            <p className="mt-1 text-xs text-red-500">
+                                                {
+                                                    errors[
+                                                    `descriptive_questions.${idx}.title`
+                                                    ]
+                                                }
+                                            </p>
+                                        )}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const updated =
+                                            data.descriptive_questions.filter(
+                                                (_, i) => i !== idx,
+                                            );
+                                        setData(
+                                            'descriptive_questions',
+                                            updated,
+                                        );
+                                    }}
+                                    className="mt-2 flex size-7 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-100 hover:text-red-500"
+                                >
+                                    <Icon name="delete" className="text-base" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
         </div>

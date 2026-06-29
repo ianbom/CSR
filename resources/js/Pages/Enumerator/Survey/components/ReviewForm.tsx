@@ -1,18 +1,24 @@
+/**
+ * ReviewForm — Unified component for both create and edit modes.
+ *
+ * Mode differences:
+ * - Create mode: Requires new photo, shows 2 buttons (Submit & Submit+Continue)
+ * - Edit mode: Shows existing photo (optional re-take), shows 1 button (Save Changes)
+ */
 import {
     DemographicItem,
     MaterialIcon,
-    RespondentProfileCard,
     ReviewFooter,
-    ReviewItem,
     ReviewPageHeader,
     ReviewProgressBar,
     ReviewSection,
-    VerifiedBadge,
     WarningBox,
 } from '@/Components/Enumerator';
-import React, { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import PhotoCaptureSection from './PhotoCaptureSection';
 import { QuestionAnswers } from './QuestionForm';
 import { RespondentData } from './RespondentForm';
+import { usePhotoCapture } from './usePhotoCapture';
 
 export interface GpsLocation {
     latitude: number | null;
@@ -29,55 +35,45 @@ interface Question {
 }
 
 interface ReviewFormProps {
+    mode?: 'create' | 'edit';
     respondentData: RespondentData;
     answers: QuestionAnswers;
     questions: Question[];
     gpsLocation: GpsLocation;
+    /** URL of existing photo (edit mode only) */
+    existingPhotoUrl?: string | null;
     onBack: () => void;
     onEditRespondent: () => void;
-    onEditQuestions: () => void;
-    onSubmit: (photo: File) => void;
-    onSubmitAndContinue: (photo: File) => void;
+    /** Called with new File in create mode, or File|null in edit mode */
+    onSubmit: (photo: File | null) => void;
+    /** Only used in create mode */
+    onSubmitAndContinue?: (photo: File) => void;
     isSubmitting: boolean;
 }
 
 export default function ReviewForm({
+    mode = 'create',
     respondentData,
     answers,
     questions,
     gpsLocation,
+    existingPhotoUrl,
     onBack,
     onEditRespondent,
-    onEditQuestions,
     onSubmit,
     onSubmitAndContinue,
     isSubmitting,
 }: ReviewFormProps) {
-    const [photo, setPhoto] = useState<File | null>(null);
-    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-    const [photoError, setPhotoError] = useState<string | null>(null);
-
-    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        if (file.size > 5 * 1024 * 1024) {
-            setPhotoError('Ukuran foto maksimal 5MB.');
-            return;
-        }
-        if (!file.type.startsWith('image/')) {
-            setPhotoError('File harus berupa gambar.');
-            return;
-        }
-
-        setPhotoError(null);
-        setPhoto(file);
-        setPhotoPreview(URL.createObjectURL(file));
-    };
+    const photoHook = usePhotoCapture(mode === 'edit' ? 'photo_edit' : 'photo');
 
     const validateBeforeSubmit = (): boolean => {
-        if (!photo) {
-            setPhotoError('Foto bukti wajib diunggah.');
+        // In edit mode, photo is optional (can keep existing)
+        if (mode === 'create' && !photoHook.photo) {
+            alert('Foto bukti wajib diunggah.');
+            return false;
+        }
+        if (mode === 'edit' && !photoHook.photo && !existingPhotoUrl) {
+            alert('Foto bukti wajib ada.');
             return false;
         }
         if (!gpsLocation.latitude || !gpsLocation.longitude) {
@@ -91,12 +87,18 @@ export default function ReviewForm({
 
     const handleSubmitClick = () => {
         if (!validateBeforeSubmit()) return;
-        onSubmit(photo!);
+        if (mode === 'edit') {
+            // In edit mode, pass null to keep existing photo, or File to replace
+            onSubmit(photoHook.photo);
+        } else {
+            // In create mode, photo is always required
+            onSubmit(photoHook.photo!);
+        }
     };
 
     const handleSubmitAndContinueClick = () => {
         if (!validateBeforeSubmit()) return;
-        onSubmitAndContinue(photo!);
+        onSubmitAndContinue?.(photoHook.photo!);
     };
 
     const questionMap = useMemo(() => {
@@ -131,25 +133,17 @@ export default function ReviewForm({
                 <ReviewProgressBar percentage={100} />
 
                 <ReviewPageHeader
-                    title="Review & Submit"
-                    subtitle="Periksa kembali semua data sebelum mengirim"
+                    title={
+                        mode === 'edit' ? 'Review Perubahan' : 'Review & Submit'
+                    }
+                    subtitle={
+                        mode === 'edit'
+                            ? 'Periksa kembali semua data sebelum menyimpan'
+                            : 'Periksa kembali semua data sebelum mengirim'
+                    }
                 />
 
-                <RespondentProfileCard
-                    name={respondentData.name || 'Nama Responden'}
-                    id="-"
-                    location={respondentData.address || '-'}
-                    interviewDate={new Date().toLocaleString('id-ID', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                    })}
-                    imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuBwwE0BERxEh3AgbHPydoIU4mxdCB6AQRWX26RjdPXTI3LxWNcq8MTe_BGYEzUmCqmxUbyrw4TS2kHXudo3Of-RcyQoWSCpHl2W4_5tDooAWZNejW4m40E0BNW2_-Hdeh3CwSCUeQpc8SEBzCQIGtzM0qUP9JZ79IbqwsJ_AWVgy9TI9iYowKPOL5-H-xm-METe4xkA2QQbvF31SH6e7Ein_nFBr629oCG3w-Z24j1z-wgAaCQps8BuKNR_WUKx5fwmZ51HAK5IJfQ"
-                    onEdit={onEditRespondent}
-                />
-
-                {/* Data Responden */}
+                {/* Data Responden Lengkap */}
                 <ReviewSection
                     title="Data Responden"
                     icon="person"
@@ -185,25 +179,16 @@ export default function ReviewForm({
                         onEdit={onEditRespondent}
                     />
                     <DemographicItem
-                        label="Pendidikan"
+                        label="Pendidikan Terakhir"
                         value={respondentData.education_level || '-'}
                         onEdit={onEditRespondent}
                     />
-                </ReviewSection>
-
-                {/* Pekerjaan & Ekonomi */}
-                <ReviewSection title="Pekerjaan & Ekonomi" icon="payments">
-                    <ReviewItem
+                    <DemographicItem
                         label="Pekerjaan Utama"
                         value={respondentData.main_occupation || '-'}
-                        badge={
-                            respondentData.main_occupation ? (
-                                <VerifiedBadge />
-                            ) : undefined
-                        }
                         onEdit={onEditRespondent}
                     />
-                    <ReviewItem
+                    <DemographicItem
                         label="Pendapatan per Bulan"
                         value={
                             respondentData.monthly_income
@@ -212,8 +197,8 @@ export default function ReviewForm({
                         }
                         onEdit={onEditRespondent}
                     />
-                    <ReviewItem
-                        label="Alamat"
+                    <DemographicItem
+                        label="Alamat Lengkap"
                         value={respondentData.address || '-'}
                         onEdit={onEditRespondent}
                     />
@@ -221,49 +206,104 @@ export default function ReviewForm({
 
                 {/* Jawaban Kuesioner */}
                 <ReviewSection title="Jawaban Kuesioner" icon="quiz">
-                    {Object.entries(answers).length > 0 ? (
-                        Object.entries(answers)
-                            .sort(([keyA], [keyB]) => {
-                                const qIdA = Number(
-                                    keyA.substring(0, keyA.indexOf('-')),
-                                );
-                                const qIdB = Number(
-                                    keyB.substring(0, keyB.indexOf('-')),
-                                );
-                                const orderA =
-                                    questionMap.get(qIdA)?.order_no ?? qIdA;
-                                const orderB =
-                                    questionMap.get(qIdB)?.order_no ?? qIdB;
-                                if (orderA !== orderB) return orderA - orderB;
-                                return keyA.localeCompare(keyB);
-                            })
-                            .map(([key, value]) => {
-                                const dashIdx = key.indexOf('-');
-                                const qId = Number(key.substring(0, dashIdx));
-                                const type = key.substring(dashIdx + 1);
-                                const question = questionMap.get(qId);
+                    <div className="overflow-x-auto rounded-lg border border-gray-200">
+                        <table className="w-full text-left text-sm text-gray-600">
+                            <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+                                <tr>
+                                    <th className="px-4 py-3 font-semibold">
+                                        Kode
+                                    </th>
+                                    {/* <th className="px-4 py-3 font-semibold">
+                                        Tipe
+                                    </th> */}
+                                    <th className="px-4 py-3 font-semibold">
+                                        Pertanyaan
+                                    </th>
+                                    <th className="px-4 py-3 text-center font-semibold">
+                                        Nilai
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200 bg-white">
+                                {Object.entries(answers).length > 0 ? (
+                                    Object.entries(answers)
+                                        .sort(([keyA], [keyB]) => {
+                                            const qIdA = Number(
+                                                keyA.substring(
+                                                    0,
+                                                    keyA.indexOf('-'),
+                                                ),
+                                            );
+                                            const qIdB = Number(
+                                                keyB.substring(
+                                                    0,
+                                                    keyB.indexOf('-'),
+                                                ),
+                                            );
+                                            const orderA =
+                                                questionMap.get(qIdA)
+                                                    ?.order_no ?? qIdA;
+                                            const orderB =
+                                                questionMap.get(qIdB)
+                                                    ?.order_no ?? qIdB;
+                                            if (orderA !== orderB)
+                                                return orderA - orderB;
+                                            return keyA.localeCompare(keyB);
+                                        })
+                                        .map(([key, value]) => {
+                                            const dashIdx = key.indexOf('-');
+                                            const qId = Number(
+                                                key.substring(0, dashIdx),
+                                            );
+                                            const type = key.substring(
+                                                dashIdx + 1,
+                                            );
+                                            const question =
+                                                questionMap.get(qId);
 
-                                return (
-                                    <ReviewItem
-                                        key={key}
-                                        label={`${question?.code ?? `Q${qId}`} — ${typeLabel(type)}`}
-                                        value={question?.question_text ?? '-'}
-                                        badge={
-                                            <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-sm font-semibold text-primary">
-                                                Nilai: {value}
-                                            </span>
-                                        }
-                                        onEdit={onEditQuestions}
-                                    />
-                                );
-                            })
-                    ) : (
-                        <ReviewItem
-                            label="Status"
-                            value="Belum ada jawaban"
-                            onEdit={onEditQuestions}
-                        />
-                    )}
+                                            return (
+                                                <tr
+                                                    key={key}
+                                                    className="transition-colors hover:bg-gray-50"
+                                                >
+                                                    <td className="whitespace-nowrap border-r border-gray-100 px-4 py-3 font-medium text-gray-900">
+                                                        {question?.code ??
+                                                            `Q${qId}`}
+                                                    </td>
+                                                    {/* <td className="whitespace-nowrap border-r border-gray-100 px-4 py-3">
+                                                        <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                                                            {typeLabel(type)}
+                                                        </span>
+                                                    </td> */}
+                                                    <td
+                                                        className="min-w-[200px] border-r border-gray-100 px-4 py-3"
+                                                        dangerouslySetInnerHTML={{
+                                                            __html:
+                                                                question?.question_text ??
+                                                                '-',
+                                                        }}
+                                                    />
+                                                    <td className="whitespace-nowrap px-4 py-3 text-center">
+                                                        <span className="inline-flex items-center justify-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+                                                            {value}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                ) : (
+                                    <tr>
+                                        <td
+                                            colSpan={4}
+                                            className="px-4 py-6 text-center text-gray-500"
+                                        >
+                                            Belum ada jawaban
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </ReviewSection>
 
                 {/* GPS Location */}
@@ -278,7 +318,9 @@ export default function ReviewForm({
                         </h3>
                     </div>
                     {gpsLocation.error ? (
-                        <p className="text-sm text-red-500">
+                        <p
+                            className={`text-sm ${mode === 'edit' ? 'text-amber-600' : 'text-red-500'}`}
+                        >
                             ⚠ {gpsLocation.error}
                         </p>
                     ) : gpsLocation.latitude && gpsLocation.longitude ? (
@@ -299,72 +341,37 @@ export default function ReviewForm({
                     )}
                 </div>
 
-                {/* Photo Upload */}
-                <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <div className="flex items-center gap-2">
-                        <MaterialIcon
-                            name="photo_camera"
-                            className="text-primary"
-                        />
-                        <h3 className="text-sm font-semibold text-gray-800">
-                            Foto Bukti <span className="text-red-500">*</span>
-                        </h3>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                        Upload foto selfie enumerator bersama responden. Maks
-                        5MB (JPG/PNG/WebP).
-                    </p>
-
-                    {photoPreview && (
-                        <div className="overflow-hidden rounded-lg border border-gray-200">
-                            <img
-                                src={photoPreview}
-                                alt="Preview foto bukti"
-                                className="h-48 w-full object-cover"
-                            />
-                        </div>
-                    )}
-
-                    <label
-                        htmlFor="photo-upload"
-                        className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-6 text-sm transition-colors ${
-                            photo
-                                ? 'border-primary bg-primary/5 text-primary'
-                                : 'border-gray-300 bg-gray-50 text-gray-500 hover:border-primary hover:bg-primary/5'
-                        }`}
-                    >
-                        <MaterialIcon
-                            name={photo ? 'check_circle' : 'upload'}
-                            className="text-lg"
-                        />
-                        <span>
-                            {photo ? photo.name : 'Klik untuk upload foto'}
-                        </span>
-                        <input
-                            id="photo-upload"
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            className="hidden"
-                            onChange={handlePhotoChange}
-                        />
-                    </label>
-
-                    {photoError && (
-                        <p className="text-xs text-red-500">{photoError}</p>
-                    )}
-                </div>
+                {/* Photo Section */}
+                <PhotoCaptureSection
+                    hook={photoHook}
+                    existingPhotoUrl={
+                        mode === 'edit' ? existingPhotoUrl : undefined
+                    }
+                    required={mode === 'create'}
+                />
 
                 <WarningBox
-                    title="Pengiriman Bersifat Final"
-                    message="Pastikan semua data di atas sudah benar. Setelah dikirim, data survei ini akan dikunci dan tidak dapat diubah oleh enumerator."
+                    title={
+                        mode === 'edit'
+                            ? 'Menyimpan Perubahan'
+                            : 'Pengiriman Bersifat Final'
+                    }
+                    message={
+                        mode === 'edit'
+                            ? "Status submission akan direset ke 'Submitted' setelah disimpan dan akan menunggu persetujuan ulang."
+                            : 'Pastikan semua data di atas sudah benar. Setelah dikirim, data survei ini akan dikunci dan tidak dapat diubah oleh enumerator.'
+                    }
                 />
             </div>
 
             <ReviewFooter
                 onBack={onBack}
                 onSubmit={handleSubmitClick}
-                onSubmitAndContinue={handleSubmitAndContinueClick}
+                onSubmitAndContinue={
+                    mode === 'create' ? handleSubmitAndContinueClick : undefined
+                }
                 isSubmitting={isSubmitting}
+                submitLabel={mode === 'edit' ? 'Simpan Perubahan' : undefined}
             />
         </>
     );

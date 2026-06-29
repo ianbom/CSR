@@ -33,6 +33,7 @@ export interface SubmissionDetailData {
     enumerator: string | null;
     respondent: RespondentInfo | null;
     timelines?: TimelineEntry[];
+    descriptiveAnswers?: { question: string; answer: string | null }[];
 }
 
 interface Props {
@@ -235,6 +236,33 @@ export default function SubmissionDetailModal({
                                     </span>
                                 </div>
                             </div>
+
+                            {/* Descriptive Answers */}
+                            {data.descriptiveAnswers &&
+                                data.descriptiveAnswers.length > 0 && (
+                                    <div className="mt-2 flex flex-col gap-3 border-t border-slate-100 pt-6">
+                                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                            Pertanyaan Kualitatif
+                                        </p>
+                                        <div className="flex flex-col gap-4">
+                                            {data.descriptiveAnswers.map(
+                                                (da, idx) => (
+                                                    <div
+                                                        key={idx}
+                                                        className="flex flex-col gap-1.5"
+                                                    >
+                                                        <span className="text-[12px] font-semibold leading-tight text-slate-500">
+                                                            {da.question}
+                                                        </span>
+                                                        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-relaxed text-slate-800">
+                                                            {da.answer || '-'}
+                                                        </div>
+                                                    </div>
+                                                ),
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                         </div>
 
                         {/* ── RIGHT: Respondent info ── */}

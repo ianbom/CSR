@@ -47,13 +47,18 @@ export default function TemplateQuestionForm({
                 <label className="mb-1.5 block text-sm font-semibold text-slate-700">
                     Kategori
                 </label>
-                <input
-                    type="text"
+                <select
                     value={data.category}
                     onChange={(e) => setData('category', e.target.value)}
-                    placeholder="Contoh: Unsur Pelayanan, Persepsi"
-                    className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                />
+                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
+                >
+                    <option value="" disabled>
+                        Pilih Kategori
+                    </option>
+                    <option value="ikm-kepentingan">ikm-kepentingan</option>
+                    <option value="ikm-kinerja">ikm-kinerja</option>
+                    <option value="sloi">sloi</option>
+                </select>
                 {errors.category && (
                     <p className="mt-1 text-xs text-red-500">
                         {errors.category}

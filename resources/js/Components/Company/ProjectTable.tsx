@@ -16,6 +16,13 @@ export interface Project {
     targetResponses: number;
     startDate?: string;
     endDate?: string;
+    // Separate progress for IKM and SLOI
+    ikmCurrentResponses?: number;
+    ikmTargetResponses?: number;
+    sloiCurrentResponses?: number;
+    sloiTargetResponses?: number;
+    city?: string;
+    province?: string;
 }
 
 interface SortConfig {
@@ -74,10 +81,10 @@ export default function ProjectTable({
     return (
         <div className="rounded-xl border border-slate-200 bg-white">
             {/* Table Header */}
-            <div className="grid grid-cols-12 gap-4 border-b border-slate-100 bg-slate-50 px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                <div className="col-span-1 text-center">No</div>
+            <div className="grid grid-cols-[auto,1fr,2fr,1fr,1fr,1fr,1fr,auto] gap-4 border-b border-slate-100 bg-slate-50 px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <div className="text-center">No</div>
                 <div
-                    className="col-span-2 flex cursor-pointer items-center gap-1 hover:text-slate-700"
+                    className="flex cursor-pointer items-center gap-1 hover:text-slate-700"
                     onClick={() => handleSort('project_code')}
                 >
                     Code
@@ -87,21 +94,23 @@ export default function ProjectTable({
                     />
                 </div>
                 <div
-                    className="col-span-3 flex cursor-pointer items-center gap-1 hover:text-slate-700"
+                    className="flex cursor-pointer items-center gap-1 hover:text-slate-700"
                     onClick={() => handleSort('name')}
                 >
                     Project Details
                     <SortIcon columnKey="name" sortConfig={sortConfig} />
                 </div>
+                <div className="text-center">Kota</div>
                 <div
-                    className="col-span-1 flex cursor-pointer items-center justify-center gap-1 hover:text-slate-700"
+                    className="flex cursor-pointer items-center justify-center gap-1 hover:text-slate-700"
                     onClick={() => handleSort('status')}
                 >
                     Status
                     <SortIcon columnKey="status" sortConfig={sortConfig} />
                 </div>
-                <div className="col-span-4">Completion Progress</div>
-                <div className="col-span-1 text-center">Actions</div>
+                <div className="text-center">Progress IKM</div>
+                <div className="text-center">Progress SLOI</div>
+                <div className="text-center">Actions</div>
             </div>
 
             {/* Table Body */}
@@ -109,24 +118,24 @@ export default function ProjectTable({
                 {projects.map((project, index) => (
                     <div
                         key={project.id}
-                        className="grid grid-cols-12 items-center gap-4 px-6 py-5 transition-colors hover:bg-slate-50"
+                        className="grid grid-cols-[auto,1fr,2fr,1fr,1fr,1fr,1fr,auto] items-center gap-4 px-6 py-5 transition-colors hover:bg-slate-50"
                     >
                         {/* No */}
-                        <div className="col-span-1 text-center">
+                        <div className="text-center">
                             <span className="text-sm font-medium text-slate-600">
                                 {startIndex + index + 1}
                             </span>
                         </div>
 
                         {/* Code */}
-                        <div className="col-span-2">
+                        <div>
                             <span className="rounded border border-slate-200 bg-slate-50 px-2 py-1 font-mono text-sm font-medium text-slate-700">
                                 {project.code}
                             </span>
                         </div>
 
                         {/* Project Details */}
-                        <div className="col-span-3">
+                        <div>
                             <Link
                                 href={`/projects/${project.id}`}
                                 className="font-semibold text-slate-900 hover:text-primary"
@@ -137,26 +146,47 @@ export default function ProjectTable({
                                 <span className={typeColors[project.type]}>
                                     {project.typeLabel}
                                 </span>
-                                <span className="mx-2">•</span>
-                                {project.location}
                             </p>
                         </div>
 
+                        {/* City */}
+                        <div className="text-center">
+                            <span className="text-sm text-slate-600">
+                                {project.city || project.location || '-'}
+                            </span>
+                        </div>
+
                         {/* Status */}
-                        <div className="col-span-1 text-center">
+                        <div className="text-center">
                             <StatusBadge status={project.status} />
                         </div>
 
-                        {/* Completion Progress */}
-                        <div className="col-span-4">
-                            <ProgressBar
-                                current={project.currentResponses}
-                                total={project.targetResponses}
-                            />
+                        {/* IKM Progress */}
+                        <div>
+                            {project.ikmTargetResponses !== undefined && project.ikmTargetResponses > 0 ? (
+                                <ProgressBar
+                                    current={project.ikmCurrentResponses || 0}
+                                    total={project.ikmTargetResponses}
+                                />
+                            ) : (
+                                <div className="text-center text-sm text-slate-400">-</div>
+                            )}
+                        </div>
+
+                        {/* SLOI Progress */}
+                        <div>
+                            {project.sloiTargetResponses !== undefined && project.sloiTargetResponses > 0 ? (
+                                <ProgressBar
+                                    current={project.sloiCurrentResponses || 0}
+                                    total={project.sloiTargetResponses}
+                                />
+                            ) : (
+                                <div className="text-center text-sm text-slate-400">-</div>
+                            )}
                         </div>
 
                         {/* Actions */}
-                        <div className="col-span-1 flex items-center justify-center">
+                        <div className="flex items-center justify-center">
                             <ActionDropdown
                                 project={project}
                                 onEdit={onEdit}

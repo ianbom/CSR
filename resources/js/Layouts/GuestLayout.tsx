@@ -1,98 +1,71 @@
-import { DotPattern } from '@/Components/ui/dot-pattern';
-import { cn } from '@/lib/utils';
-import { Leaf } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 
 export default function Guest({ children }: PropsWithChildren) {
     return (
-        <div className="flex min-h-screen w-full bg-white font-sans dark:bg-zinc-950">
-            {/* Left side: Form */}
-            <div className="lg:wflex-none flex w-full flex-col justify-center px-4 py-12 sm:px-6 lg:w-1/2 lg:px-20 xl:px-24">
-                <div className="mx-auto w-full max-w-sm lg:w-96">
-                    {/* Logo Mobile */}
-                    <div className="mb-8 flex items-center gap-2 lg:hidden">
-                        <div className="flex size-8 items-center justify-center rounded-lg bg-green-600">
-                            <Leaf className="size-5 text-white" />
-                        </div>
-                        <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                            SocialImpact.id
-                        </span>
-                    </div>
+        <div className="flex h-screen w-full overflow-hidden font-sans">
+            {/* Left side: Dark image panel */}
+            <div
+                className="relative hidden w-[58%] flex-shrink-0 bg-slate-900 lg:flex lg:flex-col"
+                style={{
+                    backgroundImage: "url('/img/LoginPic.png')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                }}
+            >
+                {/* Dark overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/30 to-slate-900/80" />
 
-                    <div className="w-full">{children}</div>
+                {/* Top bar: Logo + Back to Website */}
+                <div className="relative z-10 flex items-center justify-between px-10 py-8">
+                    {/* Logo */}
+                    <img
+                        src="/img/LogoHeader.svg"
+                        alt="Logo"
+                        className="h-10 w-auto rounded-lg bg-white object-contain p-2"
+                    />
 
-                    {/* Footer / Copyright */}
-                    <div className="mt-12 text-center text-xs text-gray-500">
-                        &copy; {new Date().getFullYear()} SocialImpact.id. All
-                        rights reserved.
-                    </div>
+                    {/* Back to Website */}
+                    <a
+                        href="/"
+                        className="flex items-center gap-1.5 text-sm font-medium text-white/80 transition-colors hover:text-white"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            className="size-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                        Back to Home
+                    </a>
+                </div>
+
+                {/* Bottom content: Big tagline */}
+                <div className="relative z-10 mt-auto px-10 pb-14">
+                    <h1 className="text-4xl font-extrabold leading-[1.15] tracking-tight text-white lg:text-5xl">
+                        Ukur Dampak Program.
+                        <br />
+                        Laporkan Lebih Cepat.
+                        <br />
+                        Kelola Di Mana Saja.
+                    </h1>
+                    <p className="mt-5 max-w-md text-base leading-relaxed text-white/60">
+                        Platform evaluasi keberlanjutan terpadu untuk pelaporan
+                        IKM dan SLOI perusahaan Anda secara profesional.
+                    </p>
+                    {/* Decorative dash */}
+                    <div className="mt-8 h-0.5 w-8 rounded-full bg-white/60" />
                 </div>
             </div>
 
-            {/* Right side: Visual Showcase */}
-            <div className="relative hidden w-1/2 items-center justify-center overflow-hidden bg-zinc-950 lg:flex">
-                <div className="absolute inset-0 z-0 flex items-center justify-center">
-                    <DotPattern
-                        className={cn(
-                            '[mask-image:radial-gradient(700px_circle_at_center,white,transparent)]',
-                            'inset-0 h-full w-full text-green-500/40',
-                        )}
-                        cr={2}
-                        cx={2}
-                        cy={2}
-                        glow={true}
-                    />
-                </div>
-
-                <div className="relative z-10 flex w-full max-w-lg flex-col items-start justify-center p-12">
-                    <div className="mb-8 inline-flex items-center rounded-full border border-zinc-800 bg-white/5 px-4 py-1.5 text-sm font-medium text-zinc-300 backdrop-blur-md">
-                        <span className="mr-2 flex size-2 animate-pulse rounded-full bg-green-500"></span>
-                        Sistem Manajemen CSR Terpadu
-                    </div>
-
-                    <h2 className="text-4xl font-extrabold tracking-tight text-white lg:text-5xl lg:leading-[1.1]">
-                        Ukur Dampak Nyata <br />
-                        <span className="bg-gradient-to-r from-green-400 to-emerald-600 bg-clip-text text-transparent">
-                            Secara Profesional
-                        </span>
-                    </h2>
-
-                    <p className="mt-6 text-lg leading-relaxed text-zinc-400">
-                        Platform evaluasi komprehensif untuk pelaporan Indeks
-                        Kepuasan Masyarakat (IKM), Social License to Operate
-                        (SLOI), dan Social Return on Investment (SROI)
-                        perusahaan Anda.
-                    </p>
-
-                    <div className="mt-12 flex items-center gap-4">
-                        <div className="flex -space-x-3">
-                            <img
-                                className="inline-block size-10 rounded-full object-cover ring-2 ring-zinc-950"
-                                src="https://avatar.vercel.sh/pertamina"
-                                alt="User"
-                            />
-                            <img
-                                className="inline-block size-10 rounded-full object-cover ring-2 ring-zinc-950"
-                                src="https://avatar.vercel.sh/pln"
-                                alt="User"
-                            />
-                            <img
-                                className="inline-block size-10 rounded-full object-cover ring-2 ring-zinc-950"
-                                src="https://avatar.vercel.sh/telkom"
-                                alt="User"
-                            />
-                            <div className="flex size-10 items-center justify-center rounded-full bg-zinc-800 text-xs font-medium text-white ring-2 ring-zinc-950">
-                                +99
-                            </div>
-                        </div>
-                        <p className="text-sm font-medium text-zinc-300">
-                            Dipercaya{' '}
-                            <span className="font-bold text-green-400">
-                                100+
-                            </span>{' '}
-                            perusahaan
-                        </p>
-                    </div>
+            {/* Right side: White form panel */}
+            <div className="flex flex-1 flex-col overflow-y-auto bg-white">
+                <div className="flex flex-1 items-center justify-center px-10 py-12">
+                    <div className="w-full max-w-[400px]">{children}</div>
                 </div>
             </div>
         </div>

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
             $table->softDeletes();
             
-            $table->unique(['submission_id', 'sroi_question_id']);
+            $table->unique(['submission_id', 'sroi_question_id', 'deleted_at'], 'sub_sroi_ans_del_unique');
         });
     }
 

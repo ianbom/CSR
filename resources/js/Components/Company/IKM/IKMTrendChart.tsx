@@ -1,4 +1,4 @@
-import { ReactNode, useState, useRef } from 'react';
+import { ReactNode, useState } from 'react';
 
 interface QuestionScoreItem {
     id: string;
@@ -8,8 +8,19 @@ interface QuestionScoreItem {
     performance: number;
 }
 
+interface AllQuestionItem {
+    id: string;
+    code: string;
+    category: string;
+    question: string;
+    order_no: number;
+}
+
 interface IKMTrendChartProps {
     questionScores: QuestionScoreItem[];
+    allQuestions?: AllQuestionItem[];
+    avgKepentingan?: number;
+    avgKinerja?: number;
     title?: string;
 }
 
@@ -35,13 +46,33 @@ const DOT_COLORS = [
     '#d946ef',
 ];
 
+const SCORE_MIN = 1;
+const SCORE_MAX = 4.25;
+const DEFAULT_AVERAGE = 2.5;
+
+function clampScore(value: number | null | undefined): number {
+    if (!Number.isFinite(value) || !value || value <= 0) {
+        return DEFAULT_AVERAGE;
+    }
+
+    return Math.min(SCORE_MAX, Math.max(SCORE_MIN, value));
+}
+
+function formatScore(value: number): string {
+    return value.toFixed(2).replace('.', ',');
+}
+
 function IPAScatterChart({
     questionScores,
     chartTitle,
+    avgKepentingan,
+    avgKinerja,
     compact = false,
 }: {
     questionScores: QuestionScoreItem[];
     chartTitle: string;
+    avgKepentingan: number;
+    avgKinerja: number;
     compact?: boolean;
 }) {
     const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -54,15 +85,14 @@ function IPAScatterChart({
         );
     }
 
-    // Fixed center point at 3.0 for both axes
-    const avgImportance = 3.0;
-    const avgPerformance = 3.0;
+    const safeAvgKepentingan = clampScore(avgKepentingan);
+    const safeAvgKinerja = clampScore(avgKinerja);
 
-    // Fixed axis range: 0 to 6 for both X and Y
-    const xMin = 0;
-    const xMax = 6;
-    const yMin = 0;
-    const yMax = 6;
+    // IKM uses a 1-5 scale on both axes.
+    const xMin = SCORE_MIN;
+    const xMax = SCORE_MAX;
+    const yMin = SCORE_MIN;
+    const yMax = SCORE_MAX;
     const xRange = xMax - xMin;
     const yRange = yMax - yMin;
 
@@ -71,11 +101,11 @@ function IPAScatterChart({
     const marginRight = compact ? 30 : 40;
     const marginTop = compact ? 35 : 50;
     const marginBottom = compact ? 45 : 55;
-    
+
     // Horizontally elongated plot area
     const plotW = compact ? 600 : 1000;
     const plotH = compact ? 300 : 500;
-    
+
     const width = plotW + marginLeft + marginRight;
     const height = plotH + marginTop + marginBottom;
 
@@ -85,8 +115,8 @@ function IPAScatterChart({
     const toSvgY = (val: number) => marginTop + ((yMax - val) / yRange) * plotH;
 
     // Generate ticks
-    const xStep = 0.5; // 0.5 step for 0 to 6 range
-    const yStep = 0.5; // 0.5 step for 0 to 6 range
+    const xStep = 0.5;
+    const yStep = 0.5;
     const xTicks: number[] = [];
     const yTicks: number[] = [];
     for (let v = xMin; v <= xMax + 0.001; v += xStep)
@@ -94,9 +124,43 @@ function IPAScatterChart({
     for (let v = yMin; v <= yMax + 0.001; v += yStep)
         yTicks.push(Math.round(v * 100) / 100);
 
-    const fontSize = compact ? 8 : 11;
-    const dotR = compact ? 4 : 6;
-    const labelFontSize = compact ? 7 : 9;
+    const fontSize = compact ? 10 : 12;
+    const dotR = compact ? 6 : 8;
+    const labelFontSize = compact ? 11 : 13;
+    const quadrantFontSize = compact ? 10 : 14;
+    const quadrantLabelStyle = {
+        fontSize: quadrantFontSize,
+        fontWeight: 800,
+        fontStyle: 'italic',
+    };
+    const verticalLineX = toSvgX(safeAvgKepentingan);
+    const horizontalLineY = toSvgY(safeAvgKinerja);
+    const quadrantLabels = [
+        {
+            label: 'Kuadran I',
+            description: 'Prioritas Utama',
+            x: verticalLineX + (marginLeft + plotW - verticalLineX) / 2,
+            y: horizontalLineY + (marginTop + plotH - horizontalLineY) / 2,
+        },
+        {
+            label: 'Kuadran II',
+            description: 'Pertahankan Kinerja',
+            x: verticalLineX + (marginLeft + plotW - verticalLineX) / 2,
+            y: marginTop + (horizontalLineY - marginTop) / 2,
+        },
+        {
+            label: 'Kuadran III',
+            description: 'Prioritas Rendah',
+            x: marginLeft + (verticalLineX - marginLeft) / 2,
+            y: horizontalLineY + (marginTop + plotH - horizontalLineY) / 2,
+        },
+        {
+            label: 'Kuadran IV',
+            description: 'Berlebihan',
+            x: marginLeft + (verticalLineX - marginLeft) / 2,
+            y: marginTop + (horizontalLineY - marginTop) / 2,
+        },
+    ];
 
     return (
         <div className="w-full overflow-x-auto">
@@ -156,25 +220,72 @@ function IPAScatterChart({
                     />
                 ))}
 
+                {/* Quadrant labels */}
+                {quadrantLabels.map((quadrant) => (
+                    <text
+                        key={quadrant.label}
+                        x={quadrant.x}
+                        y={quadrant.y}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        className="fill-slate-400"
+                        opacity={0.65}
+                        style={quadrantLabelStyle}
+                    >
+                        <tspan x={quadrant.x} dy="-0.35em">
+                            {quadrant.label}
+                        </tspan>
+                        <tspan x={quadrant.x} dy="1.2em">
+                            {quadrant.description}
+                        </tspan>
+                    </text>
+                ))}
+
                 {/* Average lines — quadrant dividers */}
-                {/* Horizontal blue line (avg kepentingan / importance) */}
+                {/* Vertical blue line (avg kepentingan / importance) */}
+                <line
+                    x1={verticalLineX}
+                    y1={marginTop}
+                    x2={verticalLineX}
+                    y2={marginTop + plotH}
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
+                />
+                {/* Horizontal green line (avg kinerja / performance) */}
                 <line
                     x1={marginLeft}
-                    y1={toSvgY(avgImportance)}
+                    y1={horizontalLineY}
                     x2={marginLeft + plotW}
-                    y2={toSvgY(avgImportance)}
-                    stroke="#3b82f6"
-                    strokeWidth={1.5}
+                    y2={horizontalLineY}
+                    stroke="#22c55e"
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
                 />
-                {/* Vertical red line (avg kinerja / performance) */}
-                <line
-                    x1={toSvgX(avgPerformance)}
-                    y1={marginTop}
-                    x2={toSvgX(avgPerformance)}
-                    y2={marginTop + plotH}
-                    stroke="#dc2626"
-                    strokeWidth={1.5}
-                />
+
+                {/* Average line labels */}
+                <text
+                    x={Math.min(verticalLineX + 6, marginLeft + plotW - 118)}
+                    y={marginTop + 14}
+                    className="fill-blue-600"
+                    style={{
+                        fontSize: compact ? 9 : 11,
+                        fontWeight: 700,
+                    }}
+                >
+                    Rerata Kepentingan: {formatScore(safeAvgKepentingan)}
+                </text>
+                <text
+                    x={marginLeft + 8}
+                    y={Math.max(horizontalLineY - 8, marginTop + 24)}
+                    className="fill-green-600"
+                    style={{
+                        fontSize: compact ? 9 : 11,
+                        fontWeight: 700,
+                    }}
+                >
+                    Rerata Kinerja: {formatScore(safeAvgKinerja)}
+                </text>
 
                 {/* X-axis tick labels */}
                 {xTicks.map((tick) => (
@@ -186,7 +297,7 @@ function IPAScatterChart({
                         className="fill-slate-500"
                         style={{ fontSize }}
                     >
-                        {tick.toFixed(2).replace('.', ',')}
+                        {formatScore(tick)}
                     </text>
                 ))}
 
@@ -200,7 +311,7 @@ function IPAScatterChart({
                         className="fill-slate-500"
                         style={{ fontSize }}
                     >
-                        {tick.toFixed(1).replace('.', ',')}
+                        {formatScore(tick)}
                     </text>
                 ))}
 
@@ -215,7 +326,7 @@ function IPAScatterChart({
                         fontWeight: 600,
                     }}
                 >
-                    Aspek Kinerja (ikm-kinerja)
+                    IKM Kepentingan
                 </text>
 
                 {/* Y-axis label */}
@@ -230,17 +341,19 @@ function IPAScatterChart({
                     }}
                     transform={`rotate(-90, ${compact ? 12 : 16}, ${marginTop + plotH / 2})`}
                 >
-                    Aspek Kepentingan (ikm-kepentingan)
+                    IKM Kinerja
                 </text>
 
                 {/* Data points + labels */}
                 {questionScores.map((q, i) => {
-                    // X = kinerja (performance), Y = kepentingan (importance)
-                    const baseCx = toSvgX(q.performance);
-                    const baseCy = toSvgY(q.importance);
+                    // X = kepentingan (importance), Y = kinerja (performance)
+                    const kepentingan = clampScore(q.importance);
+                    const kinerja = clampScore(q.performance);
+                    const baseCx = toSvgX(kepentingan);
+                    const baseCy = toSvgY(kinerja);
                     const color = DOT_COLORS[i % DOT_COLORS.length];
                     const shortId = q.id.replace(/^(IKM-|SLOI-)/, '');
-                    const label = `${shortId}; ${q.performance.toFixed(2).replace('.', ',')}; ${q.importance.toFixed(2).replace('.', ',')}`;
+                    const label = `${shortId}; Kpt ${formatScore(kepentingan)}; Kin ${formatScore(kinerja)}`;
                     const isHovered = hoveredId === q.id;
 
                     // Offset overlapping points: count how many previous points share the same coords
@@ -248,8 +361,8 @@ function IPAScatterChart({
                         .slice(0, i)
                         .filter(
                             (prev) =>
-                                prev.performance === q.performance &&
-                                prev.importance === q.importance,
+                                prev.importance === q.importance &&
+                                prev.performance === q.performance,
                         ).length;
                     const angle =
                         (overlapIndex * (2 * Math.PI)) / 3 - Math.PI / 2;
@@ -258,7 +371,7 @@ function IPAScatterChart({
                     const cy = baseCy + Math.sin(angle) * offsetDist;
 
                     return (
-                        <g 
+                        <g
                             key={q.id}
                             onMouseEnter={() => setHoveredId(q.id)}
                             onMouseLeave={() => setHoveredId(null)}
@@ -268,35 +381,37 @@ function IPAScatterChart({
                             <circle
                                 cx={cx}
                                 cy={cy}
-                                r={isHovered ? dotR * 1.3 : dotR}
+                                r={isHovered ? dotR * 1.5 : dotR}
                                 fill={color}
                                 stroke="white"
-                                strokeWidth={isHovered ? 2 : 1.5}
+                                strokeWidth={isHovered ? 2.5 : 1.5}
                                 style={{ transition: 'all 0.2s ease' }}
                             />
                             {/* Label - only visible on hover */}
                             {isHovered && (
                                 <>
                                     <rect
-                                        x={cx + dotR + 3}
-                                        y={cy - labelFontSize - 1}
+                                        x={cx + dotR * 1.5 + 4}
+                                        y={cy - labelFontSize - 4}
                                         width={
-                                            label.length * (labelFontSize * 0.52) + 6
+                                            label.length *
+                                                (labelFontSize * 0.55) +
+                                            12
                                         }
-                                        height={labelFontSize + 5}
+                                        height={labelFontSize + 10}
                                         fill="white"
                                         fillOpacity={0.95}
-                                        rx={2}
+                                        rx={4}
                                         stroke={color}
-                                        strokeWidth={1}
+                                        strokeWidth={1.5}
                                     />
                                     <text
-                                        x={cx + dotR + 6}
-                                        y={cy}
-                                        className="fill-slate-600"
+                                        x={cx + dotR * 1.5 + 10}
+                                        y={cy + 3}
+                                        className="fill-slate-700"
                                         style={{
                                             fontSize: labelFontSize,
-                                            fontWeight: 600,
+                                            fontWeight: 700,
                                         }}
                                     >
                                         {label}
@@ -313,6 +428,9 @@ function IPAScatterChart({
 
 export default function IKMTrendChart({
     questionScores,
+    allQuestions = [],
+    avgKepentingan = DEFAULT_AVERAGE,
+    avgKinerja = DEFAULT_AVERAGE,
     title,
 }: IKMTrendChartProps): ReactNode {
     const [showModal, setShowModal] = useState(false);
@@ -340,6 +458,8 @@ export default function IKMTrendChart({
                     <IPAScatterChart
                         questionScores={questionScores}
                         chartTitle={chartTitle}
+                        avgKepentingan={avgKepentingan}
+                        avgKinerja={avgKinerja}
                         compact
                     />
                 </div>
@@ -373,36 +493,169 @@ export default function IKMTrendChart({
                         <IPAScatterChart
                             questionScores={questionScores}
                             chartTitle={chartTitle}
+                            avgKepentingan={avgKepentingan}
+                            avgKinerja={avgKinerja}
                         />
 
                         {/* Question Legend */}
                         <div className="mt-6 border-t border-slate-100 pt-4">
                             <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                Keterangan Pertanyaan
+                                Semua Pertanyaan IKM
                             </h4>
-                            <div className="grid grid-cols-1 gap-2">
-                                {questionScores.map((q, i) => (
-                                    <div
-                                        key={q.id}
-                                        className="flex items-start gap-2 text-sm"
-                                    >
-                                        <span
-                                            className="mt-1 inline-block h-3 w-3 flex-shrink-0 rounded-full"
-                                            style={{
-                                                backgroundColor:
-                                                    DOT_COLORS[
-                                                        i % DOT_COLORS.length
-                                                    ],
-                                            }}
-                                        />
-                                        <span className="font-bold text-slate-500">
-                                            {q.id}
-                                        </span>
-                                        <span className="text-slate-600">
-                                            {q.question}
-                                        </span>
-                                    </div>
-                                ))}
+                            <div className="grid grid-cols-1 gap-4">
+                                {allQuestions.length > 0 ? (
+                                    <>
+                                        {/* IKM Kepentingan Section */}
+                                        <div>
+                                            <h5 className="mb-2 text-xs font-semibold text-blue-600">
+                                                IKM Kepentingan
+                                            </h5>
+                                            <div className="grid grid-cols-1 gap-2">
+                                                {allQuestions
+                                                    .filter(
+                                                        (q) =>
+                                                            q.category ===
+                                                            'ikm-kepentingan',
+                                                    )
+                                                    .map((q, i) => {
+                                                        // Find matching score data if available
+                                                        const scoreData =
+                                                            questionScores.find(
+                                                                (sq) =>
+                                                                    sq.id ===
+                                                                    q.code,
+                                                            );
+                                                        const colorIndex =
+                                                            questionScores.findIndex(
+                                                                (sq) =>
+                                                                    sq.id ===
+                                                                    q.code,
+                                                            );
+
+                                                        return (
+                                                            <div
+                                                                key={q.id}
+                                                                className="flex items-start gap-2 text-sm"
+                                                            >
+                                                                {scoreData &&
+                                                                colorIndex >=
+                                                                    0 ? (
+                                                                    <span
+                                                                        className="mt-1 inline-block h-3 w-3 flex-shrink-0 rounded-full"
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                DOT_COLORS[
+                                                                                    colorIndex %
+                                                                                        DOT_COLORS.length
+                                                                                ],
+                                                                        }}
+                                                                    />
+                                                                ) : (
+                                                                    <span className="mt-1 inline-block h-3 w-3 flex-shrink-0 rounded-full bg-slate-300" />
+                                                                )}
+                                                                <span className="font-bold text-slate-500">
+                                                                    {q.code}
+                                                                </span>
+                                                                <span
+                                                                    className="text-slate-600"
+                                                                    dangerouslySetInnerHTML={{
+                                                                        __html: q.question,
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        );
+                                                    })}
+                                            </div>
+                                        </div>
+
+                                        {/* IKM Kinerja Section */}
+                                        <div>
+                                            <h5 className="mb-2 text-xs font-semibold text-emerald-600">
+                                                IKM Kinerja
+                                            </h5>
+                                            <div className="grid grid-cols-1 gap-2">
+                                                {allQuestions
+                                                    .filter(
+                                                        (q) =>
+                                                            q.category ===
+                                                            'ikm-kinerja',
+                                                    )
+                                                    .map((q, i) => {
+                                                        // Find matching score data if available
+                                                        const scoreData =
+                                                            questionScores.find(
+                                                                (sq) =>
+                                                                    sq.id ===
+                                                                    q.code,
+                                                            );
+                                                        const colorIndex =
+                                                            questionScores.findIndex(
+                                                                (sq) =>
+                                                                    sq.id ===
+                                                                    q.code,
+                                                            );
+
+                                                        return (
+                                                            <div
+                                                                key={q.id}
+                                                                className="flex items-start gap-2 text-sm"
+                                                            >
+                                                                {scoreData &&
+                                                                colorIndex >=
+                                                                    0 ? (
+                                                                    <span
+                                                                        className="mt-1 inline-block h-3 w-3 flex-shrink-0 rounded-full"
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                DOT_COLORS[
+                                                                                    colorIndex %
+                                                                                        DOT_COLORS.length
+                                                                                ],
+                                                                        }}
+                                                                    />
+                                                                ) : (
+                                                                    <span className="mt-1 inline-block h-3 w-3 flex-shrink-0 rounded-full bg-slate-300" />
+                                                                )}
+                                                                <span className="font-bold text-slate-500">
+                                                                    {q.code}
+                                                                </span>
+                                                                <span
+                                                                    className="text-slate-600"
+                                                                    dangerouslySetInnerHTML={{
+                                                                        __html: q.question,
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        );
+                                                    })}
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    questionScores.map((q, i) => (
+                                        <div
+                                            key={q.id}
+                                            className="flex items-start gap-2 text-sm"
+                                        >
+                                            <span
+                                                className="mt-1 inline-block h-3 w-3 flex-shrink-0 rounded-full"
+                                                style={{
+                                                    backgroundColor:
+                                                        DOT_COLORS[
+                                                            i %
+                                                                DOT_COLORS.length
+                                                        ],
+                                                }}
+                                            />
+                                            <span className="font-bold text-slate-500">
+                                                {q.id}
+                                            </span>
+                                            <span className="text-slate-600">
+                                                {q.question}
+                                            </span>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>

@@ -47,7 +47,7 @@ export default function ProjectVerificationModal({
 
     return (
         <Modal isOpen={isOpen} onClose={handleClose} maxWidth="lg">
-            <div className="flex flex-col">
+            <div className="flex max-h-[90vh] flex-col overflow-y-auto">
                 {/* Header Section */}
                 <div className="p-8 pb-4">
                     <div className="flex flex-col gap-3">
@@ -61,9 +61,7 @@ export default function ProjectVerificationModal({
                             Verifikasi Project
                         </h2>
                         <p className="text-sm font-normal leading-relaxed text-gray-500">
-                            Masukkan kode project dan tipe survei untuk memulai
-                            pendataan lapangan. Pastikan data yang dimasukkan
-                            sesuai dengan surat tugas.
+                            Masukkan kode project dan tipe survei.
                         </p>
                     </div>
                 </div>
@@ -230,8 +228,7 @@ export default function ProjectVerificationModal({
                                 Butuh bantuan?
                             </span>
                             <p className="text-xs text-gray-500">
-                                Jika kode tidak valid, segera hubungi admin
-                                pusat di 0812-3456-7890.
+                                Hubungi PIC anda jika kode tidak valid.
                             </p>
                         </div>
                     </div>

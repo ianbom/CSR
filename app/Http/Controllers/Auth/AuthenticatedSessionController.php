@@ -45,6 +45,38 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
+     * Display the enumerator login view.
+     */
+    public function createEnum(): Response
+    {
+        return Inertia::render('Auth/LoginEnum', [
+            'status' => session('status'),
+        ]);
+    }
+
+    /**
+     * Handle an incoming authentication request for enumerator.
+     */
+    public function storeEnum(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+
+        if ($request->user()->role !== 'enumerator') {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'email' => 'Akses ditolak. Hanya enumerator yang dapat masuk melalui halaman ini.',
+            ]);
+        }
+
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('enumerator.list-survey', absolute: false));
+    }
+
+    /**
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse

@@ -63,10 +63,6 @@ jobs:
           
           # Force add the 'public/build' directory, SSR bundle, and wayfinder generated files
           git add -f public/build/
-          git add -f bootstrap/ssr/
-          git add -f resources/js/actions/
-          git add -f resources/js/routes/
-          git add -f resources/js/wayfinder/
           
           # Commit the changes (it will safely do nothing if there are no changes)
           git commit -m "Auto-build assets from dev ($GITHUB_SHA)" || echo "No changes to commit"

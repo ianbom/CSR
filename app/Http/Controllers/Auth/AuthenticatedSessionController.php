@@ -71,6 +71,15 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
+        // Mark this session as an enumerator login so logout can redirect back
+        $request->session()->put('login_enum', true);
+
+        // Extend session lifetime for enumerator logins to 30 days (minutes)
+        config(['session.lifetime' => 60 * 24 * 30]);
+
+        // Ensure a long-lived "remember me" cookie is set
+        Auth::login($request->user(), true);
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('enumerator.list-survey', absolute: false));
@@ -81,11 +90,19 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Check whether this session originated from the enumerator login
+        $isEnumLogin = $request->session()->pull('login_enum', false);
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
+
+        // Redirect enumerator logouts back to the enumerator login page
+        if ($isEnumLogin) {
+            return redirect()->guest(route('login.enum', absolute: false));
+        }
 
         return redirect('/');
     }

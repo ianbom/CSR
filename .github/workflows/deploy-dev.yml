@@ -46,11 +46,6 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
-      - name: Generate Wayfinder types
-        # Since you just ignored the generated Wayfinder files in .gitignore,
-        # we MUST generate them before running 'npm run build' or Vite will fail.
-        run: php artisan wayfinder:generate --with-form
-
       - name: Install NPM Dependencies
         run: npm install
 

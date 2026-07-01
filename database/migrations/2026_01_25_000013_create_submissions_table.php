@@ -19,6 +19,7 @@ return new class extends Migration
 
             $table->foreignId('respondent_id')->nullable()->constrained('respondents')->nullOnDelete()->comment('one to one');
             $table->foreignId('enumerator_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('project_sroi_form_id')->nullable()->constrained('project_sroi_forms')->nullOnDelete()->comment('diisi jika assessment_type = SROI');
 
             $table->string('status', 20)->default('submitted')->comment('submitted|approved|rejected');
 
@@ -28,8 +29,8 @@ return new class extends Migration
             $table->bigInteger('photo_size_bytes')->nullable();
 
             // lokasi cukup link maps
-            $table->decimal('latitude', 15,10);
-            $table->decimal('longitude', 15,10);
+            $table->decimal('latitude', 15, 10);
+            $table->decimal('longitude', 15, 10);
 
             $table->timestamp('submitted_at')->useCurrent();
 
@@ -40,6 +41,7 @@ return new class extends Migration
             $table->index(['project_id', 'enumerator_id', 'submitted_at']);
             $table->index(['project_id', 'respondent_id']);
             $table->unique(['project_id', 'respondent_id', 'deleted_at'], 'sub_proj_resp_del_unique');
+            $table->index('project_sroi_form_id');
         });
     }
 

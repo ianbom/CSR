@@ -3,7 +3,7 @@ import Header from '@/Components/Company/Header';
 import Sidebar from '@/Components/Company/Sidebar';
 import { Toaster } from '@/Components/ui/toaster';
 import { usePage } from '@inertiajs/react';
-import { PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 
 interface AppLayoutProps extends PropsWithChildren {
     breadcrumb: {
@@ -23,12 +23,29 @@ export default function AppLayout({
         };
     };
     const currentPath = window.location.pathname;
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+        if (typeof window === 'undefined') {
+            return false;
+        }
+
+        return window.localStorage.getItem('company-sidebar-collapsed') === '1';
+    });
+
+    useEffect(() => {
+        window.localStorage.setItem(
+            'company-sidebar-collapsed',
+            isSidebarCollapsed ? '1' : '0',
+        );
+    }, [isSidebarCollapsed]);
 
     return (
         <div className="flex h-screen overflow-hidden bg-background-light text-slate-900 antialiased">
-            {/* Sidebar */}
             <Sidebar
+                collapsed={isSidebarCollapsed}
                 currentRoute={currentPath}
+                onToggleCollapse={() =>
+                    setIsSidebarCollapsed((collapsed) => !collapsed)
+                }
                 user={{
                     companyName: auth.companyName,
                     name: auth.user.name,
@@ -37,14 +54,12 @@ export default function AppLayout({
                 }}
             />
 
-            {/* Main Content */}
             <main className="flex flex-1 flex-col overflow-y-auto">
                 <Header breadcrumb={breadcrumb} />
                 <div className="flex-1">{children}</div>
                 <Footer />
             </main>
 
-            {/* Toast Notifications */}
             <Toaster />
         </div>
     );

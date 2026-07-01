@@ -26,8 +26,12 @@ export default function CreateProject() {
     });
 
     const handleSubmit = () => {
-        // Validasi: minimal salah satu target harus > 0
-        if (data.target_ikm_count === 0 && data.target_sloi_count === 0) {
+        // Validasi target hanya wajib jika project tidak memakai SROI.
+        if (
+            !data.enable_sroi &&
+            data.target_ikm_count === 0 &&
+            data.target_sloi_count === 0
+        ) {
             setTargetError(
                 'Target responden tidak boleh 0. Harap isi minimal salah satu target (IKM atau SLOI).',
             );

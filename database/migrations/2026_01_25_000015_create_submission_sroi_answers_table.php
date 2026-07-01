@@ -14,13 +14,14 @@ return new class extends Migration
         Schema::create('submission_sroi_answers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('submission_id')->constrained('submissions')->cascadeOnDelete();
-            $table->foreignId('sroi_question_id')->constrained('sroi_questions')->cascadeOnDelete();
-            $table->integer('value_number')->nullable();
+            $table->foreignId('project_sroi_question_id')->constrained('project_sroi_questions')->cascadeOnDelete();
             $table->text('value_text')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->decimal('value_number', 18, 2)->nullable();
+            $table->timestamps();
             $table->softDeletes();
-            
-            $table->unique(['submission_id', 'sroi_question_id', 'deleted_at'], 'sub_sroi_ans_del_unique');
+
+            $table->unique(['submission_id', 'project_sroi_question_id', 'deleted_at'], 'sub_sroi_answer_unique');
+            $table->index('project_sroi_question_id');
         });
     }
 

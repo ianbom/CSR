@@ -47,6 +47,10 @@ class CreateProjectRequest extends FormRequest
                 'integer',
                 'min:0',
                 function ($attribute, $value, $fail) {
+                    if ($this->boolean('enable_sroi')) {
+                        return;
+                    }
+
                     $targetIkm = (int) $value;
                     $targetSloi = (int) $this->input('target_sloi_count', 0);
 
@@ -61,6 +65,10 @@ class CreateProjectRequest extends FormRequest
                 'integer',
                 'min:0',
                 function ($attribute, $value, $fail) {
+                    if ($this->boolean('enable_sroi')) {
+                        return;
+                    }
+
                     $targetSloi = (int) $value;
                     $targetIkm = (int) $this->input('target_ikm_count', 0);
 

@@ -10,11 +10,9 @@ class SubmissionSroiAnswer extends Model
 {
     use SoftDeletes;
 
-    public $timestamps = false;
-
     protected $fillable = [
         'submission_id',
-        'sroi_question_id',
+        'project_sroi_question_id',
         'value_number',
         'value_text',
     ];
@@ -22,7 +20,9 @@ class SubmissionSroiAnswer extends Model
     protected function casts(): array
     {
         return [
+            'value_number' => 'decimal:2',
             'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 
@@ -35,10 +35,10 @@ class SubmissionSroiAnswer extends Model
     }
 
     /**
-     * Get the SROI question for this answer.
+     * Get the project SROI question for this answer.
      */
-    public function sroiQuestion(): BelongsTo
+    public function projectSroiQuestion(): BelongsTo
     {
-        return $this->belongsTo(SroiQuestion::class);
+        return $this->belongsTo(ProjectSroiQuestion::class, 'project_sroi_question_id');
     }
 }

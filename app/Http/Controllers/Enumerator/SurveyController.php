@@ -28,19 +28,23 @@ class SurveyController extends Controller
         $surveyType = $request->surveyType;
         $isCodeTrue = $this->surveyService->checkProjectCode($projectCode, $projectId);
 
-
         if ($isCodeTrue == true) {
-            // Load questions berdasarkan surveyType (IKM / SLOI)
+            $isSroi = strtoupper((string) $surveyType) === 'SROI';
+
             $questions = $this->surveyService->getQuestionsBySurveyType($project, $surveyType);
+            $projectSroiForm = $isSroi ? $this->surveyService->getActiveProjectSroiForm($project) : null;
+            $projectStakeholders = $isSroi ? $this->surveyService->getProjectStakeholders($project) : [];
 
             // Load descriptive questions for this project
             $descriptiveQuestions = $project->descriptiveQuestions()->select('id', 'title')->get();
 
             return Inertia::render('Enumerator/Survey/RespondentSurvey', [
-                'project'             => $project,
-                'surveyType'          => $surveyType,
-                'questions'           => $questions,
-                'descriptiveQuestions'=> $descriptiveQuestions,
+                'project' => $project,
+                'surveyType' => $surveyType,
+                'questions' => $questions,
+                'projectSroiForm' => $projectSroiForm,
+                'projectStakeholders' => $projectStakeholders,
+                'descriptiveQuestions' => $descriptiveQuestions,
             ]);
         } else {
             return redirect()->back()->with('error', 'Kode yang dimasukkan salah');
@@ -86,25 +90,25 @@ class SurveyController extends Controller
         $enumeratorId = Auth::id();
 
         $result = $this->surveyService->getEnumeratorHistory($enumeratorId, [
-            'project_id'      => $request->input('project_id'),
-            'status'          => $request->input('status'),
+            'project_id' => $request->input('project_id'),
+            'status' => $request->input('status'),
             'assessment_type' => $request->input('assessment_type'),
-            'sort_by'         => $request->input('sort_by', 'submitted_at'),
-            'sort_order'      => $request->input('sort_order', 'desc'),
-            'per_page'        => $request->input('per_page', 12),
+            'sort_by' => $request->input('sort_by', 'submitted_at'),
+            'sort_order' => $request->input('sort_order', 'desc'),
+            'per_page' => $request->input('per_page', 12),
         ]);
 
         return Inertia::render('Enumerator/Survey/HistorySurvey', [
             'submissions' => HistorySurveyResource::collection($result['submissions']),
-            'projects'    => $result['projects'],
-            'stats'       => $result['stats'],
-            'filters'     => [
-                'project_id'      => $request->input('project_id'),
-                'status'          => $request->input('status'),
+            'projects' => $result['projects'],
+            'stats' => $result['stats'],
+            'filters' => [
+                'project_id' => $request->input('project_id'),
+                'status' => $request->input('status'),
                 'assessment_type' => $request->input('assessment_type'),
-                'sort_by'         => $request->input('sort_by', 'submitted_at'),
-                'sort_order'      => $request->input('sort_order', 'desc'),
-                'per_page'        => (int) $request->input('per_page', 12),
+                'sort_by' => $request->input('sort_by', 'submitted_at'),
+                'sort_order' => $request->input('sort_order', 'desc'),
+                'per_page' => (int) $request->input('per_page', 12),
             ],
         ]);
     }
@@ -129,22 +133,25 @@ class SurveyController extends Controller
             ->get();
 
         return Inertia::render('Enumerator/Survey/EditSurvey', [
-            'submission'           => [
-                'id'              => $data['submission']->id,
+            'submission' => [
+                'id' => $data['submission']->id,
                 'assessment_type' => $data['submission']->assessment_type,
-                'photo_url'       => $data['submission']->photo_path
-                    ? asset('storage/' . $data['submission']->photo_path)
+                'photo_url' => $data['submission']->photo_path
+                    ? asset('storage/'.$data['submission']->photo_path)
                     : null,
-                'latitude'        => $data['submission']->latitude,
-                'longitude'       => $data['submission']->longitude,
-                'status'          => $data['submission']->status,
+                'latitude' => $data['submission']->latitude,
+                'longitude' => $data['submission']->longitude,
+                'status' => $data['submission']->status,
             ],
-            'project'              => $data['submission']->project,
-            'respondent'           => $data['submission']->respondent,
-            'questions'            => $data['questions'],
-            'answersMap'           => $data['answersMap'],
+            'project' => $data['submission']->project,
+            'respondent' => $data['submission']->respondent,
+            'questions' => $data['questions'],
+            'answersMap' => $data['answersMap'],
+            'projectSroiForm' => $data['projectSroiForm'] ?? null,
+            'projectStakeholders' => $data['projectStakeholders'] ?? [],
+            'sroiAnswersMap' => $data['sroiAnswersMap'] ?? [],
             'descriptiveQuestions' => $descriptiveQuestions,
-            'descriptiveAnswersMap'=> $data['descriptiveAnswersMap'],
+            'descriptiveAnswersMap' => $data['descriptiveAnswersMap'],
         ]);
     }
 
@@ -166,4 +173,3 @@ class SurveyController extends Controller
             ->with('success', 'Submission berhasil diperbarui.');
     }
 }
-

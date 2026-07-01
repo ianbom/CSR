@@ -1,54 +1,132 @@
-name: Deploy to cPanel (Dev)
+name: Build, Push to Build Branch, and Deploy
 
 on:
   push:
     branches:
       - dev
+  pull_request:
+    branches:
+      - dev
+    types: [closed]
+
+permissions:
+  contents: write
 
 jobs:
-  deploy:
+  build:
+    # Only run on push, or if the PR was merged (not just closed)
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-    - name: 🚚 Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # Fetch all history so we can checkout branches
 
-    - name: 🐘 Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.4.5' # Sesuaikan dengan versi PHP di cPanel Anda
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, bcmath, pdo_mysql, zip
+          tools: composer:v2
 
-    - name: 📦 Install Composer Dependencies
-      run: composer install --no-dev --optimize-autoloader
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
 
-    - name: 🗑️ Prepare files for SCP (Hapus file yang tidak perlu dikirim)
-      run: rm -rf .git .github node_modules
+      - name: Install PHP Dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
 
-    - name: 🚀 Upload files via SCP
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.CPANEL_HOST }}
-        username: ${{ secrets.CPANEL_USER }}
-        key: ${{ secrets.CPANEL_SSH_KEY }}
-        port: ${{ secrets.CPANEL_PORT }}
-        source: "."
-        target: ${{ secrets.CPANEL_TARGET_DIR }}
-        # Jika Anda ingin menyimpan struktur folder storage yang sudah ada di server, tambahkan ini:
-        rm: false
+      - name: Prepare Environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
 
-    - name: ⚙️ Execute Post-Deploy Commands via SSH
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.CPANEL_HOST }}
-        username: ${{ secrets.CPANEL_USER }}
-        key: ${{ secrets.CPANEL_SSH_KEY }}
-        port: ${{ secrets.CPANEL_PORT }}
-        script: |
-          cd ${{ secrets.CPANEL_TARGET_DIR }}
-          git pull origin dev
-          php artisan migrate --force
-          php artisan optimize:clear
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
+      - name: Install NPM Dependencies
+        run: npm install
+
+      - name: Build Assets
+        run: npm run build
+
+      - name: Commit and Push to 'build' branch
+        run: |
+          # Configure Git user for GitHub Actions Bot
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
+          # Switch to 'build' branch, or create it based on current commit on v3.5.9-rev-finance
+          git checkout -B build
+          
+          # Force add the 'public/build' directory, SSR bundle, and wayfinder generated files
+          git add -f public/build/
+          
+          # Commit the changes (it will safely do nothing if there are no changes)
+          git commit -m "Auto-build assets from dev ($GITHUB_SHA)" || echo "No changes to commit"
+          
+          # Force push the 'build' branch back to GitHub
+          # The secrets.GITHUB_TOKEN is automatically provided by GitHub Actions
+          git push origin build --force
+
+      - name: Deploy to Hostinger via SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          SSH_HOST: ${{ secrets.DEPLOY_SERVER_IP }}
+          SSH_USER: ${{ secrets.HOSTINGER_USERNAME }}
+          PROJECT_PATH: ${{ secrets.DEPLOY_PROJECT_PATH }}
+        run: |
+          # Setup SSH key
+          mkdir -p ~/.ssh
+          
+          # Clean private key of carriage returns (CRLF) and save
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          
+          # Check key integrity
+          if [ ! -s ~/.ssh/deploy_key ] || ! grep -q "PRIVATE KEY" ~/.ssh/deploy_key; then
+            echo "❌ Error: The SSH private key is empty, invalid, or missing header/footer delimiters."
+            echo "Please ensure that secrets.HOSTINGER_SSH_KEY contains a valid SSH private key."
+            exit 1
+          fi
+
+          # Removed ssh-keyscan as it often triggers Hostinger's anti-DDoS/BitNinja firewall as a port scan
+          # StrictHostKeyChecking=no already handles the host key verification bypass
+          
+          # Force IPv4 with -4 and add ServerAliveInterval to keep connection stable
+          SSH_CMD="ssh -4 -p 65002 -i ~/.ssh/deploy_key -o ConnectTimeout=60 -o ServerAliveInterval=60 -o StrictHostKeyChecking=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -o HostKeyAlgorithms=+ssh-rsa ${SSH_USER}@${SSH_HOST}"
+
+          DEPLOY_SCRIPT="
+            cd ${PROJECT_PATH}
+            mkdir -p ~/.ssh && ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts 2>/dev/null
+            git fetch origin build --depth 1
+            git checkout build
+            git reset --hard origin/build
+            git clean -fd -e .htaccess -e .env -e .env.staging -e staging
+            php artisan migrate --force --no-interaction
+            php artisan optimize:clear
+            echo '✅ Deployment completed successfully'
+          "
+
+          MAX_RETRIES=5
+          RETRY=0
+          WAIT=10
+
+          until [ $RETRY -ge $MAX_RETRIES ]; do
+            echo "🚀 Deploy attempt $((RETRY + 1))/$MAX_RETRIES..."
+            if $SSH_CMD "$DEPLOY_SCRIPT"; then
+              exit 0
+            fi
+
+            RETRY=$((RETRY + 1))
+            if [ $RETRY -lt $MAX_RETRIES ]; then
+              echo "⚠️ SSH failed (attempt $RETRY/$MAX_RETRIES). Retrying in ${WAIT}s..."
+              sleep $WAIT
+              WAIT=$((WAIT * 2))
+            fi
+          done
+
+          echo "❌ Deployment failed after $MAX_RETRIES attempts"
+          exit 1

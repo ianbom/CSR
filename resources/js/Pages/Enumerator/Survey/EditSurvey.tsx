@@ -9,16 +9,44 @@ import QuestionForm, {
 import RespondentForm, { RespondentData } from './components/RespondentForm';
 import ReviewForm, { GpsLocation } from './components/ReviewForm';
 
-// ─────────────────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────────────────
-
 interface Question {
     id: number;
     category: string | null;
     code: string;
     question_text: string;
     order_no: number;
+}
+
+interface ProjectStakeholder {
+    id: number;
+    name: string;
+}
+
+interface ProjectSroiQuestion {
+    id: number;
+    sectionId: number;
+    parentQuestionId: number | null;
+    questionText: string;
+    helpText: string | null;
+    answerType: 'text' | 'number' | null;
+    unit: string | null;
+    isGroup: boolean;
+    orderNo: number;
+}
+
+interface ProjectSroiSection {
+    id: number;
+    title: string;
+    description: string | null;
+    orderNo: number;
+    questions: ProjectSroiQuestion[];
+}
+
+interface ProjectSroiForm {
+    id: number;
+    name: string;
+    description: string | null;
+    sections: ProjectSroiSection[];
 }
 
 interface Project {
@@ -31,6 +59,7 @@ interface Project {
 interface Respondent {
     id: number;
     name: string;
+    stakeholder_id: number | null;
     address: string | null;
     phone: string | null;
     age: number | null;
@@ -55,16 +84,13 @@ interface Props {
     project: Project;
     respondent: Respondent;
     questions: Question[];
-    /** key → value map: e.g. { "3-ikm-kepentingan": 3, "3-ikm-kinerja": 2 } */
     answersMap: Record<string, number>;
+    projectSroiForm?: ProjectSroiForm | null;
+    projectStakeholders?: ProjectStakeholder[];
+    sroiAnswersMap?: Record<number, string>;
     descriptiveQuestions: { id: number; title: string }[];
-    /** questionId → answer text */
     descriptiveAnswersMap: Record<number, string>;
 }
-
-// ─────────────────────────────────────────────────────────
-// Step config
-// ─────────────────────────────────────────────────────────
 
 const steps = [
     { id: 1, label: 'Data Responden', icon: 'person' },
@@ -72,9 +98,14 @@ const steps = [
     { id: 3, label: 'Review', icon: 'rate_review' },
 ];
 
-// ─────────────────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────────────────
+const getSroiAnswerableQuestions = (
+    form?: ProjectSroiForm | null,
+): ProjectSroiQuestion[] =>
+    form?.sections.flatMap((section) =>
+        section.questions.filter(
+            (question) => !question.isGroup && question.answerType,
+        ),
+    ) ?? [];
 
 export default function EditSurvey({
     submission,
@@ -82,15 +113,22 @@ export default function EditSurvey({
     respondent,
     questions,
     answersMap,
+    projectSroiForm = null,
+    projectStakeholders = [],
+    sroiAnswersMap = {},
     descriptiveQuestions,
     descriptiveAnswersMap,
 }: Props) {
     const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const isSroi = submission.assessment_type.toUpperCase() === 'SROI';
 
-    // ── Respondent state — seeded from existing data ──
     const [respondentData, setRespondentData] = useState<RespondentData>({
         name: respondent.name ?? '',
+        stakeholder_id:
+            respondent.stakeholder_id != null
+                ? String(respondent.stakeholder_id)
+                : '',
         address: respondent.address ?? '',
         phone: respondent.phone ?? '',
         age: respondent.age != null ? String(respondent.age) : '',
@@ -104,14 +142,12 @@ export default function EditSurvey({
                 : '',
     });
 
-    // ── Answers state — seeded from existing data ──
     const [answers, setAnswers] = useState<QuestionAnswers>(answersMap);
-
-    // ── Descriptive answers — seeded from existing data ──
+    const [sroiAnswers, setSroiAnswers] =
+        useState<Record<number, string>>(sroiAnswersMap);
     const [descriptiveAnswers, setDescriptiveAnswers] =
         useState<DescriptiveAnswers>(descriptiveAnswersMap);
 
-    // ── GPS ──
     const [gpsLocation] = useState<GpsLocation>({
         latitude:
             submission.latitude != null ? Number(submission.latitude) : null,
@@ -120,11 +156,12 @@ export default function EditSurvey({
         error: null,
     });
 
-    // GPS tidak perlu di-fetch ulang saat edit, cukup gunakan data saat pertama kali disubmit.
+    const stakeholderName =
+        projectStakeholders.find(
+            (stakeholder) => String(stakeholder.id) === respondentData.stakeholder_id,
+        )?.name ?? null;
 
-    // ── Navigation ──
     const goToStep = (step: 1 | 2 | 3) => setCurrentStep(step);
-
     const handleBack = () => router.visit(route('enumerator.survey.history'));
 
     const handleCloseQuestionnaire = () => {
@@ -137,16 +174,14 @@ export default function EditSurvey({
         }
     };
 
-    // ── Build FormData ──
-    /**
-     * Builds FormData for the PUT request.
-     * @param photo  New File if user re-took photo; null to keep existing.
-     */
     const buildFormData = (photo: File | null): FormData => {
         const fd = new FormData();
 
-        // Respondent
         fd.append('respondent[name]', respondentData.name);
+        fd.append(
+            'respondent[stakeholder_id]',
+            respondentData.stakeholder_id ?? '',
+        );
         fd.append('respondent[address]', respondentData.address);
         fd.append('respondent[phone]', respondentData.phone);
         fd.append('respondent[age]', respondentData.age);
@@ -165,12 +200,10 @@ export default function EditSurvey({
         );
         fd.append('respondent[monthly_income]', respondentData.monthly_income);
 
-        // Photo (only if re-taken)
         if (photo) {
             fd.append('submission[photo]', photo);
         }
 
-        // GPS — use fetched or fallback to existing
         fd.append(
             'submission[latitude]',
             String(gpsLocation.latitude ?? submission.latitude ?? ''),
@@ -179,18 +212,35 @@ export default function EditSurvey({
             'submission[longitude]',
             String(gpsLocation.longitude ?? submission.longitude ?? ''),
         );
+        fd.append('assessment_type', submission.assessment_type.toUpperCase());
 
-        // Answers
-        Object.entries(answers).forEach(([key, value], index) => {
-            const dashIdx = key.indexOf('-');
-            const questionId = key.substring(0, dashIdx);
-            const type = key.substring(dashIdx + 1);
-            fd.append(`answers[${index}][question_id]`, questionId);
-            fd.append(`answers[${index}][type]`, type);
-            fd.append(`answers[${index}][value]`, String(value));
-        });
+        if (isSroi) {
+            getSroiAnswerableQuestions(projectSroiForm).forEach(
+                (question, index) => {
+                    const value = sroiAnswers[question.id] ?? '';
+                    fd.append(
+                        `sroi_answers[${index}][project_sroi_question_id]`,
+                        String(question.id),
+                    );
 
-        // Descriptive answers
+                    if (question.answerType === 'number') {
+                        fd.append(`sroi_answers[${index}][value_number]`, value);
+                    } else {
+                        fd.append(`sroi_answers[${index}][value_text]`, value);
+                    }
+                },
+            );
+        } else {
+            Object.entries(answers).forEach(([key, value], index) => {
+                const dashIdx = key.indexOf('-');
+                const questionId = key.substring(0, dashIdx);
+                const type = key.substring(dashIdx + 1);
+                fd.append(`answers[${index}][question_id]`, questionId);
+                fd.append(`answers[${index}][type]`, type);
+                fd.append(`answers[${index}][value]`, String(value));
+            });
+        }
+
         Object.entries(descriptiveAnswers).forEach(([qId, answer], index) => {
             if (String(answer).trim()) {
                 fd.append(`descriptive_answers[${index}][question_id]`, qId);
@@ -201,15 +251,12 @@ export default function EditSurvey({
             }
         });
 
-        // Method spoofing for PUT
         fd.append('_method', 'PUT');
 
         return fd;
     };
 
-    // ── Submit ──
     const submitUpdate = (photo: File | null) => {
-        // Frontend guard: GPS must be available
         if (!gpsLocation.latitude || !gpsLocation.longitude) {
             alert(
                 'Koordinat GPS belum tersedia. Pastikan izin lokasi diaktifkan.',
@@ -217,38 +264,56 @@ export default function EditSurvey({
             return;
         }
 
-        // Frontend guard: respondent name must not be empty
         if (!respondentData.name.trim()) {
             alert('Nama responden wajib diisi.');
             goToStep(1);
             return;
         }
 
-        // Frontend guard: all questions must be answered
-        const isIKM = submission.assessment_type.toUpperCase() === 'IKM';
-        const totalRequired = isIKM
-            ? questions.reduce(
-                  (acc, q) =>
-                      acc +
-                      (q.category === 'ikm-kepentingan' ||
-                      q.category === 'ikm-kinerja'
-                          ? 1
-                          : 2),
-                  0,
-              )
-            : questions.length;
-        if (Object.keys(answers).length < totalRequired) {
-            alert('Semua pertanyaan harus dijawab sebelum menyimpan.');
-            goToStep(2);
-            return;
+        if (isSroi) {
+            const requiredQuestions = getSroiAnswerableQuestions(projectSroiForm);
+
+            if (!respondentData.stakeholder_id) {
+                alert('Stakeholder wajib dipilih untuk survei SROI.');
+                goToStep(1);
+                return;
+            }
+
+            if (
+                requiredQuestions.length === 0 ||
+                requiredQuestions.some(
+                    (question) => !String(sroiAnswers[question.id] ?? '').trim(),
+                )
+            ) {
+                alert('Semua pertanyaan SROI harus dijawab sebelum menyimpan.');
+                goToStep(2);
+                return;
+            }
+        } else {
+            const isIKM = submission.assessment_type.toUpperCase() === 'IKM';
+            const totalRequired = isIKM
+                ? questions.reduce(
+                      (acc, q) =>
+                          acc +
+                          (q.category === 'ikm-kepentingan' ||
+                          q.category === 'ikm-kinerja'
+                              ? 1
+                              : 2),
+                      0,
+                  )
+                : questions.length;
+
+            if (Object.keys(answers).length < totalRequired) {
+                alert('Semua pertanyaan harus dijawab sebelum menyimpan.');
+                goToStep(2);
+                return;
+            }
         }
 
         setIsSubmitting(true);
-        const formData = buildFormData(photo);
-
         router.post(
             route('enumerator.survey.update', { submissionId: submission.id }),
-            formData as unknown as Record<string, string>,
+            buildFormData(photo) as unknown as Record<string, string>,
             {
                 onError: () => setIsSubmitting(false),
                 onFinish: () => setIsSubmitting(false),
@@ -256,15 +321,10 @@ export default function EditSurvey({
         );
     };
 
-    // ─────────────────────────────────────────────────────
-    // Render
-    // ─────────────────────────────────────────────────────
-
     return (
         <EnumeratorLayout activeNav="tugasku">
-            <Head title={`Edit Survei — ${project.name}`} />
+            <Head title={`Edit Survei - ${project.name}`} />
 
-            {/* Edit mode banner */}
             <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-800">
                 <MaterialIcon
                     name="edit_note"
@@ -272,12 +332,11 @@ export default function EditSurvey({
                 />
                 <span>
                     Anda sedang mengedit submission{' '}
-                    <strong>#{submission.id}</strong> —{' '}
+                    <strong>#{submission.id}</strong> -{' '}
                     {submission.assessment_type}
                 </span>
             </div>
 
-            {/* Step Indicator */}
             <div className="mb-6 flex items-center justify-center gap-0">
                 {steps.map((step, index) => (
                     <div key={step.id} className="flex items-center">
@@ -334,17 +393,20 @@ export default function EditSurvey({
                 ))}
             </div>
 
-            {/* Step 1: Respondent */}
             {currentStep === 1 && (
                 <RespondentForm
                     data={respondentData}
+                    isSroi={isSroi}
+                    stakeholderOptions={projectStakeholders.map((stakeholder) => ({
+                        value: String(stakeholder.id),
+                        label: stakeholder.name,
+                    }))}
                     onChange={setRespondentData}
                     onBack={handleBack}
                     onNext={() => goToStep(2)}
                 />
             )}
 
-            {/* Step 2: Questions */}
             {currentStep === 2 && (
                 <QuestionForm
                     questions={questions}
@@ -356,19 +418,25 @@ export default function EditSurvey({
                     descriptiveQuestions={descriptiveQuestions}
                     descriptiveAnswers={descriptiveAnswers}
                     onDescriptiveChange={setDescriptiveAnswers}
+                    projectSroiForm={projectSroiForm}
+                    sroiAnswers={sroiAnswers}
+                    onSroiChange={setSroiAnswers}
                     onBack={() => goToStep(1)}
                     onNext={() => goToStep(3)}
                     onClose={handleCloseQuestionnaire}
                 />
             )}
 
-            {/* Step 3: Review & Save */}
             {currentStep === 3 && (
                 <ReviewForm
                     mode="edit"
                     respondentData={respondentData}
                     answers={answers}
                     questions={questions}
+                    surveyType={submission.assessment_type}
+                    projectSroiForm={projectSroiForm}
+                    sroiAnswers={sroiAnswers}
+                    stakeholderName={stakeholderName}
                     gpsLocation={gpsLocation}
                     existingPhotoUrl={submission.photo_url}
                     onBack={() => goToStep(2)}

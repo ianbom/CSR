@@ -29,8 +29,8 @@ class DatabaseSeeder extends Seeder
             CitySeeder::class,
             DistrictSeeder::class,
             // VillageSeeder::class,
-            ProjectDataSeeder::class,
             SroiTemplateSeeder::class,
+            ProjectDataSeeder::class,
         ]);
     }
 }

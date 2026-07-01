@@ -6,6 +6,7 @@ import ProjectOverview from '@/Components/Company/ProjectOverview';
 import ProjectSLOI from '@/Components/Company/ProjectSLOI';
 import ProjectSLOIRespondent from '@/Components/Company/ProjectSLOIRespondent';
 import ProjectSROI from '@/Components/Company/ProjectSROI';
+import ProjectSROIRespondent from '@/Components/Company/ProjectSROIRespondent';
 import CompanyLayout from '@/Layouts/AppLayout';
 import { Head, router } from '@inertiajs/react';
 import { AlertTriangle, CheckCircle, PauseCircle, X } from 'lucide-react';
@@ -23,6 +24,18 @@ interface EnumeratorItem {
     id: number;
     name: string;
     email: string;
+}
+
+interface StakeholderOutcomeItem {
+    id: number;
+    stakeholderId: number;
+    outcome: string;
+}
+
+interface StakeholderItem {
+    id: number;
+    name: string;
+    outcomes: StakeholderOutcomeItem[];
 }
 
 interface ProjectData {
@@ -45,6 +58,7 @@ interface ProjectData {
         id: number;
         title: string;
     }[];
+    stakeholders: StakeholderItem[];
 }
 
 interface StatsData {
@@ -123,7 +137,7 @@ interface TrendDataItem {
 }
 
 interface RespondentsData {
-    questions: { code: string; question: string }[];
+    questions: { code?: string; id?: number; question: string; sectionId?: number; parentQuestionId?: number | null; isGroup?: boolean; answerType?: string | null; unit?: string | null; orderNo?: number }[];
     rows: {
         submissionId: number;
         submittedAt: string | null;
@@ -138,6 +152,7 @@ interface RespondentsData {
         respondent: {
             id: number;
             name: string;
+            stakeholder?: { id: number; name: string } | null;
             address: string | null;
             phone: string | null;
             age: number | null;
@@ -149,7 +164,7 @@ interface RespondentsData {
         } | null;
         answers: Record<
             string,
-            { kepentingan: number | null; kinerja: number | null }
+            { kepentingan: number | null; kinerja: number | null; value_number?: number | null; value_text?: string | null }
         >;
         timelines: {
             id: number;
@@ -340,6 +355,8 @@ function buildTabs(project: ProjectData) {
     }
     if (project.enableSroi)
         tabs.push({ key: 'sroi', label: 'SROI', icon: 'payments' });
+    if (project.enableSroi)
+        tabs.push({ key: 'sroi_respondent', label: 'SROI Respondent', icon: 'group' });
     return tabs;
 }
 
@@ -395,6 +412,7 @@ export default function DetailProject({
                         ikmStats={ikmStats}
                         sloiStats={sloiStats}
                         auditLog={auditLog}
+                        canEdit={canEdit}
                     />
                 );
             case 'enumerator':
@@ -437,7 +455,7 @@ export default function DetailProject({
             case 'ikm_respondent':
                 return (
                     <ProjectIKMRespondent
-                        respondents={respondents}
+                        respondents={respondents as any}
                         projectId={project.id}
                         filters={respondentFilters}
                         canEdit={canEdit}
@@ -446,7 +464,7 @@ export default function DetailProject({
             case 'sloi_respondent':
                 return (
                     <ProjectSLOIRespondent
-                        respondents={respondents}
+                        respondents={respondents as any}
                         projectId={project.id}
                         filters={respondentFilters}
                         canEdit={canEdit}
@@ -462,6 +480,14 @@ export default function DetailProject({
                         canEdit={canEdit}
                     />
                 );
+            case 'sroi_respondent':
+                return (
+                    <ProjectSROIRespondent
+                        respondents={respondents as any}
+                        projectId={project.id}
+                        filters={respondentFilters}
+                    />
+                );
             
             default:
                 return (
@@ -471,6 +497,7 @@ export default function DetailProject({
                         ikmStats={ikmStats}
                         sloiStats={sloiStats}
                         auditLog={auditLog}
+                        canEdit={canEdit}
                     />
                 );
         }
@@ -493,30 +520,6 @@ export default function DetailProject({
                             </span>
                         </div>
                         <p className="text-slate-500">{project.description}</p>
-                    </div>
-                    <div className="flex flex-col items-end gap-3">
-                        {/* Target Progress */}
-                        <div className="text-right">
-                            <p className="mb-1 text-xs font-bold uppercase tracking-widest text-slate-400">
-                                Target Completion
-                            </p>
-                            <div className="flex items-center gap-3">
-                                <div className="h-2.5 w-48 overflow-hidden rounded-full bg-slate-200">
-                                    <div
-                                        className="h-full rounded-full bg-primary shadow-[0_0_8px_rgba(22,162,73,0.3)]"
-                                        style={{ width: `${progress}%` }}
-                                    />
-                                </div>
-                                <span className="text-lg font-black text-primary">
-                                    {progress}%
-                                </span>
-                            </div>
-                            <p className="mt-1 text-[10px] text-slate-500">
-                                {stats.totalResponses.toLocaleString()} of{' '}
-                                {stats.targetResponses.toLocaleString()}{' '}
-                                respondents
-                            </p>
-                        </div>
                     </div>
                 </div>
 

@@ -8,8 +8,10 @@ use App\Models\ProjectDescriptiveQuestion;
 use App\Models\ProjectEnumeratorAssignment;
 use App\Models\ProjectLocation;
 use App\Models\ProjectSroiForm;
+use App\Models\ProjectStakeholder;
 use App\Models\Respondent;
 use App\Models\SroiTemplate;
+use App\Models\StakeholderOutcome;
 use App\Models\Submission;
 use App\Models\TemplateQuestion;
 use App\Models\User;
@@ -384,6 +386,7 @@ class ProjectService
             'ikmTemplate',
             'sloiTemplate',
             'descriptiveQuestions',
+            'stakeholders.outcomes',
         ])->findOrFail($projectId);
 
         $assessmentType = $this->resolveAssessmentType($detailType);
@@ -464,7 +467,7 @@ class ProjectService
         return match (strtolower($detailType)) {
             'ikm', 'ikm_respondent' => 'IKM',
             'sloi', 'sloi_respondent' => 'SLOI',
-            'sroi' => 'SROI',
+            'sroi', 'sroi_respondent' => 'SROI',
             default => null, // overview, enumerator = all types
         };
     }
@@ -598,6 +601,15 @@ class ProjectService
                 'id' => $q->id,
                 'title' => $q->title,
             ])->toArray(),
+            'stakeholders' => $project->stakeholders->map(fn (ProjectStakeholder $stakeholder) => [
+                'id' => $stakeholder->id,
+                'name' => $stakeholder->name,
+                'outcomes' => $stakeholder->outcomes->map(fn (StakeholderOutcome $outcome) => [
+                    'id' => $outcome->id,
+                    'stakeholderId' => $outcome->stakeholder_id,
+                    'outcome' => $outcome->outcome,
+                ])->values()->toArray(),
+            ])->values()->toArray(),
         ];
     }
 
@@ -1398,8 +1410,16 @@ class ProjectService
 
     protected function computeRespondents(int $projectId, ?string $assessmentType, ?int $templateId, array $params = []): array
     {
+        $project = Project::with('sroiForms.sections.questions')->findOrFail($projectId);
+
         $query = Submission::where('project_id', $projectId)
-            ->with(['respondent', 'enumerator', 'templateAnswers.question', 'timelines.decidedBy', 'descriptiveAnswers.projectDescriptiveQuestion']);
+            ->with(['respondent.stakeholder', 'enumerator', 'timelines.decidedBy', 'descriptiveAnswers.projectDescriptiveQuestion']);
+
+        if ($assessmentType === 'SROI') {
+            $query->with(['sroiAnswers.projectSroiQuestion']);
+        } else {
+            $query->with(['templateAnswers.question']);
+        }
 
         if ($assessmentType) {
             $query->where('assessment_type', $assessmentType);
@@ -1490,7 +1510,32 @@ class ProjectService
 
         // Get question headers if template exists
         $questions = [];
-        if ($templateId) {
+        if ($assessmentType === 'SROI') {
+            $activeForm = $project->sroiForms()
+                ->active()
+                ->with(['sections.questions' => fn ($q) => $q->active()->orderBy('order_no')->orderBy('id')])
+                ->latest('activated_at')
+                ->latest('id')
+                ->first();
+
+            if ($activeForm) {
+                $questions = $activeForm->sections
+                    ->flatMap(function ($section) {
+                        return $section->questions->map(fn ($q) => [
+                            'id' => $q->id,
+                            'question' => $q->question_text,
+                            'sectionId' => $q->section_id,
+                            'parentQuestionId' => $q->parent_question_id,
+                            'isGroup' => $q->is_group,
+                            'answerType' => $q->answer_type,
+                            'unit' => $q->unit,
+                            'orderNo' => $q->order_no,
+                        ]);
+                    })
+                    ->values()
+                    ->toArray();
+            }
+        } elseif ($templateId) {
             $questions = \App\Models\TemplateQuestion::where('template_id', $templateId)
                 ->orderBy('order_no')
                 ->get()
@@ -1502,8 +1547,9 @@ class ProjectService
                 ->toArray();
         }
 
-        $rows = $paginated->getCollection()->map(function ($sub) {
+        $rows = $paginated->getCollection()->map(function ($sub) use ($assessmentType) {
             $respondent = $sub->respondent;
+            $stakeholder = $respondent?->stakeholder;
 
             // Build answer map: question_code => { kepentingan, kinerja }
             $answers = [];
@@ -1514,29 +1560,45 @@ class ProjectService
             $kinScore = 0;
             $kinCount = 0;
 
-            foreach ($sub->templateAnswers as $answer) {
-                $code = $answer->question?->code ?? 'Q'.$answer->question_id;
-                $type = $answer->type ?? 'sloi';
+            if ($assessmentType === 'SROI') {
+                foreach ($sub->sroiAnswers as $answer) {
+                    $code = (string) $answer->project_sroi_question_id;
 
-                if (! isset($answers[$code])) {
-                    $answers[$code] = ['kepentingan' => null, 'kinerja' => null];
+                    $answers[$code] = [
+                        'value_number' => $answer->value_number !== null ? (float) $answer->value_number : null,
+                        'value_text' => $answer->value_text,
+                    ];
+
+                    if ($answer->value_number !== null) {
+                        $totalScore += (float) $answer->value_number;
+                        $answerCount++;
+                    }
                 }
+            } else {
+                foreach ($sub->templateAnswers as $answer) {
+                    $code = $answer->question?->code ?? 'Q'.$answer->question_id;
+                    $type = $answer->type ?? 'sloi';
 
-                if ($type === 'ikm-kepentingan') {
-                    $answers[$code]['kepentingan'] = $answer->value;
-                    $kepScore += $answer->value ?? 0;
-                    $kepCount++;
-                } elseif ($type === 'ikm-kinerja') {
-                    $answers[$code]['kinerja'] = $answer->value;
-                    $kinScore += $answer->value ?? 0;
-                    $kinCount++;
-                } else {
-                    $answers[$code]['kepentingan'] = $answer->value;
-                    $answers[$code]['kinerja'] = $answer->value;
+                    if (! isset($answers[$code])) {
+                        $answers[$code] = ['kepentingan' => null, 'kinerja' => null];
+                    }
+
+                    if ($type === 'ikm-kepentingan') {
+                        $answers[$code]['kepentingan'] = $answer->value;
+                        $kepScore += $answer->value ?? 0;
+                        $kepCount++;
+                    } elseif ($type === 'ikm-kinerja') {
+                        $answers[$code]['kinerja'] = $answer->value;
+                        $kinScore += $answer->value ?? 0;
+                        $kinCount++;
+                    } else {
+                        $answers[$code]['kepentingan'] = $answer->value;
+                        $answers[$code]['kinerja'] = $answer->value;
+                    }
+
+                    $totalScore += $answer->value ?? 0;
+                    $answerCount++;
                 }
-
-                $totalScore += $answer->value ?? 0;
-                $answerCount++;
             }
 
             return [
@@ -1553,6 +1615,10 @@ class ProjectService
                 'respondent' => $respondent ? [
                     'id' => $respondent->id,
                     'name' => $respondent->name,
+                    'stakeholder' => $stakeholder ? [
+                        'id' => $stakeholder->id,
+                        'name' => $stakeholder->name,
+                    ] : null,
                     'address' => $respondent->address,
                     'phone' => $respondent->phone,
                     'age' => $respondent->age,

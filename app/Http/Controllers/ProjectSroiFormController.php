@@ -13,6 +13,7 @@ use App\Models\ProjectSroiForm;
 use App\Models\ProjectSroiQuestion;
 use App\Models\ProjectSroiSection;
 use App\Models\SroiTemplate;
+use App\Models\Submission;
 use App\Services\ProjectSroiFormService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -66,6 +67,69 @@ class ProjectSroiFormController extends Controller
                     'orderNo' => $question->order_no,
                 ])->values()->toArray(),
             ])->values()->toArray(),
+        ]);
+    }
+
+    public function answers(Project $project, Submission $submission): Response
+    {
+        $this->authorizeCompanyProject($project);
+
+        abort_unless($submission->project_id === $project->id && $submission->assessment_type === 'SROI', 404);
+
+        $submission->load([
+            'respondent.stakeholder',
+            'enumerator',
+            'project.company',
+            'projectSroiForm.sourceTemplate',
+            'projectSroiForm.sections' => fn ($query) => $query->orderBy('order_no')->orderBy('id'),
+            'projectSroiForm.sections.questions' => fn ($query) => $query->active()->orderBy('order_no')->orderBy('id'),
+            'sroiAnswers.projectSroiQuestion',
+        ]);
+
+        $form = $submission->projectSroiForm;
+        abort_if($form === null, 404);
+
+        return Inertia::render('Project/SROIAnswerPage', [
+            'project' => [
+                'id' => $project->id,
+                'name' => $project->name,
+                'projectCode' => $project->project_code,
+                'companyName' => $project->company?->name,
+            ],
+            'form' => [
+                'id' => $form->id,
+                'name' => $form->name,
+                'description' => $form->description,
+                'version' => $form->version,
+                'status' => $form->status,
+                'sourceTemplateName' => $form->sourceTemplate?->name,
+            ],
+            'submission' => [
+                'id' => $submission->id,
+                'submittedAt' => $submission->submitted_at?->format('Y-m-d H:i'),
+                'respondentName' => $submission->respondent?->name,
+                'stakeholderName' => $submission->respondent?->stakeholder?->name,
+                'enumeratorName' => $submission->enumerator?->name,
+            ],
+            'sections' => $form->sections->map(fn (ProjectSroiSection $section) => [
+                'id' => $section->id,
+                'title' => $section->title,
+                'description' => $section->description,
+                'orderNo' => $section->order_no,
+                'questions' => $section->questions->map(fn (ProjectSroiQuestion $question) => [
+                    'id' => $question->id,
+                    'questionText' => $question->question_text,
+                    'helpText' => $question->help_text,
+                    'answerType' => $question->answer_type,
+                    'unit' => $question->unit,
+                    'isGroup' => $question->is_group,
+                    'parentQuestionId' => $question->parent_question_id,
+                    'orderNo' => $question->order_no,
+                ])->values()->toArray(),
+            ])->values()->toArray(),
+            'answers' => $submission->sroiAnswers->mapWithKeys(fn ($answer) => [
+                $answer->project_sroi_question_id => $answer->value_number ?? $answer->value_text,
+            ])->toArray(),
         ]);
     }
 

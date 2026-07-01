@@ -1,6 +1,6 @@
 import CompanyLayout from '@/Layouts/AppLayout';
 import { Head, router } from '@inertiajs/react';
-import { ArrowLeft, Building2, FileText, Hash } from 'lucide-react';
+import { ArrowLeft, Building2, CalendarDays, FileText, Hash, UserRound } from 'lucide-react';
 import { ReactNode } from 'react';
 import SROIFormTable, { SroiSectionView } from '@/Components/Company/SROI/SROIFormTable';
 
@@ -20,39 +20,44 @@ interface FormPreview {
     sourceTemplateName: string | null;
 }
 
+interface SubmissionPreview {
+    id: number;
+    submittedAt: string | null;
+    respondentName: string | null;
+    stakeholderName: string | null;
+    enumeratorName: string | null;
+}
+
 interface Props {
     project: ProjectPreview;
     form: FormPreview;
+    submission: SubmissionPreview;
     sections: SroiSectionView[];
+    answers: Record<number, string | number | null>;
 }
 
-export default function PreviewSROIForms({ project, form, sections }: Props): ReactNode {
-    const answerableCount = sections.reduce(
-        (total, section) => total + section.questions.filter((question) => !question.isGroup && question.answerType).length,
-        0,
-    );
-
-    const backToSroi = () => {
-        router.visit(route('projects.show', { id: project.id, detailType: 'sroi' }));
+export default function SROIAnswerPage({ project, form, submission, sections, answers }: Props): ReactNode {
+    const backToList = () => {
+        router.visit(route('projects.show', { id: project.id, detailType: 'sroi_respondent' }));
     };
 
     return (
-        <CompanyLayout breadcrumb={{ parent: 'Proyek', current: 'Preview SROI' }}>
-            <Head title={`Preview SROI - ${project.name}`} />
+        <CompanyLayout breadcrumb={{ parent: 'Proyek', current: 'Jawaban SROI' }}>
+            <Head title={`Jawaban SROI - ${project.name}`} />
 
             <div className="min-h-screen bg-slate-100 px-3 py-4 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-5xl space-y-4">
                     <div className="flex items-center justify-between gap-3">
                         <button
                             type="button"
-                            onClick={backToSroi}
+                            onClick={backToList}
                             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 transition hover:text-slate-950"
                         >
                             <ArrowLeft className="size-4" />
-                            Kembali ke Form SROI
+                            Kembali ke SROI Respondent
                         </button>
                         <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                            {form.status} / v{form.version}
+                            Submission #{submission.id}
                         </span>
                     </div>
 
@@ -66,13 +71,15 @@ export default function PreviewSROIForms({ project, form, sections }: Props): Re
                             <InfoCard label="Project" value={project.name} icon={<FileText className="size-4" />} />
                             <InfoCard label="Kode Project" value={project.projectCode} icon={<Hash className="size-4" />} />
                         </div>
-                        <div className="border-t border-slate-300 bg-slate-50 px-4 py-2 text-xs text-slate-600">
-                            {answerableCount} pertanyaan aktif
-                            {form.sourceTemplateName ? ` · Template: ${form.sourceTemplateName}` : ''}
+                        <div className="grid gap-0 border-t border-slate-300 md:grid-cols-2">
+                            <InfoCard label="Respondent" value={submission.respondentName || '-'} icon={<UserRound className="size-4" />} />
+                            <InfoCard label="Stakeholder" value={submission.stakeholderName || '-'} icon={<Building2 className="size-4" />} />
+                            <InfoCard label="Enumerator" value={submission.enumeratorName || '-'} icon={<UserRound className="size-4" />} />
+                            <InfoCard label="Tanggal" value={submission.submittedAt || '-'} icon={<CalendarDays className="size-4" />} />
                         </div>
                     </div>
 
-                    <SROIFormTable sections={sections} />
+                    <SROIFormTable sections={sections} answers={answers} />
                 </div>
             </div>
         </CompanyLayout>

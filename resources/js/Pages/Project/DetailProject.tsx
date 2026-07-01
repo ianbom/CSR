@@ -241,6 +241,59 @@ interface SloiAspectAnalysis {
     };
 }
 
+interface SroiTemplateOption {
+    id: number;
+    name: string;
+    version: number;
+    description: string | null;
+    sectionCount: number;
+    questionCount: number;
+}
+
+interface ProjectSroiQuestionData {
+    id: number;
+    sectionId: number;
+    parentQuestionId: number | null;
+    sourceTemplateQuestionId: number | null;
+    code: string | null;
+    questionText: string;
+    helpText: string | null;
+    answerType: 'text' | 'number' | null;
+    unit: string | null;
+    isRequired: boolean;
+    isGroup: boolean;
+    isCalculated: boolean;
+    isActive: boolean;
+    orderNo: number;
+}
+
+interface ProjectSroiSectionData {
+    id: number;
+    title: string;
+    description: string | null;
+    orderNo: number;
+    sourceTemplateSectionId: number | null;
+    questions: ProjectSroiQuestionData[];
+}
+
+interface ProjectSroiFormData {
+    id: number;
+    name: string;
+    description: string | null;
+    version: number;
+    status: string;
+    sourceTemplateName: string | null;
+    activatedAt: string | null;
+    sections: ProjectSroiSectionData[];
+}
+
+interface ProjectSroiFormOption {
+    id: number;
+    name: string;
+    version: number;
+    status: string;
+    sourceTemplateName: string | null;
+}
 interface Props {
     project: ProjectData;
     detailType: string;
@@ -256,6 +309,9 @@ interface Props {
     enumeratorList: EnumeratorListItem[];
     sloiReliability: SloiReliabilityData | null;
     sloiAspectAnalysis: SloiAspectAnalysis | null;
+    sroiTemplates: SroiTemplateOption[];
+    projectSroiForms: ProjectSroiFormOption[];
+    projectSroiForm: ProjectSroiFormData | null;
     respondentFilters: RespondentFilters;
     canEdit?: boolean;
 }
@@ -307,6 +363,9 @@ export default function DetailProject({
     enumeratorList,
     sloiReliability,
     sloiAspectAnalysis,
+    sroiTemplates,
+    projectSroiForms,
+    projectSroiForm,
     respondentFilters,
     canEdit = true,
 }: Props) {
@@ -397,7 +456,15 @@ export default function DetailProject({
                     />
                 );
             case 'sroi':
-                return <ProjectSROI />;
+                return (
+                    <ProjectSROI
+                        project={project}
+                        templates={sroiTemplates}
+                        forms={projectSroiForms}
+                        form={projectSroiForm}
+                        canEdit={canEdit}
+                    />
+                );
             
             default:
                 return (

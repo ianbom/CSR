@@ -51,12 +51,9 @@ class Company extends Model
         return $this->hasMany(Submission::class);
     }
 
-    /**
-     * Get the SROI questions for the company.
-     */
-    public function sroiQuestions(): HasMany
+    public function projectSroiForms(): HasMany
     {
-        return $this->hasMany(SroiQuestion::class);
+        return $this->hasMany(ProjectSroiForm::class);
     }
 
     /**

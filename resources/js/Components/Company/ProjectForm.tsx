@@ -328,8 +328,6 @@ export default function ProjectForm({
                             onChange={(checked) =>
                                 handleAssessmentTypeChange(type.id, checked)
                             }
-                            disabled={type.id === 'sroi'}
-                            comingSoon={type.id === 'sroi'}
                         />
                     ))}
                 </div>

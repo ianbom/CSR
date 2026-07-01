@@ -101,6 +101,9 @@ class ProjectController extends Controller
             'enumeratorList' => $data['enumeratorList'],
             'sloiReliability' => $data['sloiReliability'] ?? null,
             'sloiAspectAnalysis' => $data['sloiAspectAnalysis'] ?? null,
+            'sroiTemplates' => $data['sroiTemplates'] ?? [],
+            'projectSroiForms' => $data['projectSroiForms'] ?? [],
+            'projectSroiForm' => $data['projectSroiForm'] ?? null,
             'respondentFilters' => [
                 'enumerator' => $request->input('enumerator', ''),
                 'resp_status' => $request->input('resp_status', ''),

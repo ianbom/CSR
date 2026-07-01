@@ -19,6 +19,7 @@ class Submission extends Model
         'assessment_type',
         'respondent_id',
         'enumerator_id',
+        'project_sroi_form_id',
         'status',
         'photo_path',
         'photo_mime',
@@ -69,6 +70,14 @@ class Submission extends Model
     public function enumerator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'enumerator_id');
+    }
+
+    /**
+     * Get the SROI form used by this submission.
+     */
+    public function projectSroiForm(): BelongsTo
+    {
+        return $this->belongsTo(ProjectSroiForm::class, 'project_sroi_form_id');
     }
 
     /**

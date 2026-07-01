@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
@@ -117,12 +118,19 @@ class Project extends Model
         return $this->hasMany(Respondent::class);
     }
 
-    /**
-     * Get the SROI questions for the project.
-     */
-    public function sroiQuestions(): HasMany
+    public function stakeholders(): HasMany
     {
-        return $this->hasMany(SroiQuestion::class);
+        return $this->hasMany(ProjectStakeholder::class);
+    }
+
+    public function sroiForms(): HasMany
+    {
+        return $this->hasMany(ProjectSroiForm::class);
+    }
+
+    public function activeSroiForm(): HasOne
+    {
+        return $this->hasOne(ProjectSroiForm::class)->where('status', 'active')->latestOfMany();
     }
 
     /**

@@ -10,6 +10,7 @@ use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\InstrumentTemplateController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectSroiFormController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
@@ -65,6 +66,15 @@ Route::middleware('auth')->group(function () {
     Route::patch('/projects/{id}/status', [ProjectController::class, 'updateStatus'])->name('projects.update-status');
     Route::patch('/submissions/bulk-status', [SubmissionController::class, 'bulkUpdateStatus'])->name('submissions.bulk-status');
     Route::get('/projects/{id}/export-respondents', [ExcelController::class, 'exportRespondents'])->name('projects.export-respondents');
+    Route::get('/projects/{project}/sroi/forms/{form}/preview', [ProjectSroiFormController::class, 'preview'])->name('projects.sroi.forms.preview');
+    Route::post('/projects/{project}/sroi/forms', [ProjectSroiFormController::class, 'store'])->name('projects.sroi.forms.store');
+    Route::patch('/projects/{project}/sroi/forms/{form}', [ProjectSroiFormController::class, 'update'])->name('projects.sroi.forms.update');
+    Route::post('/projects/{project}/sroi/forms/{form}/sections', [ProjectSroiFormController::class, 'storeSection'])->name('projects.sroi.sections.store');
+    Route::patch('/projects/{project}/sroi/forms/{form}/sections/{section}', [ProjectSroiFormController::class, 'updateSection'])->name('projects.sroi.sections.update');
+    Route::delete('/projects/{project}/sroi/forms/{form}/sections/{section}', [ProjectSroiFormController::class, 'destroySection'])->name('projects.sroi.sections.destroy');
+    Route::post('/projects/{project}/sroi/forms/{form}/questions', [ProjectSroiFormController::class, 'storeQuestion'])->name('projects.sroi.questions.store');
+    Route::patch('/projects/{project}/sroi/forms/{form}/questions/{question}', [ProjectSroiFormController::class, 'updateQuestion'])->name('projects.sroi.questions.update');
+    Route::delete('/projects/{project}/sroi/forms/{form}/questions/{question}', [ProjectSroiFormController::class, 'destroyQuestion'])->name('projects.sroi.questions.destroy');
     Route::get('/projects/{id}', [ProjectController::class, 'detailProject'])->name('projects.show');
     // Enumerators
     Route::get('/enumerators', [EnumeratorController::class, 'index'])->name('enumerators.index');

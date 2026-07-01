@@ -7,12 +7,15 @@ use App\Models\Project;
 use App\Models\ProjectDescriptiveQuestion;
 use App\Models\ProjectEnumeratorAssignment;
 use App\Models\ProjectLocation;
+use App\Models\ProjectSroiForm;
 use App\Models\Respondent;
+use App\Models\SroiTemplate;
 use App\Models\Submission;
 use App\Models\TemplateQuestion;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -450,6 +453,9 @@ class ProjectService
             'enumeratorList' => $this->computeEnumeratorList($project),
             'sloiReliability' => $sloiReliability,
             'sloiAspectAnalysis' => $sloiAspectAnalysis,
+            'sroiTemplates' => $this->getSroiTemplateOptions(),
+            'projectSroiForms' => $this->getProjectSroiFormOptions($project),
+            'projectSroiForm' => $this->getProjectSroiFormDetail($project),
         ];
     }
 
@@ -461,6 +467,96 @@ class ProjectService
             'sroi' => 'SROI',
             default => null, // overview, enumerator = all types
         };
+    }
+
+    protected function getSroiTemplateOptions(): array
+    {
+        return SroiTemplate::query()
+            ->active()
+            ->withCount(['sections', 'questions'])
+            ->orderBy('name')
+            ->orderByDesc('version')
+            ->get()
+            ->map(fn (SroiTemplate $template) => [
+                'id' => $template->id,
+                'name' => $template->name,
+                'version' => $template->version,
+                'description' => $template->description,
+                'sectionCount' => $template->sections_count,
+                'questionCount' => $template->questions_count,
+            ])
+            ->values()
+            ->toArray();
+    }
+
+    protected function getProjectSroiFormOptions(Project $project): array
+    {
+        return ProjectSroiForm::query()
+            ->where('project_id', $project->id)
+            ->with('sourceTemplate')
+            ->orderByRaw("case status when 'active' then 0 when 'draft' then 1 else 2 end")
+            ->orderByDesc('version')
+            ->get()
+            ->map(fn (ProjectSroiForm $form) => [
+                'id' => $form->id,
+                'name' => $form->name,
+                'version' => $form->version,
+                'status' => $form->status,
+                'sourceTemplateName' => $form->sourceTemplate?->name,
+            ])
+            ->values()
+            ->toArray();
+    }
+
+    protected function getProjectSroiFormDetail(Project $project): ?array
+    {
+        $form = ProjectSroiForm::query()
+            ->where('project_id', $project->id)
+            ->with([
+                'sourceTemplate',
+                'sections' => fn ($query) => $query->orderBy('order_no')->orderBy('id'),
+                'sections.questions' => fn ($query) => $query->orderBy('order_no')->orderBy('id'),
+            ])
+            ->orderByRaw("case status when 'active' then 0 when 'draft' then 1 else 2 end")
+            ->orderByDesc('version')
+            ->first();
+
+        if ($form === null) {
+            return null;
+        }
+
+        return [
+            'id' => $form->id,
+            'name' => $form->name,
+            'description' => $form->description,
+            'version' => $form->version,
+            'status' => $form->status,
+            'sourceTemplateName' => $form->sourceTemplate?->name,
+            'activatedAt' => $form->activated_at?->format('Y-m-d H:i'),
+            'sections' => $form->sections->map(fn ($section) => [
+                'id' => $section->id,
+                'title' => $section->title,
+                'description' => $section->description,
+                'orderNo' => $section->order_no,
+                'sourceTemplateSectionId' => $section->source_template_section_id,
+                'questions' => $section->questions->map(fn ($question) => [
+                    'id' => $question->id,
+                    'sectionId' => $question->section_id,
+                    'parentQuestionId' => $question->parent_question_id,
+                    'sourceTemplateQuestionId' => $question->source_template_question_id,
+                    'code' => $question->code,
+                    'questionText' => $question->question_text,
+                    'helpText' => $question->help_text,
+                    'answerType' => $question->answer_type,
+                    'unit' => $question->unit,
+                    'isRequired' => $question->is_required,
+                    'isGroup' => $question->is_group,
+                    'isCalculated' => $question->is_calculated,
+                    'isActive' => $question->is_active,
+                    'orderNo' => $question->order_no,
+                ])->values()->toArray(),
+            ])->values()->toArray(),
+        ];
     }
 
     protected function formatProjectDetail(Project $project): array
@@ -1276,11 +1372,14 @@ class ProjectService
             $query->where('submissions.status', 'approved');
         }
 
+        $monthExpression = DB::connection()->getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m', submissions.submitted_at)"
+            : "DATE_FORMAT(submissions.submitted_at, '%Y-%m')";
+
         $monthly = $query
-            ->selectRaw("DATE_FORMAT(submissions.submitted_at, '%Y-%m') as month_key")
-            ->selectRaw("DATE_FORMAT(submissions.submitted_at, '%b') as month")
+            ->selectRaw($monthExpression.' as month_key')
             ->selectRaw('ROUND(AVG(submission_template_answers.value), 2) as score')
-            ->groupBy('month_key', 'month')
+            ->groupBy('month_key')
             ->orderBy('month_key')
             ->limit(6)
             ->get();
@@ -1293,7 +1392,7 @@ class ProjectService
 
         return $monthly->map(function ($row) use ($maxScore) {
             return [
-                'month' => strtoupper($row->month),
+                'month' => strtoupper(Carbon::createFromFormat('Y-m', $row->month_key)->format('M')),
                 'score' => (float) $row->score,
                 'height' => round(($row->score / $maxScore) * 100),
             ];

@@ -57,12 +57,10 @@ class ProjectSroiFormController extends Controller
                 'orderNo' => $section->order_no,
                 'questions' => $section->questions->map(fn (ProjectSroiQuestion $question) => [
                     'id' => $question->id,
-                    'code' => $question->code,
                     'questionText' => $question->question_text,
                     'helpText' => $question->help_text,
                     'answerType' => $question->answer_type,
                     'unit' => $question->unit,
-                    'isRequired' => $question->is_required,
                     'isGroup' => $question->is_group,
                     'parentQuestionId' => $question->parent_question_id,
                     'orderNo' => $question->order_no,
@@ -200,7 +198,6 @@ class ProjectSroiFormController extends Controller
 
         if (($data['is_group'] ?? false) === true) {
             $data['answer_type'] = null;
-            $data['is_required'] = false;
         }
 
         return $data;

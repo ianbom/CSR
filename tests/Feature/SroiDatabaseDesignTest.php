@@ -33,7 +33,13 @@ it('creates the SROI template and project form schema from dbml', function () {
         ->and(Schema::hasColumn('submission_sroi_answers', 'project_sroi_question_id'))->toBeTrue()
         ->and(Schema::hasColumn('respondents', 'stakeholder_id'))->toBeTrue()
         ->and(Schema::hasColumn('submission_sroi_answers', 'sroi_question_id'))->toBeFalse()
-        ->and(Schema::hasTable('sroi_questions'))->toBeFalse();
+        ->and(Schema::hasTable('sroi_questions'))->toBeFalse()
+        ->and(Schema::hasColumn('sroi_template_questions', 'code'))->toBeFalse()
+        ->and(Schema::hasColumn('sroi_template_questions', 'is_required'))->toBeFalse()
+        ->and(Schema::hasColumn('sroi_template_questions', 'is_calculated'))->toBeFalse()
+        ->and(Schema::hasColumn('project_sroi_questions', 'code'))->toBeFalse()
+        ->and(Schema::hasColumn('project_sroi_questions', 'is_required'))->toBeFalse()
+        ->and(Schema::hasColumn('project_sroi_questions', 'is_calculated'))->toBeFalse();
 });
 
 it('persists SROI template, project form, question, and answer relationships', function () {

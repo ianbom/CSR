@@ -15,23 +15,18 @@ class SroiTemplateQuestion extends Model
         'template_id',
         'section_id',
         'parent_question_id',
-        'code',
         'question_text',
         'help_text',
         'answer_type',
         'unit',
-        'is_required',
         'is_group',
-        'is_calculated',
         'order_no',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_required' => 'boolean',
             'is_group' => 'boolean',
-            'is_calculated' => 'boolean',
         ];
     }
 

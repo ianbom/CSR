@@ -44,7 +44,6 @@ function createSroiProjectFixture(bool $templateActive = true): array
     $group = SroiTemplateQuestion::create([
         'template_id' => $template->id,
         'section_id' => $section->id,
-        'code' => 'G1',
         'question_text' => 'Peningkatan Pendapatan',
         'answer_type' => null,
         'is_group' => true,
@@ -55,11 +54,9 @@ function createSroiProjectFixture(bool $templateActive = true): array
         'template_id' => $template->id,
         'section_id' => $section->id,
         'parent_question_id' => $group->id,
-        'code' => 'Q1',
         'question_text' => 'Pendapatan setelah program',
         'answer_type' => 'number',
         'unit' => 'rupiah_per_bulan',
-        'is_required' => true,
         'order_no' => 2,
     ]);
 
@@ -150,7 +147,7 @@ it('updates project SROI sections and questions', function () {
 
     $form = ProjectSroiForm::firstOrFail();
     $section = $form->sections()->firstOrFail();
-    $question = $form->questions()->where('code', 'Q1')->firstOrFail();
+    $question = $form->questions()->where('question_text', 'Pendapatan setelah program')->firstOrFail();
 
     $this->actingAs($fixture['user'])->patch(route('projects.sroi.sections.update', [$fixture['project'], $form, $section]), [
         'title' => 'Outcome Custom',
@@ -161,7 +158,6 @@ it('updates project SROI sections and questions', function () {
         'section_id' => $section->id,
         'question_text' => 'Pertanyaan custom',
         'answer_type' => 'text',
-        'is_required' => false,
         'is_active' => false,
     ])->assertRedirect();
 

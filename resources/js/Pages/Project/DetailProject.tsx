@@ -97,7 +97,7 @@ interface QuestionScoreItem {
     performance: number;
 }
 
-interface AllQuestionItem {
+interface ProjectAllQuestionItem {
     id: string;
     code: string;
     category: string;
@@ -196,7 +196,7 @@ interface EnumeratorListItem {
     lastSubmittedAt: string | null;
 }
 
-interface SloiReliabilityItem {
+interface ProjectSloiReliabilityItem {
     code: string;
     question: string;
     raw_question: string;
@@ -206,10 +206,10 @@ interface SloiReliabilityItem {
     validityLabel: string;
 }
 
-interface SloiReliabilityData {
+interface ProjectSloiReliabilityData {
     n: number;
     k: number;
-    items: SloiReliabilityItem[];
+    items: ProjectSloiReliabilityItem[];
     alpha: number;
     alphaStatus: string;
     insufficientData: boolean;
@@ -255,14 +255,11 @@ interface ProjectSroiQuestionData {
     sectionId: number;
     parentQuestionId: number | null;
     sourceTemplateQuestionId: number | null;
-    code: string | null;
     questionText: string;
     helpText: string | null;
     answerType: 'text' | 'number' | null;
     unit: string | null;
-    isRequired: boolean;
     isGroup: boolean;
-    isCalculated: boolean;
     isActive: boolean;
     orderNo: number;
 }
@@ -302,12 +299,12 @@ interface Props {
     sloiStats: StatsData | null;
     demographics: DemographicsData;
     questionScores: QuestionScoreItem[];
-    allQuestions: AllQuestionItem[];
+    allQuestions: ProjectAllQuestionItem[];
     auditLog: AuditLogItem[];
     trendData: TrendDataItem[];
     respondents: RespondentsData;
     enumeratorList: EnumeratorListItem[];
-    sloiReliability: SloiReliabilityData | null;
+    sloiReliability: ProjectSloiReliabilityData | null;
     sloiAspectAnalysis: SloiAspectAnalysis | null;
     sroiTemplates: SroiTemplateOption[];
     projectSroiForms: ProjectSroiFormOption[];

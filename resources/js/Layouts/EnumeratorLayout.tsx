@@ -26,6 +26,12 @@ export default function EnumeratorLayout({
             active: activeNav === 'dashboard',
         },
         {
+            label: 'SROI',
+            icon: 'analytics',
+            href: route('enumerator.sroi.index'),
+            active: activeNav === 'sroi',
+        },
+        {
             label: 'Riwayat',
             icon: 'history',
             href: route('enumerator.survey.history'),
